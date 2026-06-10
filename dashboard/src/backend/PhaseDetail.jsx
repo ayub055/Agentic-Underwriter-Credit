@@ -27,7 +27,9 @@ export default function PhaseDetail({ phase, status }) {
   const hasData = phase.parallel || phase.data.length > 0;
   const warnings = phase.warnings ?? [];
 
-  const defaultTab = phase.kind === "subprocess" ? "agents" : hasData ? "data" : "agents";
+  // The parallel phase's BranchCards carry the streaming agent narratives —
+  // the demo's proof moment — so "Analysers" leads there too.
+  const defaultTab = hasData ? "data" : "agents";
   const [tab, setTab] = useState(defaultTab);
   useEffect(() => setTab(defaultTab), [phase.id]); // eslint-disable-line react-hooks/exhaustive-deps
 

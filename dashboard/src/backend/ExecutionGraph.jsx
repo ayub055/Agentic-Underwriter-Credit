@@ -171,7 +171,7 @@ function Node({ node, status, selected, onSelect }) {
 export default function ExecutionGraph({ statuses, selected, onSelect, footer }) {
   return (
     <div className="rounded-2xl border border-slate-200 bg-white p-2 shadow-sm">
-      <div className="overflow-x-auto">
+      <div className="overflow-x-auto py-3">
         {/* Coordinates live in a 1000×252 space; the wrapper scales it to fill
             the card (and the presentation wall) while keeping the aspect ratio. */}
         <div className="relative mx-auto w-full min-w-[860px]" style={{ aspectRatio: `${W} / ${H}` }}>
