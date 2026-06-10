@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Maximize2, Minimize2 } from "lucide-react";
 import { PHASES, META, VIZ, buildTimeline } from "./phaseModel.js";
 import VerdictCard from "./VerdictCard.jsx";
+import ScalePanel from "./ScalePanel.jsx";
 import JourneySpine from "../components/JourneySpine.jsx";
 
 // Backend phase index → shared journey-spine stage (finalize+notify share "outcome").
@@ -182,6 +183,7 @@ export default function BackendJourney({ onSeeCustomer }) {
           <ResultsStrip meta={META} progress={timeline.length ? cursor / timeline.length : 0} complete={complete} />
 
           {complete && <VerdictCard onSeeCustomer={onSeeCustomer} />}
+          {complete && <ScalePanel />}
 
           <div className="grid grid-cols-1 gap-5 lg:grid-cols-5">
             <section className="lg:col-span-3">

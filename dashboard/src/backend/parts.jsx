@@ -1,5 +1,6 @@
-import { Check, Loader2, Cpu, FileOutput } from "lucide-react";
+import { Check, Loader2, Cpu, ExternalLink, Sparkles } from "lucide-react";
 import { dataTone, provPill } from "../lib/tones.js";
+import { useTypewriter } from "../lib/motion.js";
 
 export function StatusPill({ status }) {
   if (status === "done")
@@ -50,7 +51,47 @@ export function DataLine({ d }) {
   );
 }
 
-export function BranchCard({ branch }) {
+// Verbatim model prose streaming in while the agent runs is the moment that
+// proves "real AI agents" — so the narrative panel typewriters during playback
+// and links to the actual generated artifact.
+function AgentNarrative({ narrative, running }) {
+  const { text } = useTypewriter(narrative.excerpt, { speed: 18, chunk: 3, enabled: running });
+  const shown = running ? text : narrative.excerpt;
+
+  return (
+    <div className="mt-3 rounded-lg border border-agent-200/70 bg-agent-50/60 p-3">
+      <div className="mb-1.5 flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wide text-agent-700">
+        <Sparkles className="h-3 w-3" /> Agent narrative
+        <span className="ml-auto font-medium normal-case tracking-normal text-agent-600/80">
+          verbatim · {narrative.model} · {narrative.elapsed}
+        </span>
+      </div>
+      <p className="text-[11.5px] leading-relaxed text-slate-700">
+        {shown}
+        {running && <span className="ml-0.5 inline-block h-3 w-1.5 bg-agent-500 motion-safe:animate-pulse" />}
+      </p>
+      <ul className="mt-2 space-y-0.5">
+        {narrative.findings.map((f) => (
+          <li key={f} className="flex items-start gap-1.5 text-[11px] text-slate-600">
+            <span className="mt-1.5 h-1 w-1 flex-shrink-0 rounded-full bg-agent-400" /> {f}
+          </li>
+        ))}
+      </ul>
+      {narrative.artifact && (
+        <a
+          href={`${import.meta.env.BASE_URL}${narrative.artifact}`}
+          target="_blank"
+          rel="noreferrer"
+          className="mt-2 inline-flex items-center gap-1 text-[11px] font-medium text-agent-700 underline-offset-2 hover:underline"
+        >
+          Open the agent's full report <ExternalLink className="h-3 w-3" />
+        </a>
+      )}
+    </div>
+  );
+}
+
+export function BranchCard({ branch, running = false }) {
   const ok = branch.status === "ok";
   return (
     <div className="rounded-xl border border-slate-200 bg-slate-50/50 p-4">
@@ -61,7 +102,7 @@ export function BranchCard({ branch }) {
           </span>
           <span className="text-sm font-semibold text-ink">{branch.title}</span>
         </div>
-        <StatusPill status={ok ? "done" : "running"} />
+        <StatusPill status={ok && !running ? "done" : "running"} />
       </div>
       <ModelTags tags={branch.modelTags} />
       <div className="mt-3 space-y-1">
@@ -69,11 +110,7 @@ export function BranchCard({ branch }) {
           <DataLine key={d.key} d={d} />
         ))}
       </div>
-      {branch.report && (
-        <div className="mt-3 flex items-center gap-1.5 text-[11px] text-slate-400">
-          <FileOutput className="h-3 w-3" /> {branch.report}
-        </div>
-      )}
+      {branch.narrative && <AgentNarrative narrative={branch.narrative} running={running} />}
     </div>
   );
 }

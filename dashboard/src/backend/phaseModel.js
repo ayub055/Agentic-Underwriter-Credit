@@ -6,6 +6,7 @@
 import { formatINR, formatEMI, formatPct, emDash } from "../lib/format.js";
 import caseState from "../data/realRun/caseState.json";
 import trace from "../data/realRun/trace.json";
+import { AGENT_NARRATIVES } from "../data/realRun/agentNarratives.js";
 
 const cs = caseState;
 const prov = cs.finalize?.provenance_map ?? {};
@@ -119,8 +120,10 @@ export const PHASES = [
         report: r.report_path,
         agents: [
           { actor: "Orchestrator", action: "spawn subprocess", detail: "Bureau_Agent · isolated venv (import collision avoided)", tone: "info" },
+          ...AGENT_NARRATIVES.bureau.consoleLines.map((l) => ({ actor: "agent:bureau_analyzer", action: "▸", detail: l, tone: "agent" })),
           { actor: "agent:bureau_analyzer", action: "generate_combined_report_pdf", detail: "BureauReport + PDF · Ollama narrative", tone: "agent" },
         ],
+        narrative: AGENT_NARRATIVES.bureau,
         data: [
           line("cibil_score", num(rs.cibil_score), "ok", "summary.cibil_score"),
           line("npa_flag", bool(rs.npa_flag), "ok", "summary.npa_flag"),
@@ -138,8 +141,10 @@ export const PHASES = [
         report: b.report_path,
         agents: [
           { actor: "Orchestrator", action: "spawn subprocess", detail: "Banking_Agent · isolated venv", tone: "info" },
+          ...AGENT_NARRATIVES.banking.consoleLines.map((l) => ({ actor: "agent:banking_analyzer", action: "▸", detail: l, tone: "agent" })),
           { actor: "agent:banking_analyzer", action: "generate_bank_report", detail: "CustomerReport + HTML · Ollama narrative", tone: "agent" },
         ],
+        narrative: AGENT_NARRATIVES.banking,
         data: [
           line("salary_income_detected", `${formatINR(bs.salary_income_detected)} / mo`, "ok", "summary.salary_income_detected"),
           line("existing_emi_debits", `${formatINR(bs.existing_emi_debits)} / mo`, "caution", "summary.existing_emi_debits"),
