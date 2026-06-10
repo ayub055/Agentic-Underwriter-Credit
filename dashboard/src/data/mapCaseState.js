@@ -50,6 +50,17 @@ export function mapCaseStateToView(cs) {
       requestedAmount: cs.intake?.loan_amount_req ?? null,
       requestedTenure: cs.intake?.tenure_req ?? null,
     },
+    // Real analyser findings (null on synthetic fixtures) — lets the agent's
+    // narration quote what it actually found, not just what was declared.
+    summary: {
+      cibilScore: cs.summary?.cibil_score ?? null,
+      salaryDetected: cs.summary?.salary_income_detected ?? null,
+      existingEmiDebits: cs.summary?.existing_emi_debits ?? null,
+      totalExposure: cs.summary?.total_exposure ?? null,
+      bounceCount: cs.summary?.bounce_count ?? null,
+      enqCount: cs.summary?.enq_count ?? null,
+      npaFlag: cs.summary?.npa_flag ?? null,
+    },
     affordability: {
       foirProposed: d.foir_proposed ?? null,
       existingObligations,

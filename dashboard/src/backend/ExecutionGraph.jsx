@@ -1,8 +1,10 @@
 import {
   BadgeCheck,
   BarChart3,
+  BellRing,
   Check,
   Cpu,
+  FileText,
   GitMerge,
   Inbox,
   Calculator,
@@ -35,26 +37,30 @@ const INTAKE_SUBPHASES = [
 
 // phase: index into PHASES/statuses that drives this node's state.
 const NODES = [
-  { id: "intake", phase: 0, x: 64, y: 110, icon: Inbox, tag: "P1", label: "Intake", labelPos: "below", subPhases: INTAKE_SUBPHASES },
-  { id: "bureau", phase: 1, x: 250, y: 56, icon: BarChart3, tag: "2A", label: "Bureau Agent", sub: sec(VIZ.branches[0].elapsed), llm: true, labelPos: "above" },
-  { id: "banking", phase: 1, x: 250, y: 196, icon: Wallet, tag: "2B", label: "Banking Agent", sub: sec(VIZ.branches[1].elapsed), llm: true, labelPos: "below" },
-  { id: "gate", phase: 1, x: 425, y: 126, icon: GitMerge, tag: "Σ", label: "Fold · Gate", labelPos: "below", small: true },
-  { id: "ml", phase: 2, x: 565, y: 126, icon: Cpu, tag: "P3", label: "ML Scorecard", labelPos: "below" },
-  { id: "policy", phase: 3, x: 705, y: 126, icon: Scale, tag: "P4", label: "Policy L1–L6", labelPos: "below" },
-  { id: "decision", phase: 4, x: 840, y: 126, icon: Calculator, tag: "P5", label: "Decision", labelPos: "below" },
-  { id: "finalize", phase: 5, x: 952, y: 126, icon: Stamp, tag: "P6", label: "Finalize", labelPos: "below" },
+  { id: "form", phase: 0, x: 40, y: 110, icon: FileText, tag: "P0", label: "Application", labelPos: "below" },
+  { id: "intake", phase: 1, x: 148, y: 110, icon: Inbox, tag: "P1", label: "Intake", labelPos: "below", subPhases: INTAKE_SUBPHASES },
+  { id: "bureau", phase: 2, x: 308, y: 56, icon: BarChart3, tag: "2A", label: "Bureau Agent", sub: sec(VIZ.branches[0].elapsed), llm: true, labelPos: "above" },
+  { id: "banking", phase: 2, x: 308, y: 196, icon: Wallet, tag: "2B", label: "Banking Agent", sub: sec(VIZ.branches[1].elapsed), llm: true, labelPos: "below" },
+  { id: "gate", phase: 2, x: 462, y: 126, icon: GitMerge, tag: "Σ", label: "Fold · Gate", labelPos: "below", small: true },
+  { id: "ml", phase: 3, x: 584, y: 126, icon: Cpu, tag: "P3", label: "ML Scorecard", labelPos: "below" },
+  { id: "policy", phase: 4, x: 700, y: 126, icon: Scale, tag: "P4", label: "Policy L1–L6", labelPos: "below" },
+  { id: "decision", phase: 5, x: 806, y: 126, icon: Calculator, tag: "P5", label: "Decision", labelPos: "below" },
+  { id: "finalize", phase: 6, x: 894, y: 126, icon: Stamp, tag: "P6", label: "Finalize", labelPos: "below" },
+  { id: "notify", phase: 7, x: 966, y: 126, icon: BellRing, tag: "P7", label: "Notify", labelPos: "below", small: true },
 ];
 
 // Each edge lights up with the phase that pulls data across it.
 const EDGES = [
-  { id: "e-ib", phase: 1, d: "M 90 100 C 150 84, 168 56, 222 56" },
-  { id: "e-ik", phase: 1, d: "M 90 120 C 150 150, 168 196, 222 196" },
-  { id: "e-bg", phase: 1, d: "M 278 56 C 340 56, 360 104, 402 118" },
-  { id: "e-kg", phase: 1, d: "M 278 196 C 340 196, 360 148, 402 134" },
-  { id: "e-gm", phase: 2, d: "M 446 126 L 538 126" },
-  { id: "e-mp", phase: 3, d: "M 592 126 L 678 126" },
-  { id: "e-pd", phase: 4, d: "M 732 126 L 813 126" },
-  { id: "e-df", phase: 5, d: "M 867 126 L 926 126" },
+  { id: "e-fi", phase: 1, d: "M 66 110 L 122 110" },
+  { id: "e-ib", phase: 2, d: "M 174 100 C 230 84, 250 56, 280 56" },
+  { id: "e-ik", phase: 2, d: "M 174 120 C 230 150, 250 196, 280 196" },
+  { id: "e-bg", phase: 2, d: "M 336 56 C 395 56, 415 104, 440 118" },
+  { id: "e-kg", phase: 2, d: "M 336 196 C 395 196, 415 148, 440 134" },
+  { id: "e-gm", phase: 3, d: "M 483 126 L 557 126" },
+  { id: "e-mp", phase: 4, d: "M 611 126 L 673 126" },
+  { id: "e-pd", phase: 5, d: "M 727 126 L 779 126" },
+  { id: "e-df", phase: 6, d: "M 833 126 L 867 126" },
+  { id: "e-fn", phase: 7, d: "M 921 126 L 944 126" },
 ];
 
 const EDGE_STROKE = {
@@ -154,12 +160,13 @@ function Node({ node, status, selected, onSelect }) {
   );
 }
 
-export default function ExecutionGraph({ statuses, selected, onSelect }) {
+export default function ExecutionGraph({ statuses, selected, onSelect, footer }) {
   return (
-    <div className="overflow-x-auto rounded-2xl border border-slate-200 bg-white p-2 shadow-sm">
-      {/* Coordinates live in a 1000×252 space; the wrapper scales it to fill
-          the card (and the presentation wall) while keeping the aspect ratio. */}
-      <div className="relative mx-auto w-full min-w-[860px]" style={{ aspectRatio: `${W} / ${H}` }}>
+    <div className="rounded-2xl border border-slate-200 bg-white p-2 shadow-sm">
+      <div className="overflow-x-auto">
+        {/* Coordinates live in a 1000×252 space; the wrapper scales it to fill
+            the card (and the presentation wall) while keeping the aspect ratio. */}
+        <div className="relative mx-auto w-full min-w-[860px]" style={{ aspectRatio: `${W} / ${H}` }}>
         <svg viewBox={`0 0 ${W} ${H}`} className="absolute inset-0 h-full w-full" aria-hidden="true">
           {EDGES.map((e) => {
             const s = EDGE_STROKE[statuses[e.phase]] ?? EDGE_STROKE.waiting;
@@ -195,10 +202,12 @@ export default function ExecutionGraph({ statuses, selected, onSelect }) {
             onSelect={() => onSelect(n.phase)}
           />
         ))}
-        <span className="absolute left-[25%] top-[46.8%] -translate-x-1/2 rounded border border-caution-200 bg-caution-50 px-1.5 py-px text-[9px] font-bold tracking-widest text-caution-700">
+        <span className="absolute left-[30.8%] top-[46.8%] -translate-x-1/2 rounded border border-caution-200 bg-caution-50 px-1.5 py-px text-[9px] font-bold tracking-widest text-caution-700">
           ∥ PARALLEL
         </span>
+        </div>
       </div>
+      {footer && <div className="mt-1 border-t border-slate-100 px-2 pb-1 pt-2.5">{footer}</div>}
     </div>
   );
 }

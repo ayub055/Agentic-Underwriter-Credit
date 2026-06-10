@@ -1,7 +1,11 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Maximize2, Minimize2 } from "lucide-react";
-import { PHASES, META, buildTimeline } from "./phaseModel.js";
+import { PHASES, META, VIZ, buildTimeline } from "./phaseModel.js";
 import VerdictCard from "./VerdictCard.jsx";
+import JourneySpine from "../components/JourneySpine.jsx";
+
+// Backend phase index → shared journey-spine stage (finalize+notify share "outcome").
+const SPINE_BY_PHASE = [0, 1, 2, 3, 4, 5, 6, 6];
 import { usePlayback } from "./usePlayback.js";
 import JourneyControls from "./JourneyControls.jsx";
 import ExecutionGraph from "./ExecutionGraph.jsx";
@@ -144,19 +148,12 @@ export default function BackendJourney({ onSeeCustomer }) {
         </header>
 
         <div className="space-y-4">
-          <ResultsStrip meta={META} progress={timeline.length ? cursor / timeline.length : 0} complete={complete} />
-
-          <JourneyControls
-            playing={playing}
-            play={play}
-            pause={pause}
-            reset={reset}
-            skipEnd={skipEnd}
-            speed={speed}
-            setSpeed={setSpeed}
-            cursor={cursor}
-            length={timeline.length}
-            seek={seek}
+          <JourneySpine
+            current={SPINE_BY_PHASE[activePhase] ?? 0}
+            complete={complete}
+            outcomeTone={META.outcome === "APPROVED" ? "success" : "danger"}
+            times={VIZ.layer2Wall != null ? { analysers: `${VIZ.layer2Wall}s` } : {}}
+            className="rounded-2xl border border-slate-200 bg-white px-5 py-3 shadow-sm"
           />
 
           <ExecutionGraph
@@ -166,7 +163,23 @@ export default function BackendJourney({ onSeeCustomer }) {
               pause();
               setSelected(i);
             }}
+            footer={
+              <JourneyControls
+                playing={playing}
+                play={play}
+                pause={pause}
+                reset={reset}
+                skipEnd={skipEnd}
+                speed={speed}
+                setSpeed={setSpeed}
+                cursor={cursor}
+                length={timeline.length}
+                seek={seek}
+              />
+            }
           />
+
+          <ResultsStrip meta={META} progress={timeline.length ? cursor / timeline.length : 0} complete={complete} />
 
           {complete && <VerdictCard onSeeCustomer={onSeeCustomer} />}
 

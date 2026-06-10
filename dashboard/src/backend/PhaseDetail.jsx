@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { AlertTriangle, Boxes } from "lucide-react";
 import { StatusPill, ModelTags, DataLine, BranchCard } from "./parts.jsx";
 import { agentTone } from "../lib/tones.js";
@@ -17,9 +18,24 @@ function AgentRow({ a, index }) {
   );
 }
 
+// Viz stays pinned (it's the executive artifact); the tables sit behind tabs so
+// nothing needs scrolling mid-presentation. The LLM phase defaults to its
+// agent calls, native phases to their data contribution.
 export default function PhaseDetail({ phase, status }) {
   const branchAgents = (phase.branches ?? []).flatMap((br) => br.agents);
   const agents = [...branchAgents, ...phase.agents];
+  const hasData = phase.parallel || phase.data.length > 0;
+  const warnings = phase.warnings ?? [];
+
+  const defaultTab = phase.kind === "subprocess" ? "agents" : hasData ? "data" : "agents";
+  const [tab, setTab] = useState(defaultTab);
+  useEffect(() => setTab(defaultTab), [phase.id]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const tabs = [
+    hasData && { id: "data", label: phase.parallel ? "Analysers" : "Data" },
+    { id: "agents", label: `Agent calls (${agents.length})` },
+    warnings.length > 0 && { id: "warnings", label: `Warnings (${warnings.length})` },
+  ].filter(Boolean);
 
   return (
     <div key={phase.id} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6 animate-fade-up">
@@ -63,49 +79,67 @@ export default function PhaseDetail({ phase, status }) {
       <div className="mt-4 space-y-4">
         <ModelTags tags={phase.modelTags} />
 
-        {phase.parallel ? (
-          <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
-            {phase.branches.map((br) => (
-              <BranchCard key={br.id} branch={br} />
-            ))}
-          </div>
-        ) : (
-          phase.data.length > 0 && (
-            <div className="rounded-xl border border-slate-100 bg-slate-50/40 p-4">
-              <div className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-slate-400">
-                Case-dict contribution
-              </div>
-              <div className="space-y-1">
-                {phase.data.map((d) => (
-                  <DataLine key={d.key} d={d} />
-                ))}
-              </div>
-            </div>
-          )
-        )}
-
         <PhaseViz phaseId={phase.id} status={status} />
 
         <div>
-          <div className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-slate-400">
-            Agent calls
-          </div>
-          <div className="space-y-1.5">
-            {agents.map((a, i) => (
-              <AgentRow key={i} a={a} index={i} />
+          <div className="flex gap-1 rounded-lg border border-slate-200 bg-slate-50 p-1">
+            {tabs.map((t) => (
+              <button
+                key={t.id}
+                onClick={() => setTab(t.id)}
+                className={`rounded-md px-3 py-1 text-xs font-medium transition ${
+                  tab === t.id
+                    ? t.id === "warnings"
+                      ? "bg-caution-700 text-white"
+                      : "bg-primary-600 text-white"
+                    : "text-slate-500 hover:text-ink"
+                }`}
+              >
+                {t.label}
+              </button>
             ))}
+          </div>
+
+          <div className="mt-3">
+            {tab === "data" &&
+              (phase.parallel ? (
+                <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
+                  {phase.branches.map((br) => (
+                    <BranchCard key={br.id} branch={br} running={status === "running"} />
+                  ))}
+                </div>
+              ) : (
+                <div className="rounded-xl border border-slate-100 bg-slate-50/40 p-4">
+                  <div className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-slate-400">
+                    Case-dict contribution
+                  </div>
+                  <div className="space-y-1">
+                    {phase.data.map((d) => (
+                      <DataLine key={d.key} d={d} />
+                    ))}
+                  </div>
+                </div>
+              ))}
+
+            {tab === "agents" && (
+              <div className="space-y-1.5">
+                {agents.map((a, i) => (
+                  <AgentRow key={i} a={a} index={i} />
+                ))}
+              </div>
+            )}
+
+            {tab === "warnings" && (
+              <div className="space-y-1 rounded-lg bg-caution-50 p-3">
+                {warnings.map((w, i) => (
+                  <div key={i} className="flex items-start gap-1.5 text-[11px] text-caution-700">
+                    <AlertTriangle className="mt-px h-3 w-3 flex-shrink-0" /> {w}
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
-
-        {phase.warnings?.length > 0 && (
-          <div className="space-y-1 rounded-lg bg-caution-50 p-3">
-            {phase.warnings.map((w, i) => (
-              <div key={i} className="flex items-start gap-1.5 text-[11px] text-caution-700">
-                <AlertTriangle className="mt-px h-3 w-3 flex-shrink-0" /> {w}
-              </div>
-            ))}
-          </div>
-        )}
       </div>
     </div>
   );

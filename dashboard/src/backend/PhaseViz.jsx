@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Check, X } from "lucide-react";
 import { VIZ } from "./phaseModel.js";
-import { formatEMI } from "../lib/format.js";
+import { formatEMI, formatINR } from "../lib/format.js";
 
 // Per-phase data visualizations, all driven by the real run (VIZ).
 // Bars/needles animate in whenever the phase becomes visible.
@@ -23,6 +23,46 @@ function VizShell({ title, children }) {
       </div>
       {children}
     </div>
+  );
+}
+
+// ── Phase 0: the application as the customer submitted it ───────────────────
+function FormField({ label, value, wide }) {
+  return (
+    <div className={wide ? "col-span-2" : ""}>
+      <div className="text-[9px] font-semibold uppercase tracking-wide text-slate-400">{label}</div>
+      <div className="mt-0.5 rounded-md border border-slate-200 bg-white px-2 py-1.5 text-[12px] font-medium tabular-nums text-ink">
+        {value}
+      </div>
+    </div>
+  );
+}
+
+function ApplicationForm() {
+  const f = VIZ.form;
+  const addr = f.address;
+  return (
+    <VizShell title={`Personal-loan application — case ${f.caseId}`}>
+      <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-4 animate-fade-up">
+        <FormField label="Amount requested" value={formatINR(f.amount)} />
+        <FormField label="Tenure" value={`${f.tenure} months`} />
+        <FormField label="Declared income" value={`${formatINR(f.income)} / mo`} />
+        <FormField label="Employer" value={f.employer ?? "—"} />
+        <FormField
+          wide
+          label="Residential address"
+          value={`${addr.line ?? "—"}, ${addr.city ?? ""} ${addr.pincode ?? ""}`}
+        />
+        <FormField label="Ownership" value={addr.ownership ?? "—"} />
+        <FormField label="Years at address" value={addr.years_at_address ?? "—"} />
+      </div>
+      <p className="mt-3 flex items-center gap-1.5 text-[11px] text-slate-500">
+        <span className="flex h-4 w-4 items-center justify-center rounded-full bg-success-100 text-success-700">
+          <Check className="h-3 w-3" />
+        </span>
+        Consent captured — bureau pull and bank-statement analysis authorised by the customer.
+      </p>
+    </VizShell>
   );
 }
 
@@ -283,6 +323,7 @@ function StageGantt() {
 }
 
 const VIZ_BY_PHASE = {
+  form: ApplicationForm,
   intake: AddressGauge,
   layer2: ParallelBars,
   policy: PolicyWaterfall,

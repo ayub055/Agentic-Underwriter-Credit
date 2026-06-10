@@ -18,6 +18,11 @@ export function buildScript(view) {
   const amountTxt = requestedAmount != null ? formatINR(requestedAmount) : "your";
   const tenureTxt = requestedTenure != null ? ` over ${formatTenure(requestedTenure)}` : "";
   const addr = view.addressQuality;
+  const sum = view.summary ?? {};
+  // Quote what the analysers actually found when we have it (real run);
+  // fall back to the declared figure on synthetic fixtures.
+  const salary = sum.salaryDetected != null ? Math.round(sum.salaryDetected) : income;
+  const evidence = (pairs) => pairs.filter(([, v]) => v != null && v !== "");
 
   const moments = [
     {
@@ -39,36 +44,61 @@ export function buildScript(view) {
           ? `Address quality scored ${addr.score}/100 · ${addr.band}`
           : "Address verified against KYC",
       ],
+      evidence: evidence([
+        ["Address-quality score", addr?.score != null ? `${addr.score} / 100 · ${addr.band}` : null],
+        ["City", addr?.city],
+        ...(addr?.reasons ?? []).map((r) => ["Driver", r.label]),
+      ]),
     },
     {
       id: "finances",
       label: "Income & Banking",
       icon: Wallet,
       narration:
-        income != null
+        salary != null
           ? `Next, I read your recent bank statements — salary credits of about ${formatINR(
-              income
+              salary
             )} land like clockwork — and mapped every EMI you already pay.`
           : "Next, I read your recent bank statements and mapped every EMI you already pay.",
       facts: [
         "Bank statements analysed",
-        income != null
-          ? `Salary credits ≈ ${formatINR(income)}/mo detected`
+        salary != null
+          ? `Salary credits ≈ ${formatINR(salary)}/mo detected`
           : "Salary credits detected",
-        "Existing obligations mapped",
+        sum.existingEmiDebits != null
+          ? `Existing EMIs of ${formatINR(Math.round(sum.existingEmiDebits))}/mo mapped`
+          : "Existing obligations mapped",
       ],
+      evidence: evidence([
+        ["Salary credits detected", sum.salaryDetected != null ? `${formatINR(Math.round(sum.salaryDetected))} / mo` : null],
+        ["Income you declared", income != null ? `${formatINR(income)} / mo` : null],
+        ["Existing EMI debits", sum.existingEmiDebits != null ? `${formatINR(Math.round(sum.existingEmiDebits))} / mo` : null],
+        ["Bounced payments", sum.bounceCount],
+      ]),
     },
     {
       id: "bureau",
       label: "Credit History",
       icon: BarChart3,
       narration:
-        "With your consent, I pulled your bureau report and reviewed how you've handled credit so far.",
+        sum.cibilScore != null
+          ? `With your consent, I pulled your bureau report — a CIBIL of ${sum.cibilScore} shows you've handled credit well so far.`
+          : "With your consent, I pulled your bureau report and reviewed how you've handled credit so far.",
       facts: [
         "Bureau report pulled (no score impact)",
-        "Repayment track record reviewed",
-        "Total credit exposure computed",
+        sum.cibilScore != null
+          ? `CIBIL score ${sum.cibilScore} · clean repayment record`
+          : "Repayment track record reviewed",
+        sum.totalExposure != null
+          ? `Total exposure of ${formatINR(Math.round(sum.totalExposure))} computed`
+          : "Total credit exposure computed",
       ],
+      evidence: evidence([
+        ["CIBIL score", sum.cibilScore],
+        ["Total credit exposure", sum.totalExposure != null ? formatINR(Math.round(sum.totalExposure)) : null],
+        ["Recent enquiries", sum.enqCount],
+        ["NPA flag", sum.npaFlag == null ? null : sum.npaFlag ? "Yes" : "None"],
+      ]),
     },
     {
       id: "decision",
@@ -80,6 +110,21 @@ export function buildScript(view) {
         "Affordability stress-tested",
         view.status === "review" ? "Routed to a senior underwriter" : "Offer terms computed",
       ],
+      evidence: evidence([
+        [
+          "Affordability (FOIR)",
+          view.affordability?.foirProposed != null
+            ? `${Math.round(view.affordability.foirProposed * 100)}% of income vs 50% cap`
+            : null,
+        ],
+        ["Proposed EMI", view.offer?.emi != null ? `${formatINR(Math.round(view.offer.emi))} / mo` : null],
+        [
+          "Existing obligations",
+          view.affordability?.existingObligations != null && view.affordability.existingObligations > 0
+            ? `${formatINR(view.affordability.existingObligations)} / mo`
+            : null,
+        ],
+      ]),
     },
   ];
 

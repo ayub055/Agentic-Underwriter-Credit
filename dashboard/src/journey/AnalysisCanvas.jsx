@@ -1,4 +1,36 @@
-import { Check, FastForward } from "lucide-react";
+import { useState } from "react";
+import { Check, ChevronDown, FastForward, Search } from "lucide-react";
+
+// Optional depth-on-demand: the real numbers behind the friendly copy.
+// Customers keep the clean default; exploring execs tap it open.
+function EvidenceDrawer({ momentId, evidence }) {
+  const [open, setOpen] = useState(false);
+  if (!evidence?.length) return null;
+
+  return (
+    <div key={momentId} className="mt-4">
+      <button
+        onClick={() => setOpen((o) => !o)}
+        className="inline-flex items-center gap-1.5 rounded-lg border border-agent-200/70 bg-agent-50 px-2.5 py-1.5 text-xs font-medium text-agent-700 transition hover:bg-agent-100"
+        aria-expanded={open}
+      >
+        <Search className="h-3.5 w-3.5" strokeWidth={2} />
+        How I checked this
+        <ChevronDown className={`h-3.5 w-3.5 transition-transform ${open ? "rotate-180" : ""}`} />
+      </button>
+      {open && (
+        <dl className="mt-2 space-y-1.5 rounded-xl border border-agent-200/60 bg-agent-50/50 p-3 animate-fade-up">
+          {evidence.map(([label, value], i) => (
+            <div key={i} className="flex items-baseline justify-between gap-3 text-xs">
+              <dt className="text-slate-500">{label}</dt>
+              <dd className="text-right font-medium tabular-nums text-ink">{value}</dd>
+            </div>
+          ))}
+        </dl>
+      )}
+    </div>
+  );
+}
 
 function FactRow({ text }) {
   return (
@@ -55,6 +87,7 @@ export default function AnalysisCanvas({ moments, phase, moment, facts, onSkip }
               f < facts ? <FactRow key={fact} text={fact} /> : <SkeletonRow key={fact} />
             )}
           </ul>
+          {facts >= m.facts.length && <EvidenceDrawer momentId={m.id} evidence={m.evidence} />}
         </div>
       )}
 

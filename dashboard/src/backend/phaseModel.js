@@ -35,6 +35,30 @@ function line(key, value, tone, provKey) {
 
 export const PHASES = [
   {
+    id: "form",
+    phase: "Phase 0",
+    title: "Application received",
+    subtitle: "Customer form · consent · channel hand-off",
+    kind: "native",
+    modelTags: ["customer channel · mock"],
+    agents: [
+      { actor: "channel", action: "receive_application", detail: `${formatINR(ik.loan_amount_req)} · ${num(ik.tenure_req)} months · ${ik.address?.city ?? emDash}`, tone: "mock" },
+      { actor: "channel", action: "capture_consent", detail: "consent captured · bureau pull authorised", tone: "mock" },
+      { actor: "Orchestrator", action: "open_case", detail: `case ${cs.case_id} · customer ${cs.customer_id}`, tone: "info" },
+    ],
+    data: [
+      line("loan_amount_req", formatINR(ik.loan_amount_req), "caution", "intake.loan_amount_req"),
+      line("tenure_req", `${num(ik.tenure_req)} months`, "caution"),
+      line("declared_income", `${formatINR(ik.declared_income)} / mo`, "ok", "intake.declared_income"),
+      line("employer", `"${ik.employer ?? emDash}"`, "info"),
+      line("address", `${ik.address?.line ?? emDash}, ${ik.address?.city ?? emDash} ${ik.address?.pincode ?? ""}`, "info"),
+      line("consent_captured", bool(ik.consent_captured), "ok", "intake.consent_captured"),
+    ],
+    warnings: [],
+    patch: { intake: { loan_amount_req: ik.loan_amount_req, tenure_req: ik.tenure_req, declared_income: ik.declared_income } },
+  },
+
+  {
     id: "intake",
     phase: "Phase 1",
     title: "Intake",
@@ -66,9 +90,6 @@ export const PHASES = [
       { actor: "validator", action: "schema", detail: "intake ✓", tone: "ok" },
     ],
     data: [
-      line("loan_amount_req", formatINR(ik.loan_amount_req), "caution", "intake.loan_amount_req"),
-      line("tenure_req", `${num(ik.tenure_req)} months`, "caution"),
-      line("declared_income", `${formatINR(ik.declared_income)} / mo`, "ok", "intake.declared_income"),
       line("kyc_verified", bool(ik.kyc_verified), "ok", "intake.kyc_verified"),
       line("consent_captured", bool(ik.consent_captured), "ok", "intake.consent_captured"),
       line("address_score", `${num(addr.score)} / 100 · ${addr.band ?? emDash}`, addr.band === "LOW" ? "danger" : "ok", "address.score"),
@@ -239,6 +260,25 @@ export const PHASES = [
     warnings: [],
     patch: { outcome: cs.outcome, finalize: { decision: fin.decision, push_sent: fin.push_sent } },
   },
+
+  {
+    id: "notify",
+    phase: "Phase 7",
+    title: "Customer notified",
+    subtitle: "Push · decision delivered to the customer journey",
+    kind: "native",
+    modelTags: ["push channel · mock"],
+    agents: [
+      { actor: "tool:push_notification", action: "send", detail: `[mock-push] ${cs.case_id} → ${cs.outcome}`, tone: "mock" },
+      { actor: "channel", action: "deliver", detail: "customer opens the journey view · agent narrates the decision", tone: "info" },
+    ],
+    data: [
+      line("push_sent", bool(fin.push_sent), "ok"),
+      line("payload", `"${cs.case_id} → ${cs.outcome}"`, "info"),
+    ],
+    warnings: cs.warnings.filter((w) => w.startsWith("finalize")),
+    patch: { notified: fin.push_sent },
+  },
 ];
 
 const agentCount = PHASES.reduce(
@@ -249,7 +289,11 @@ const wallClockS = trace
   .filter((t) => t.kind === "stage")
   .reduce((s, t) => s + (t.elapsed_s || 0), 0);
 
+// Every case-dict field tagged with where its value came from (real run output).
+export const PROVENANCE = prov;
+
 export const META = {
+  phases: PHASES.length,
   caseId: cs.case_id,
   runId: cs.run_id,
   customerId: cs.customer_id,
@@ -264,6 +308,16 @@ const branchElapsed = (branch) =>
   (trace.find((t) => t.kind === "branch" && t.branch === branch) || {}).elapsed_s ?? null;
 
 export const VIZ = {
+  // The application as the customer submitted it (all from the captured intake).
+  form: {
+    caseId: cs.case_id,
+    amount: ik.loan_amount_req,
+    tenure: ik.tenure_req,
+    income: ik.declared_income,
+    employer: ik.employer,
+    address: ik.address ?? {},
+    consent: ik.consent_captured ?? false,
+  },
   branches: [
     { id: "bureau", tag: "2A", label: "Bureau Agent", elapsed: branchElapsed("bureau") },
     { id: "banking", tag: "2B", label: "Banking Agent", elapsed: branchElapsed("banking") },
