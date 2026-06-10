@@ -1,0 +1,11 @@
+{
+  "selected": true,
+  "serviceable": false,
+  "contactible": true,
+  "foir_proposed": 1.1868,
+  "offer_amount": 500000.0,
+  "offer_tenure": 12,
+  "offer_irr": 0.1349,
+  "offer_emi": 44773.66,
+  "processing_fee": 7500.0
+}

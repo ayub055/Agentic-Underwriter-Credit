@@ -1,0 +1,38 @@
+[
+  {
+    "layer": "L1_NPA",
+    "passed": true,
+    "reason_code": "NPA_ACTIVE",
+    "detail": "npa_flag=False"
+  },
+  {
+    "layer": "L2_DPD90_24M",
+    "passed": true,
+    "reason_code": "DPD90_24M",
+    "detail": "max_dpd_overall=None"
+  },
+  {
+    "layer": "L3_DPD60_18M",
+    "passed": true,
+    "reason_code": "DPD60_18M",
+    "detail": "max_dpd_overall=None"
+  },
+  {
+    "layer": "L4_NEGATIVE_FLAGS",
+    "passed": true,
+    "reason_code": "NEGATIVE_FLAGS",
+    "detail": "flags=None"
+  },
+  {
+    "layer": "L5_ENQUIRY_SPIKE",
+    "passed": true,
+    "reason_code": "ENQ_SPIKE",
+    "detail": "enq_count=0"
+  },
+  {
+    "layer": "L6_EXPOSURE",
+    "passed": true,
+    "reason_code": "EXPOSURE_HIGH",
+    "detail": "exposure/income=13.711316666666667"
+  }
+]

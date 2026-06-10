@@ -1,0 +1,100 @@
+[
+  {
+    "ts": 1780918761.052,
+    "kind": "stage",
+    "stage": "intake",
+    "status": "done",
+    "elapsed_s": 0.0,
+    "error": null
+  },
+  {
+    "ts": 1780918790.157,
+    "kind": "branch",
+    "branch": "banking",
+    "status": "ok",
+    "report_path": "reports/customer_698167220_report_v2.html",
+    "model_used": "ollama-local",
+    "elapsed_s": 28.765,
+    "error": null
+  },
+  {
+    "ts": 1780918790.157,
+    "kind": "branch",
+    "branch": "bureau",
+    "status": "ok",
+    "report_path": "reports/bureau_analyser_698167220_report.pdf",
+    "model_used": "ollama-local",
+    "elapsed_s": 17.404,
+    "error": null
+  },
+  {
+    "ts": 1780918790.158,
+    "kind": "fold",
+    "summary": {
+      "cibil_score": 785,
+      "bureau_risk_grade": null,
+      "max_dpd_overall": null,
+      "max_dpd_unsecured": null,
+      "npa_flag": false,
+      "enq_count": 0,
+      "total_exposure": 822679.0,
+      "bureau_persona": null,
+      "salary_income_detected": 51020.333333333336,
+      "existing_emi_debits": 26434.0,
+      "bounce_count": 0,
+      "affluence_band": "primary",
+      "cashflow_consistency": null,
+      "negative_flags": null,
+      "spend_category": "Finance"
+    },
+    "warnings": 6
+  },
+  {
+    "ts": 1780918790.158,
+    "kind": "stage",
+    "stage": "layer2",
+    "status": "done",
+    "elapsed_s": 29.106,
+    "error": null
+  },
+  {
+    "ts": 1780918790.158,
+    "kind": "stage",
+    "stage": "sufficiency",
+    "status": "done",
+    "elapsed_s": 0.0,
+    "error": null
+  },
+  {
+    "ts": 1780918790.158,
+    "kind": "stage",
+    "stage": "ml",
+    "status": "done",
+    "elapsed_s": 0.0,
+    "error": null
+  },
+  {
+    "ts": 1780918790.158,
+    "kind": "stage",
+    "stage": "policy",
+    "status": "done",
+    "elapsed_s": 0.0,
+    "error": null
+  },
+  {
+    "ts": 1780918790.158,
+    "kind": "stage",
+    "stage": "decision",
+    "status": "done",
+    "elapsed_s": 0.0,
+    "error": null
+  },
+  {
+    "ts": 1780918790.161,
+    "kind": "stage",
+    "stage": "finalize",
+    "status": "done",
+    "elapsed_s": 0.003,
+    "error": null
+  }
+]

@@ -1,0 +1,198 @@
+{
+  "customer_id": 698167220,
+  "case_id": "PL-2026-8bd9c6",
+  "run_id": "7a44f69b2c6d4951ae196f17673c6906",
+  "intake": {
+    "loan_amount_req": 500000.0,
+    "tenure_req": 12,
+    "declared_income": 60000.0,
+    "employer": "Mock Employer Pvt Ltd",
+    "kyc_verified": true,
+    "employment_verified": true,
+    "consent_captured": true,
+    "sal_gross": null,
+    "sal_net": null,
+    "address_verified": true,
+    "address_zone_score": null
+  },
+  "branches": {
+    "banking": {
+      "branch": "banking",
+      "status": "ok",
+      "summary": {
+        "salary_income_detected": 51020.333333333336,
+        "existing_emi_debits": 26434.0,
+        "cashflow_consistency": null,
+        "negative_flags": null,
+        "affluence_band": "primary",
+        "spend_category": "Finance",
+        "bounce_count": 0
+      },
+      "report_path": "reports/customer_698167220_report_v2.html",
+      "model_used": "ollama-local",
+      "error": null,
+      "elapsed_s": 28.765
+    },
+    "bureau": {
+      "branch": "bureau",
+      "status": "ok",
+      "summary": {
+        "cibil_score": 785,
+        "npa_flag": false,
+        "total_exposure": 822679.0,
+        "max_dpd_overall": null,
+        "max_dpd_unsecured": null,
+        "enq_count": 0,
+        "bureau_persona": null,
+        "bureau_risk_grade": null
+      },
+      "report_path": "reports/bureau_analyser_698167220_report.pdf",
+      "model_used": "ollama-local",
+      "error": null,
+      "elapsed_s": 17.404
+    }
+  },
+  "summary": {
+    "cibil_score": 785,
+    "bureau_risk_grade": null,
+    "max_dpd_overall": null,
+    "max_dpd_unsecured": null,
+    "npa_flag": false,
+    "enq_count": 0,
+    "total_exposure": 822679.0,
+    "bureau_persona": null,
+    "salary_income_detected": 51020.333333333336,
+    "existing_emi_debits": 26434.0,
+    "bounce_count": 0,
+    "affluence_band": "primary",
+    "cashflow_consistency": null,
+    "negative_flags": null,
+    "spend_category": "Finance"
+  },
+  "ml": {
+    "pd_score": 0.0928,
+    "pd_provenance": "placeholder",
+    "risk_band": 2,
+    "affluence_value": 60000.0,
+    "affluence_segment": "mass_affluent",
+    "income_used": 60000.0,
+    "income_source": "declared",
+    "foir_existing": 0.4406,
+    "policy_features": {}
+  },
+  "policy": {
+    "result": "APPROVED",
+    "approved_segment": "mass_affluent",
+    "decline_layer": null,
+    "review_reason": null,
+    "layers": [
+      {
+        "layer": "L1_NPA",
+        "passed": true,
+        "reason_code": "NPA_ACTIVE",
+        "detail": "npa_flag=False"
+      },
+      {
+        "layer": "L2_DPD90_24M",
+        "passed": true,
+        "reason_code": "DPD90_24M",
+        "detail": "max_dpd_overall=None"
+      },
+      {
+        "layer": "L3_DPD60_18M",
+        "passed": true,
+        "reason_code": "DPD60_18M",
+        "detail": "max_dpd_overall=None"
+      },
+      {
+        "layer": "L4_NEGATIVE_FLAGS",
+        "passed": true,
+        "reason_code": "NEGATIVE_FLAGS",
+        "detail": "flags=None"
+      },
+      {
+        "layer": "L5_ENQUIRY_SPIKE",
+        "passed": true,
+        "reason_code": "ENQ_SPIKE",
+        "detail": "enq_count=0"
+      },
+      {
+        "layer": "L6_EXPOSURE",
+        "passed": true,
+        "reason_code": "EXPOSURE_HIGH",
+        "detail": "exposure/income=13.711316666666667"
+      }
+    ],
+    "ai_assisted_flag": false
+  },
+  "decision": {
+    "selected": true,
+    "serviceable": false,
+    "contactible": true,
+    "foir_proposed": 1.1868,
+    "offer_amount": 500000.0,
+    "offer_tenure": 12,
+    "offer_irr": 0.1349,
+    "offer_emi": 44773.66,
+    "processing_fee": 7500.0
+  },
+  "finalize": {
+    "decision": "DECLINED",
+    "audit_pack_path": null,
+    "push_sent": false,
+    "model_versions": {
+      "banking_narrative": "ollama-local",
+      "bureau_narrative": "ollama-local",
+      "pd_model": "placeholder",
+      "pricing": "placeholder"
+    },
+    "provenance_map": {
+      "intake.kyc_verified": "mock",
+      "intake.employment_verified": "mock",
+      "intake.consent_captured": "mock",
+      "intake.address_verified": "mock",
+      "intake.declared_income": "mock",
+      "intake.loan_amount_req": "mock",
+      "summary.cibil_score": "real",
+      "summary.npa_flag": "real",
+      "summary.total_exposure": "real",
+      "summary.max_dpd_overall": "real",
+      "summary.enq_count": "real",
+      "summary.salary_income_detected": "real",
+      "summary.existing_emi_debits": "real",
+      "summary.affluence_band": "real",
+      "summary.max_dpd_unsecured": "derived",
+      "summary.bounce_count": "derived",
+      "summary.cashflow_consistency": "derived",
+      "ml.foir_existing": "derived",
+      "decision.foir_proposed": "derived",
+      "decision.offer_emi": "derived",
+      "ml.pd_score": "placeholder",
+      "ml.risk_band": "placeholder",
+      "decision.offer_irr": "placeholder",
+      "decision.processing_fee": "placeholder",
+      "policy.thresholds": "placeholder"
+    }
+  },
+  "outcome": "DECLINED",
+  "stage_status": {
+    "intake": "done",
+    "layer2": "done",
+    "sufficiency": "done",
+    "ml": "done",
+    "policy": "done",
+    "decision": "done",
+    "finalize": "running"
+  },
+  "warnings": [
+    "layer2: bureau.max_dpd_overall -> None (field absent in report)",
+    "layer2: bureau.max_dpd_unsecured -> None (field absent in report)",
+    "layer2: bureau.bureau_persona -> None (field absent in report)",
+    "layer2: bureau.bureau_risk_grade -> None (field absent in report)",
+    "layer2: banking.cashflow_consistency -> None (field absent in report)",
+    "layer2: banking.negative_flags -> None (field absent in report)",
+    "orchestrator: APPROVED but not serviceable -> DECLINED"
+  ],
+  "hard_fail": null,
+  "audit_trace_path": "/Users/ayyoob/Desktop/Projects/Credit_Journey/journey/logs/PL-2026-8bd9c6.jsonl"
+}
