@@ -1,6 +1,7 @@
 import { Check, Loader2, Cpu, ExternalLink, Sparkles } from "lucide-react";
 import { dataTone, provPill } from "../lib/tones.js";
 import { useTypewriter } from "../lib/motion.js";
+import { glossaryFor } from "../lib/glossary.js";
 
 export function StatusPill({ status }) {
   if (status === "done")
@@ -25,22 +26,36 @@ export function StatusPill({ status }) {
 export function ModelTags({ tags = [] }) {
   return (
     <div className="flex flex-wrap gap-1.5">
-      {tags.filter(Boolean).map((t, i) => (
-        <span
-          key={i}
-          className="inline-flex items-center gap-1 rounded-md border border-primary-100 bg-primary-50 px-2 py-0.5 text-[11px] font-medium text-primary-700"
-        >
-          <Cpu className="h-3 w-3" /> {t}
-        </span>
-      ))}
+      {tags.filter(Boolean).map((t, i) => {
+        const tip = glossaryFor(t);
+        return (
+          <span
+            key={i}
+            title={tip}
+            className={`inline-flex items-center gap-1 rounded-md border border-primary-100 bg-primary-50 px-2 py-0.5 text-[11px] font-medium text-primary-700 ${
+              tip ? "cursor-help" : ""
+            }`}
+          >
+            <Cpu className="h-3 w-3" /> {t}
+          </span>
+        );
+      })}
     </div>
   );
 }
 
 export function DataLine({ d }) {
+  const tip = glossaryFor(d.key);
   return (
     <div className="flex items-center gap-2 text-[13px]">
-      <span className="min-w-[150px] text-slate-500">{d.key}</span>
+      <span
+        title={tip}
+        className={`min-w-[150px] text-slate-500 ${
+          tip ? "cursor-help underline decoration-dotted decoration-slate-300 underline-offset-2" : ""
+        }`}
+      >
+        {d.key}
+      </span>
       <span className={`tabular-nums ${dataTone[d.tone] ?? "text-ink"}`}>{d.value}</span>
       {d.prov && (
         <span className={`rounded border px-1.5 py-px text-[10px] font-medium uppercase ${provPill[d.prov]}`}>

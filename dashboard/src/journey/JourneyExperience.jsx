@@ -1,4 +1,5 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
+import { RotateCcw } from "lucide-react";
 import Header from "../components/Header.jsx";
 import SupportWidget from "../components/sidebar/SupportWidget.jsx";
 import ApprovedCard from "../components/states/ApprovedCard.jsx";
@@ -26,7 +27,10 @@ const CARDS = {
 // moment -> the outcome lands as the narrative payoff, never as a cold screen.
 export default function JourneyExperience({ view, onAcceptOffer, onEnablePush, onViewDocs, onChat }) {
   const script = useMemo(() => buildScript(view), [view]);
-  const { phase, moment, facts, skip } = useJourneyPlayback(script.moments, view.status);
+  // Bumping replay restarts the whole narrative — lets a presenter rerun the
+  // customer story on stage without reloading.
+  const [replay, setReplay] = useState(0);
+  const { phase, moment, facts, skip } = useJourneyPlayback(script.moments, `${view.status}:${replay}`);
   const StateCard = CARDS[view.status] ?? ReviewCard;
 
   const narration =
@@ -64,7 +68,16 @@ export default function JourneyExperience({ view, onAcceptOffer, onEnablePush, o
           onSkip={skip}
         />
       ) : (
-        <div className="mt-5 grid grid-cols-1 gap-5 lg:grid-cols-3">
+        <>
+        <div className="mt-3 flex justify-end">
+          <button
+            onClick={() => setReplay((r) => r + 1)}
+            className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium text-slate-500 transition hover:bg-slate-100 hover:text-ink"
+          >
+            <RotateCcw className="h-3.5 w-3.5" /> Replay journey
+          </button>
+        </div>
+        <div className="mt-2 grid grid-cols-1 gap-5 lg:grid-cols-3">
           <section className="animate-fade-up lg:col-span-2">
             <StateCard
               view={view}
@@ -77,6 +90,7 @@ export default function JourneyExperience({ view, onAcceptOffer, onEnablePush, o
             <SupportWidget onChat={onChat} />
           </aside>
         </div>
+        </>
       )}
     </main>
   );

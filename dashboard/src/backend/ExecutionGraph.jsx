@@ -92,14 +92,22 @@ function Node({ node, status, selected, onSelect }) {
       className="group absolute -translate-x-1/2 -translate-y-1/2 focus:outline-none"
       aria-label={`${node.label} — ${status}`}
     >
+      {/* Hover affordance: clicking nodes is the main interaction, make it obvious. */}
       <span
-        className={`relative flex ${box} items-center justify-center border transition-all duration-300 ${
+        className={`pointer-events-none absolute left-1/2 z-10 hidden -translate-x-1/2 whitespace-nowrap rounded bg-ink px-1.5 py-0.5 text-[9px] font-medium text-white group-hover:block ${
+          node.labelPos === "above" ? "top-full mt-2" : "bottom-full mb-2"
+        }`}
+      >
+        View details
+      </span>
+      <span
+        className={`relative flex ${box} items-center justify-center border transition-all duration-300 group-hover:-translate-y-0.5 ${
           done
             ? "border-primary-200 bg-primary-50 text-primary-700"
             : running
             ? "border-agent-500 bg-agent-50 text-agent-700 shadow-[0_0_18px_rgba(124,58,237,.30)]"
             : "border-slate-200 bg-white text-slate-300"
-        } ${selected ? "ring-2 ring-primary-600 ring-offset-2" : "group-hover:border-slate-300"}`}
+        } ${selected ? "ring-2 ring-primary-600 ring-offset-2" : "group-hover:border-slate-300 group-hover:shadow-md"}`}
       >
         <Icon className={node.small ? "h-4 w-4" : "h-5 w-5"} strokeWidth={2} />
         {done && (

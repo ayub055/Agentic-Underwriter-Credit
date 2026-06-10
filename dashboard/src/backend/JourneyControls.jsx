@@ -62,7 +62,7 @@ export default function JourneyControls({
         </span>
       </div>
       <span className="hidden w-full text-right text-[10px] text-slate-400 lg:block">
-        space play/pause · ←/→ scrub · R reset · S skip
+        space play/pause · ←/→ scrub · R reset · S skip · ? help
       </span>
     </div>
   );

@@ -286,6 +286,22 @@ export const PHASES = [
   },
 ];
 
+// One talking point per phase, shown in the presentation-mode caption so the
+// presenter can literally read the screen.
+const PRESENTER_NOTES = {
+  form: `A real application, captured end-to-end — ${formatINR(ik.loan_amount_req)} over ${num(ik.tenure_req)} months on a ${formatINR(ik.declared_income)} declared income.`,
+  intake: "Identity, KYC and an address-quality model — deterministic, no LLM, effectively instant.",
+  layer2: `Two LLM agents run in parallel in isolated subprocesses — ${Math.round(((cs.branches?.bureau?.elapsed_s ?? 0) + (cs.branches?.banking?.elapsed_s ?? 0)) * 10) / 10}s of analysis in ${layer2Elapsed ?? "—"}s wall-clock.`,
+  ml: "Deterministic scorecard — PD, affluence and FOIR — reproducible and fully auditable.",
+  policy: "Six policy layers evaluated in milliseconds — this profile cleared every one on credit quality.",
+  decision: "The serviceability gate catches an EMI the customer can't afford — FOIR 119% vs the 50% cap.",
+  finalize: "Decision stamped with an audit pack, a field-by-field provenance map and pinned model versions.",
+  notify: "Customer notified instantly — switch to the customer view to see exactly what they experienced.",
+};
+PHASES.forEach((p) => {
+  p.presenterNote = PRESENTER_NOTES[p.id];
+});
+
 const agentCount = PHASES.reduce(
   (n, p) => n + p.agents.length + (p.branches ?? []).reduce((m, br) => m + br.agents.length, 0),
   0

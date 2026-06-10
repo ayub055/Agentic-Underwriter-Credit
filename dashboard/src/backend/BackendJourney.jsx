@@ -3,6 +3,7 @@ import { Maximize2, Minimize2 } from "lucide-react";
 import { PHASES, META, VIZ, buildTimeline } from "./phaseModel.js";
 import VerdictCard from "./VerdictCard.jsx";
 import ScalePanel from "./ScalePanel.jsx";
+import HintOverlay from "../components/HintOverlay.jsx";
 import JourneySpine from "../components/JourneySpine.jsx";
 
 // Backend phase index → shared journey-spine stage (finalize+notify share "outcome").
@@ -35,6 +36,21 @@ export default function BackendJourney({ onSeeCustomer }) {
   const { cursor, playing, speed, setSpeed, play, pause, reset, skipEnd, seek } = usePlayback(timeline.length);
   const [selected, setSelected] = useState(0);
   const [presenting, setPresenting] = useState(false);
+  const [hints, setHints] = useState(() => {
+    try {
+      return !localStorage.getItem("cj-hints-seen");
+    } catch {
+      return false;
+    }
+  });
+  const closeHints = () => {
+    try {
+      localStorage.setItem("cj-hints-seen", "1");
+    } catch {
+      /* private mode */
+    }
+    setHints(false);
+  };
   const containerRef = useRef(null);
   const loopRef = useRef(null);
 
@@ -76,6 +92,8 @@ export default function BackendJourney({ onSeeCustomer }) {
         reset();
       } else if (e.key === "s" || e.key === "S") {
         skipEnd();
+      } else if (e.key === "?") {
+        setHints((h) => !h);
       }
     };
     window.addEventListener("keydown", onKey);
@@ -111,10 +129,11 @@ export default function BackendJourney({ onSeeCustomer }) {
 
   useEffect(() => {
     if (presenting && complete) {
+      // Long enough to read the verdict + scale end-cards before looping.
       loopRef.current = setTimeout(() => {
         reset();
         play();
-      }, 2800);
+      }, 7000);
       return () => clearTimeout(loopRef.current);
     }
   }, [presenting, complete]);
@@ -123,8 +142,9 @@ export default function BackendJourney({ onSeeCustomer }) {
     <div
       ref={containerRef}
       className={`min-h-screen bg-[#f6f7fb] ${presenting ? "overflow-auto" : ""}`}
+      style={presenting ? { zoom: 1.15 } : undefined}
     >
-      <main className="mx-auto max-w-6xl px-4 py-6">
+      <main className={`mx-auto px-4 py-6 ${presenting ? "max-w-[1380px]" : "max-w-6xl"}`}>
         <header className="mb-4 flex flex-wrap items-end justify-between gap-3">
           <div>
             <h1 className="flex items-center gap-2.5 text-lg font-semibold tracking-tight text-ink">
@@ -198,14 +218,18 @@ export default function BackendJourney({ onSeeCustomer }) {
         </div>
       </main>
 
+      <HintOverlay open={hints && !presenting} onClose={closeHints} />
+
       {presenting && !complete && (
-        <div className="pointer-events-none fixed bottom-6 left-1/2 -translate-x-1/2 rounded-full border border-slate-200 bg-white/95 px-5 py-2.5 shadow-lg backdrop-blur animate-fade-up">
+        <div className="pointer-events-none fixed bottom-6 left-1/2 w-max max-w-[80vw] -translate-x-1/2 rounded-full border border-slate-200 bg-white/95 px-5 py-2.5 text-center shadow-lg backdrop-blur animate-fade-up">
           <span className="text-[11px] font-semibold uppercase tracking-widest text-agent-600">
             {PHASES[activePhase].phase}
           </span>
           <span className="mx-2 text-slate-300">·</span>
           <span className="text-sm font-medium text-ink">{PHASES[activePhase].title}</span>
-          <span className="ml-2 text-xs text-slate-500">{PHASES[activePhase].subtitle}</span>
+          {PHASES[activePhase].presenterNote && (
+            <span className="ml-2 text-sm text-slate-500">{PHASES[activePhase].presenterNote}</span>
+          )}
         </div>
       )}
     </div>
