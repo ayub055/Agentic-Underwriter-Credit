@@ -1,0 +1,30 @@
+# Credit_Journey — Python dependencies
+# Covers journey/ (orchestrator), Banking_Agent/ and Bureau_Agent/ (analysers).
+# Versions pinned to the anaconda3 environment both repos currently run on.
+# Note: the LLM runs on a local Ollama service (install separately, not via pip);
+# the dashboard/ UI is npm-managed (see dashboard/package.json).
+
+# Core data & schemas
+pandas==2.2.2
+numpy==1.26.4
+pydantic==2.12.5
+PyYAML==6.0.1
+
+# LLM narrative chains (both analysers, via local Ollama)
+langchain-core==1.2.7
+langchain-ollama==1.0.1
+
+# Report rendering (HTML / PDF / Excel deck assets)
+Jinja2==3.1.4
+lxml==5.2.1
+fpdf2==2.8.5
+matplotlib==3.9.2
+python-pptx==1.0.2
+openpyxl==3.1.5  # pandas to_excel/read_excel engine (excel_exporter)
+
+# Text matching (narration cleaning, merchant grouping)
+fuzzywuzzy==0.18.0
+python-Levenshtein==0.27.3
+
+# Address-quality scorer (journey/models/address_quality — per-customer model inference)
+torch==2.7.1
