@@ -1,6 +1,6 @@
 import { AlertTriangle, Boxes } from "lucide-react";
 import { StatusPill, ModelTags, DataLine, BranchCard } from "./parts.jsx";
-import { agentTone } from "./tones.js";
+import { agentTone } from "../lib/tones.js";
 import PhaseViz from "./PhaseViz.jsx";
 
 function AgentRow({ a, index }) {

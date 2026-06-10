@@ -21,6 +21,9 @@ export default {
         success: { 50: "#ecfdf5", 100: "#d1fae5", 200: "#a7f3d0", 500: "#10b981", 600: "#059669", 700: "#047857" },
         progress: { 50: "#eff6ff", 100: "#dbeafe", 200: "#bfdbfe", 400: "#60a5fa", 500: "#3b82f6", 600: "#2563eb" },
         caution: { 50: "#fffbeb", 100: "#fef3c7", 200: "#fde68a", 400: "#fbbf24", 500: "#f59e0b", 700: "#b45309" },
+        // Hard-gate breach (backend truth). Customer-facing "not approved" stays
+        // caution by design — empathy downgrade, not drift.
+        danger: { 50: "#fef2f2", 100: "#fee2e2", 200: "#fecaca", 300: "#fca5a5", 500: "#ef4444", 600: "#dc2626", 700: "#b91c1c" },
         // AI "agent" accent: a distinct violet/purple, separated from brand indigo.
         agent: {
           50: "#f5f3ff",

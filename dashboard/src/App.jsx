@@ -5,11 +5,18 @@ import CustomerView from "./CustomerView.jsx";
 
 const VIEWS = [
   { key: "backend", label: "Backend · Agentic Journey", icon: Workflow },
-  { key: "customer", label: "Customer · Approval Hook", icon: UserRound },
+  { key: "customer", label: "Customer · Journey", icon: UserRound },
 ];
 
 export default function App() {
   const [appView, setAppView] = useState("backend");
+  const [scenario, setScenario] = useState("captured");
+
+  // Backend completion CTA: jump to the customer lens of the same captured case.
+  const seeCustomer = () => {
+    setScenario("captured");
+    setAppView("customer");
+  };
 
   return (
     <div className="min-h-screen bg-[#f6f7fb] font-sans text-ink">
@@ -41,7 +48,11 @@ export default function App() {
         </div>
       </nav>
 
-      {appView === "backend" ? <BackendJourney /> : <CustomerView />}
+      {appView === "backend" ? (
+        <BackendJourney onSeeCustomer={seeCustomer} />
+      ) : (
+        <CustomerView scenario={scenario} onScenarioChange={setScenario} />
+      )}
     </div>
   );
 }

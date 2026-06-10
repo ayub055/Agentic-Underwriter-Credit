@@ -82,7 +82,7 @@ function Node({ node, status, selected, onSelect }) {
   return (
     <button
       onClick={onSelect}
-      style={{ left: node.x, top: node.y }}
+      style={{ left: `${(node.x / W) * 100}%`, top: `${(node.y / H) * 100}%` }}
       className="group absolute -translate-x-1/2 -translate-y-1/2 focus:outline-none"
       aria-label={`${node.label} — ${status}`}
     >
@@ -157,8 +157,10 @@ function Node({ node, status, selected, onSelect }) {
 export default function ExecutionGraph({ statuses, selected, onSelect }) {
   return (
     <div className="overflow-x-auto rounded-2xl border border-slate-200 bg-white p-2 shadow-sm">
-      <div className="relative mx-auto" style={{ width: W, height: H }}>
-        <svg width={W} height={H} className="absolute inset-0" aria-hidden="true">
+      {/* Coordinates live in a 1000×252 space; the wrapper scales it to fill
+          the card (and the presentation wall) while keeping the aspect ratio. */}
+      <div className="relative mx-auto w-full min-w-[860px]" style={{ aspectRatio: `${W} / ${H}` }}>
+        <svg viewBox={`0 0 ${W} ${H}`} className="absolute inset-0 h-full w-full" aria-hidden="true">
           {EDGES.map((e) => {
             const s = EDGE_STROKE[statuses[e.phase]] ?? EDGE_STROKE.waiting;
             return (
@@ -193,7 +195,7 @@ export default function ExecutionGraph({ statuses, selected, onSelect }) {
             onSelect={() => onSelect(n.phase)}
           />
         ))}
-        <span className="absolute left-[250px] top-[118px] -translate-x-1/2 rounded border border-caution-200 bg-caution-50 px-1.5 py-px text-[9px] font-bold tracking-widest text-caution-700">
+        <span className="absolute left-[25%] top-[46.8%] -translate-x-1/2 rounded border border-caution-200 bg-caution-50 px-1.5 py-px text-[9px] font-bold tracking-widest text-caution-700">
           ∥ PARALLEL
         </span>
       </div>

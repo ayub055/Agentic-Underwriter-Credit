@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 import { Terminal, Database } from "lucide-react";
-import { consoleTone } from "./tones.js";
+import { consoleTone } from "../lib/tones.js";
 
 function AgentCallLog({ entries }) {
   const endRef = useRef(null);

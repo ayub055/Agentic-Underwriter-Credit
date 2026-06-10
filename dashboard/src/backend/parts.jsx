@@ -1,5 +1,5 @@
 import { Check, Loader2, Cpu, FileOutput } from "lucide-react";
-import { dataTone, provPill } from "./tones.js";
+import { dataTone, provPill } from "../lib/tones.js";
 
 export function StatusPill({ status }) {
   if (status === "done")

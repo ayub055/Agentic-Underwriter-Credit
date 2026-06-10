@@ -150,7 +150,7 @@ function PolicyWaterfall() {
             <div className="h-3.5 flex-1">
               <div
                 className={`h-full rounded transition-all duration-700 ease-out ${
-                  l.passed ? "bg-success-600/80" : "bg-red-500"
+                  l.passed ? "bg-success-600/80" : "bg-danger-500"
                 }`}
                 style={{
                   width: grown ? `${100 - i * 12}%` : "0%",
@@ -160,7 +160,7 @@ function PolicyWaterfall() {
             </div>
             <span
               className={`flex w-16 flex-shrink-0 items-center gap-1 text-[10px] font-bold ${
-                l.passed ? "text-success-700" : "text-red-600"
+                l.passed ? "text-success-700" : "text-danger-600"
               }`}
             >
               {l.passed ? <Check className="h-3 w-3" strokeWidth={3} /> : <X className="h-3 w-3" strokeWidth={3} />}
@@ -171,7 +171,7 @@ function PolicyWaterfall() {
       </div>
       <p className="mt-3 text-[11px] text-slate-500">
         Waterfall result:{" "}
-        <span className={`font-bold ${result === "APPROVED" ? "text-success-700" : "text-red-600"}`}>
+        <span className={`font-bold ${result === "APPROVED" ? "text-success-700" : "text-danger-600"}`}>
           {result}
         </span>{" "}
         — every layer cleared on credit quality.
@@ -230,12 +230,12 @@ function FoirGauge() {
           <circle cx={cx} cy={cy} r="4.5" fill="#0f172a" />
         </svg>
         <div className="min-w-[150px]">
-          <div className={`text-2xl font-bold tabular-nums ${breach ? "text-red-600" : "text-success-700"}`}>
+          <div className={`text-2xl font-bold tabular-nums ${breach ? "text-danger-600" : "text-success-700"}`}>
             {proposed != null ? `${Math.round(proposed * 100)}%` : "—"}
           </div>
           <div className="text-[11px] text-slate-500">of monthly income would go to obligations</div>
           {breach && (
-            <div className="mt-2 rounded-lg border border-red-200 bg-red-50 p-2 text-[11px] leading-relaxed text-red-700">
+            <div className="mt-2 rounded-lg border border-danger-200 bg-danger-50 p-2 text-[11px] leading-relaxed text-danger-700">
               EMI {formatEMI(emi)} on ₹{Math.round((income ?? 0) / 1000)}k income —{" "}
               <span className="font-semibold">gate FAIL · customer protected</span>
             </div>

@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { CheckCircle2, XCircle, Maximize2, Minimize2 } from "lucide-react";
+import { Maximize2, Minimize2 } from "lucide-react";
 import { PHASES, META, buildTimeline } from "./phaseModel.js";
+import VerdictCard from "./VerdictCard.jsx";
 import { usePlayback } from "./usePlayback.js";
 import JourneyControls from "./JourneyControls.jsx";
 import ExecutionGraph from "./ExecutionGraph.jsx";
@@ -15,7 +16,7 @@ function clock(i) {
   return `${mm}:${ss}`;
 }
 
-export default function BackendJourney() {
+export default function BackendJourney({ onSeeCustomer }) {
   const timeline = useMemo(() => buildTimeline(PHASES), []);
   const bounds = useMemo(() => {
     const map = {};
@@ -51,7 +52,6 @@ export default function BackendJourney() {
   const dict = PHASES.reduce((acc, p, i) => (cursor > bounds[i].done ? { ...acc, ...p.patch } : acc), {});
 
   const complete = cursor >= timeline.length;
-  const approved = META.outcome === "APPROVED";
 
   // Keyboard: space play/pause, arrows scrub, R reset, S skip to end.
   useEffect(() => {
@@ -144,7 +144,7 @@ export default function BackendJourney() {
         </header>
 
         <div className="space-y-4">
-          <ResultsStrip meta={META} />
+          <ResultsStrip meta={META} progress={timeline.length ? cursor / timeline.length : 0} complete={complete} />
 
           <JourneyControls
             playing={playing}
@@ -168,27 +168,7 @@ export default function BackendJourney() {
             }}
           />
 
-          {complete && (
-            <div
-              className={`flex items-center gap-3 rounded-2xl border p-4 animate-fade-up ${
-                approved ? "border-success-200 bg-success-50" : "border-caution-200 bg-caution-50"
-              }`}
-            >
-              {approved ? (
-                <CheckCircle2 className="h-6 w-6 text-success-700" />
-              ) : (
-                <XCircle className="h-6 w-6 text-caution-700" />
-              )}
-              <div className="text-xs text-slate-600">
-                <span className={`text-sm font-semibold ${approved ? "text-success-700" : "text-caution-700"}`}>
-                  Outcome: {META.outcome}
-                </span>{" "}
-                — {approved
-                  ? "offer generated and stamped."
-                  : "policy approved on credit, but the serviceability gate caught an unaffordable EMI (FOIR > cap) — customer protected."}
-              </div>
-            </div>
-          )}
+          {complete && <VerdictCard onSeeCustomer={onSeeCustomer} />}
 
           <div className="grid grid-cols-1 gap-5 lg:grid-cols-5">
             <section className="lg:col-span-3">
