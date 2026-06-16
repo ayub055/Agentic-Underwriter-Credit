@@ -107,7 +107,7 @@ export default function PhaseDetail({ phase, status }) {
               (phase.parallel ? (
                 <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
                   {phase.branches.map((br) => (
-                    <BranchCard key={br.id} branch={br} running={status === "running"} />
+                    <BranchCard key={br.id} branch={br} status={status} />
                   ))}
                 </div>
               ) : (

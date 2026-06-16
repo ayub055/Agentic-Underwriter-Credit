@@ -219,49 +219,39 @@ function PolicyWaterfall() {
   const breachIdx = layers.findIndex((l) => !l.passed);
 
   return (
-    <VizShell title="L1–L6 policy waterfall — gate cascade">
-      <div className="mx-auto flex max-w-[15rem] flex-col items-center">
+    <VizShell title="L1–L6 policy waterfall">
+      {/* left-aligned cascade: each gate steps in from the left, forming a
+          waterfall edge on the right. */}
+      <div className="flex flex-col gap-1">
         {layers.map((l, i) => {
-          const width = 100 - i * 8; // funnel: each gate a little narrower
+          const width = 100 - i * 7; // left-anchored staircase → waterfall edge
           const halted = breachIdx !== -1 && i > breachIdx; // gates past a breach never run
           return (
-            <div key={l.layer} className="flex w-full flex-col items-center" style={{ width: `${width}%` }}>
-              {i > 0 && (
-                <span
-                  className={`h-2.5 w-0.5 transition-colors duration-500 ${
-                    layers[i - 1].passed ? "bg-success-500" : "bg-danger-400"
-                  }`}
-                  style={{ transitionDelay: `${i * 90}ms` }}
-                />
+            <div
+              key={l.layer}
+              className={`flex items-center justify-between gap-2 rounded px-2.5 py-0.5 text-white shadow-sm transition-all duration-500 ease-out ${
+                halted ? "bg-slate-300 text-slate-600" : l.passed ? "bg-success-600" : "bg-danger-500"
+              }`}
+              style={{
+                width: `${width}%`,
+                opacity: grown ? 1 : 0,
+                transform: grown ? "none" : "translateX(-6px)",
+                transitionDelay: `${i * 90}ms`,
+              }}
+            >
+              <span className="font-mono text-[10px] font-medium">{l.layer}</span>
+              {halted ? (
+                <span className="text-[9px] font-semibold uppercase tracking-wide">skipped</span>
+              ) : l.passed ? (
+                <Check className="h-3 w-3" strokeWidth={3} />
+              ) : (
+                <X className="h-3 w-3" strokeWidth={3} />
               )}
-              <div
-                className={`flex w-full items-center justify-between gap-2 rounded-full border px-3 py-1.5 transition-all duration-500 ease-out ${
-                  halted
-                    ? "border-slate-200 bg-slate-50 text-slate-400"
-                    : l.passed
-                    ? "border-success-200 bg-success-50 text-success-700"
-                    : "border-danger-200 bg-danger-50 text-danger-600"
-                }`}
-                style={{
-                  opacity: grown ? 1 : 0,
-                  transform: grown ? "none" : "translateY(-6px)",
-                  transitionDelay: `${i * 90}ms`,
-                }}
-              >
-                <span className="font-mono text-[10px]">{l.layer}</span>
-                {halted ? (
-                  <span className="text-[9px] font-semibold uppercase tracking-wide">skipped</span>
-                ) : l.passed ? (
-                  <Check className="h-3.5 w-3.5" strokeWidth={3} />
-                ) : (
-                  <X className="h-3.5 w-3.5" strokeWidth={3} />
-                )}
-              </div>
             </div>
           );
         })}
       </div>
-      <p className="mt-3 text-center text-[11px] text-slate-500">
+      <p className="mt-3 text-[11px] text-slate-500">
         Waterfall result:{" "}
         <span className={`font-bold ${result === "APPROVED" ? "text-success-700" : "text-danger-600"}`}>
           {result}
