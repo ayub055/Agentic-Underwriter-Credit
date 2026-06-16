@@ -86,6 +86,12 @@ export default {
           "0%": { boxShadow: "0 0 0 0 rgba(124,58,237,.40)" },
           "100%": { boxShadow: "0 0 0 12px rgba(124,58,237,0)" },
         },
+        scan: {
+          "0%": { top: "0%", opacity: "0" },
+          "15%": { opacity: "0.9" },
+          "85%": { opacity: "0.9" },
+          "100%": { top: "100%", opacity: "0" },
+        },
       },
       animation: {
         slide: "slide 1.6s ease-in-out infinite",
@@ -95,6 +101,7 @@ export default {
         pop: "pop .35s cubic-bezier(.16,1,.3,1) both",
         shimmer: "shimmer 1.8s linear infinite",
         "pulse-ring": "pulse-ring 1.6s cubic-bezier(.4,0,.6,1) infinite",
+        scan: "scan 2.4s ease-in-out infinite",
       },
     },
   },

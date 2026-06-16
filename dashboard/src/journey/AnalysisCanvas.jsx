@@ -32,6 +32,32 @@ function EvidenceDrawer({ momentId, evidence }) {
   );
 }
 
+// Moment progress ring: fills as findings tick in, wrapping the moment icon.
+function ProgressRing({ pct, children }) {
+  const r = 18;
+  const c = 2 * Math.PI * r;
+  return (
+    <span className="relative flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-agent-50">
+      <svg className="absolute inset-0 h-full w-full -rotate-90" viewBox="0 0 40 40" aria-hidden="true">
+        <circle cx="20" cy="20" r={r} fill="none" className="stroke-agent-100" strokeWidth="3" />
+        <circle
+          cx="20"
+          cy="20"
+          r={r}
+          fill="none"
+          className="stroke-agent-500"
+          strokeWidth="3"
+          strokeLinecap="round"
+          strokeDasharray={c}
+          strokeDashoffset={(1 - Math.min(Math.max(pct, 0), 1)) * c}
+          style={{ transition: "stroke-dashoffset .6s cubic-bezier(.16,1,.3,1)" }}
+        />
+      </svg>
+      {children}
+    </span>
+  );
+}
+
 function FactRow({ text }) {
   return (
     <li className="flex items-center gap-2.5 animate-fade-up">
@@ -71,22 +97,28 @@ export default function AnalysisCanvas({ moments, phase, moment, facts, onSkip }
       ) : (
         <div key={m.id} className="animate-fade-up">
           <div className="flex items-center gap-3">
-            <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-agent-50 text-agent-600 ring-1 ring-agent-200/60">
-              <Icon className="h-5 w-5" strokeWidth={2} />
-            </span>
+            <ProgressRing pct={m.facts.length ? facts / m.facts.length : 0}>
+              <Icon className="h-5 w-5 text-agent-600" strokeWidth={2} />
+            </ProgressRing>
             <div>
               <div className="text-sm font-semibold text-ink">{m.label}</div>
               <div className="flex items-center gap-1.5 text-xs text-agent-600">
                 <span className="h-1.5 w-1.5 rounded-full bg-agent-500 motion-safe:animate-pulse" />
-                Working on it
+                {facts >= m.facts.length ? "Done" : "Reading your file…"}
               </div>
             </div>
           </div>
-          <ul className="mt-5 space-y-3">
-            {m.facts.map((fact, f) =>
-              f < facts ? <FactRow key={fact} text={fact} /> : <SkeletonRow key={fact} />
+          <div className="relative mt-5 overflow-hidden">
+            {/* scanning sweep while findings are still ticking in */}
+            {facts < m.facts.length && (
+              <span className="pointer-events-none absolute inset-x-0 h-10 -translate-y-1/2 bg-gradient-to-b from-transparent via-agent-500/10 to-transparent motion-safe:animate-scan" />
             )}
-          </ul>
+            <ul className="space-y-3">
+              {m.facts.map((fact, f) =>
+                f < facts ? <FactRow key={fact} text={fact} /> : <SkeletonRow key={fact} />
+              )}
+            </ul>
+          </div>
           {facts >= m.facts.length && <EvidenceDrawer momentId={m.id} evidence={m.evidence} />}
         </div>
       )}

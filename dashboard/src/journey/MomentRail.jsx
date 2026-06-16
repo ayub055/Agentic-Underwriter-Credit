@@ -26,9 +26,9 @@ const OUTCOME_NODE = {
 
 function Connector({ filled }) {
   return (
-    <span className="relative mx-1 h-0.5 flex-1 overflow-hidden rounded-full bg-slate-200">
+    <span className="relative mx-1 mt-4 h-0.5 flex-1 overflow-hidden rounded-full bg-slate-200">
       <span
-        className={`absolute inset-y-0 left-0 rounded-full bg-primary-600 transition-all duration-700 ease-out ${
+        className={`absolute inset-y-0 left-0 rounded-full bg-gradient-to-r from-primary-500 to-primary-600 transition-all duration-700 ease-out ${
           filled ? "w-full" : "w-0"
         }`}
       />

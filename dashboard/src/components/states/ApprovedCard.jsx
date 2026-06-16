@@ -1,4 +1,4 @@
-import { CheckCircle2, Sparkles, Timer } from "lucide-react";
+import { BadgeCheck, CheckCircle2, Sparkles, Timer } from "lucide-react";
 import MetricsGrid from "../offer/MetricsGrid.jsx";
 import ActionZone from "../offer/ActionZone.jsx";
 import ExplainChips from "../../journey/ExplainChips.jsx";
@@ -32,14 +32,23 @@ export default function ApprovedCard({ view, onAcceptOffer }) {
         </div>
       </div>
 
-      <div className="mt-5">
-        <div className="text-xs uppercase tracking-wide text-slate-500">Your approved amount</div>
-        <div className="mt-1 font-display text-5xl font-semibold tracking-tight tabular-nums text-ink sm:text-6xl">
-          {formatINR(amount)}
+      <div className="relative mt-5">
+        {/* soft success glow behind the headline number */}
+        <span aria-hidden="true" className="pointer-events-none absolute -left-6 -top-4 h-28 w-48 rounded-full bg-success-500/10 blur-2xl" />
+        <div className="relative">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-xs uppercase tracking-wide text-slate-500">Your approved amount</span>
+            <span className="inline-flex items-center gap-1 rounded-full border border-success-200 bg-success-50 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-success-700">
+              <BadgeCheck className="h-3 w-3" strokeWidth={2.4} /> Sanctioned
+            </span>
+          </div>
+          <div className="mt-1 font-display text-5xl font-semibold tracking-tight tabular-nums text-ink sm:text-6xl">
+            {formatINR(amount)}
+          </div>
+          <p className="mt-2 text-sm text-slate-500">
+            Sanctioned and ready to disburse — funds can reach your account within 24 hours of e-sign.
+          </p>
         </div>
-        <p className="mt-2 text-sm text-slate-500">
-          Sanctioned and ready to disburse — funds can reach your account within 24 hours of e-sign.
-        </p>
       </div>
 
       {emiPct != null && (
