@@ -66,7 +66,7 @@ function CaseDictPanel({ dict }) {
         </div>
       )}
       <pre className="max-h-[34vh] overflow-auto rounded-lg border border-white/10 bg-black/30 p-3 font-mono text-[11px] leading-relaxed text-progress-200">
-        {count === 0 ? "// {}" : JSON.stringify(dict, null, 2)}
+        {keys.length === 0 ? "// {}" : JSON.stringify(dict, null, 2)}
       </pre>
     </div>
   );
