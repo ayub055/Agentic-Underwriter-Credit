@@ -10,7 +10,7 @@ export default function MetricsGrid({ offer }) {
   return (
     <div className="grid grid-cols-3 gap-px overflow-hidden rounded-xl bg-slate-200">
       {cells.map((c) => (
-        <div key={c.label} className="bg-white p-4">
+        <div key={c.label} className="bg-surface p-4">
           <div className="text-[11px] uppercase tracking-wide text-slate-500">{c.label}</div>
           <div className="mt-1 text-lg font-semibold tabular-nums text-ink">{c.value}</div>
           <div className="text-[11px] text-slate-400">{c.sub}</div>

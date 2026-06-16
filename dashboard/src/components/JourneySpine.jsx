@@ -36,7 +36,7 @@ export default function JourneySpine({ current = 0, complete = false, outcomeTon
             ? "bg-primary-600"
             : active
             ? "bg-agent-500 motion-safe:animate-pulse-ring"
-            : "border border-slate-300 bg-white";
+            : "border border-slate-300 bg-surface";
 
         return (
           <Fragment key={s.id}>

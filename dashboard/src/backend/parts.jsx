@@ -112,7 +112,7 @@ export function BranchCard({ branch, running = false }) {
     <div className="rounded-xl border border-slate-200 bg-slate-50/50 p-4">
       <div className="mb-2 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <span className="flex h-6 w-6 items-center justify-center rounded-md bg-ink text-[11px] font-bold text-white">
+          <span className="flex h-6 w-6 items-center justify-center rounded-md bg-night text-[11px] font-bold text-white">
             {branch.tag}
           </span>
           <span className="text-sm font-semibold text-ink">{branch.title}</span>

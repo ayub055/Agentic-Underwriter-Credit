@@ -55,7 +55,7 @@ function ProvenancePopover() {
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full z-40 mt-2 w-80 rounded-xl border border-slate-200 bg-white p-3 shadow-lg animate-fade-up">
+        <div className="absolute right-0 top-full z-40 mt-2 w-80 rounded-xl border border-slate-200 bg-surface p-3 shadow-lg animate-fade-up">
           <div className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-slate-400">
             Field-by-field provenance — {entries.length} fields tagged
           </div>
@@ -90,7 +90,7 @@ export default function ResultsStrip({ meta, progress = 1, complete = true }) {
   const warnings = Math.round(meta.warnings * progress);
 
   return (
-    <div className="flex flex-wrap items-center gap-x-8 gap-y-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+    <div className="flex flex-wrap items-center gap-x-8 gap-y-3 rounded-2xl border border-slate-200 bg-surface p-4 shadow-sm">
       {complete ? (
         <div className="animate-pop">
           <Kpi

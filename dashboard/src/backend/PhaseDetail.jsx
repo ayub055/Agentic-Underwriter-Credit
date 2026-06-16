@@ -40,7 +40,7 @@ export default function PhaseDetail({ phase, status }) {
   ].filter(Boolean);
 
   return (
-    <div key={phase.id} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6 animate-fade-up">
+    <div key={phase.id} className="rounded-2xl border border-slate-200 bg-surface p-5 shadow-sm sm:p-6 animate-fade-up">
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-center gap-3">
           <div

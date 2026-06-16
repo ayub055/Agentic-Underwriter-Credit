@@ -14,6 +14,8 @@ import ExecutionGraph from "./ExecutionGraph.jsx";
 import PhaseDetail from "./PhaseDetail.jsx";
 import BackendConsole from "./BackendConsole.jsx";
 import ResultsStrip from "./ResultsStrip.jsx";
+import CamReport from "../cam/CamReport.jsx";
+import CamReadyToast from "../cam/CamReadyToast.jsx";
 
 function clock(i) {
   const total = Math.round(i * 0.4);
@@ -36,6 +38,7 @@ export default function BackendJourney({ onSeeCustomer }) {
   const { cursor, playing, speed, setSpeed, play, pause, reset, skipEnd, seek } = usePlayback(timeline.length);
   const [selected, setSelected] = useState(0);
   const [presenting, setPresenting] = useState(false);
+  const [camOpen, setCamOpen] = useState(false);
   const [hints, setHints] = useState(() => {
     try {
       return !localStorage.getItem("cj-hints-seen");
@@ -141,13 +144,13 @@ export default function BackendJourney({ onSeeCustomer }) {
   return (
     <div
       ref={containerRef}
-      className={`min-h-screen bg-[#f6f7fb] ${presenting ? "overflow-auto" : ""}`}
+      className={`min-h-screen bg-canvas ${presenting ? "overflow-auto" : ""}`}
       style={presenting ? { zoom: 1.15 } : undefined}
     >
       <main className={`mx-auto px-4 py-6 ${presenting ? "max-w-[1380px]" : "max-w-6xl"}`}>
         <header className="mb-4 flex flex-wrap items-end justify-between gap-3">
           <div>
-            <h1 className="flex items-center gap-2.5 text-lg font-semibold tracking-tight text-ink">
+            <h1 className="flex items-center gap-2.5 font-display text-title font-semibold tracking-tight text-ink">
               <span className="relative flex h-2.5 w-2.5">
                 <span className="absolute h-full w-full rounded-full bg-primary-500 motion-safe:animate-ping" />
                 <span className="relative h-2.5 w-2.5 rounded-full bg-primary-600" />
@@ -161,7 +164,7 @@ export default function BackendJourney({ onSeeCustomer }) {
           </div>
           <button
             onClick={togglePresent}
-            className="flex items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-50"
+            className="flex items-center gap-1.5 rounded-lg border border-slate-300 bg-surface px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-50"
           >
             {presenting ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
             {presenting ? "Exit" : "Present"}
@@ -174,7 +177,7 @@ export default function BackendJourney({ onSeeCustomer }) {
             complete={complete}
             outcomeTone={META.outcome === "APPROVED" ? "success" : "danger"}
             times={VIZ.layer2Wall != null ? { analysers: `${VIZ.layer2Wall}s` } : {}}
-            className="rounded-2xl border border-slate-200 bg-white px-5 py-3 shadow-sm"
+            className="rounded-2xl border border-slate-200 bg-surface px-5 py-3 shadow-sm"
           />
 
           <ExecutionGraph
@@ -202,7 +205,7 @@ export default function BackendJourney({ onSeeCustomer }) {
 
           <ResultsStrip meta={META} progress={timeline.length ? cursor / timeline.length : 0} complete={complete} />
 
-          {complete && <VerdictCard onSeeCustomer={onSeeCustomer} />}
+          {complete && <VerdictCard onSeeCustomer={onSeeCustomer} onOpenCam={() => setCamOpen(true)} />}
           {complete && <ScalePanel />}
 
           <div className="grid grid-cols-1 gap-5 lg:grid-cols-5">
@@ -220,8 +223,13 @@ export default function BackendJourney({ onSeeCustomer }) {
 
       <HintOverlay open={hints && !presenting} onClose={closeHints} />
 
+      {complete && !presenting && !camOpen && (
+        <CamReadyToast caseId={META.caseId} onPreview={() => setCamOpen(true)} />
+      )}
+      {camOpen && <CamReport onClose={() => setCamOpen(false)} />}
+
       {presenting && !complete && (
-        <div className="pointer-events-none fixed bottom-6 left-1/2 w-max max-w-[80vw] -translate-x-1/2 rounded-full border border-slate-200 bg-white/95 px-5 py-2.5 text-center shadow-lg backdrop-blur animate-fade-up">
+        <div className="pointer-events-none fixed bottom-6 left-1/2 w-max max-w-[80vw] -translate-x-1/2 rounded-full border border-slate-200 bg-surface/95 px-5 py-2.5 text-center shadow-lg backdrop-blur animate-fade-up">
           <span className="text-[11px] font-semibold uppercase tracking-widest text-agent-600">
             {PHASES[activePhase].phase}
           </span>

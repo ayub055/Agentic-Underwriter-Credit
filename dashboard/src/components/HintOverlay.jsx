@@ -22,13 +22,13 @@ export default function HintOverlay({ open, onClose }) {
   if (!open) return null;
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-ink/40 p-4 backdrop-blur-sm animate-fade-in"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-night/40 p-4 backdrop-blur-sm animate-fade-in"
       onClick={onClose}
       role="dialog"
       aria-label="How to explore this demo"
     >
       <div
-        className="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-6 shadow-xl animate-fade-up"
+        className="w-full max-w-md rounded-2xl border border-slate-200 bg-surface p-6 shadow-xl animate-fade-up"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="mb-4 flex items-start justify-between">

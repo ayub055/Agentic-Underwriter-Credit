@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Credit Appraisal Memo · PL-2026-8bd9c6</title>
+<style>
+:root{
+  --bg:#f6f7fb; --card:#ffffff; --ink:#0f172a; --muted:#64748b; --line:#e2e8f0;
+  --primary:#4f46e5; --success-bg:#ecfdf5; --success:#047857; --success-bd:#a7f3d0;
+  --danger-bg:#fef2f2; --danger:#b91c1c; --danger-bd:#fecaca;
+  --amber-bg:#fffbeb; --amber:#b45309; --amber-bd:#fde68a;
+  --info-bg:#eff6ff; --info:#1d4ed8;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font-family:'Segoe UI',system-ui,-apple-system,sans-serif;line-height:1.45;font-size:13px}
+.wrap{max-width:980px;margin:0 auto;padding:24px 20px 64px}
+a{color:var(--primary)}
+
+/* header */
+.banner{border-radius:16px;border:1px solid var(--line);background:var(--card);padding:18px 20px;box-shadow:0 1px 2px rgba(0,0,0,.04);margin-bottom:16px}
+.banner-top{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px}
+.banner h1{font-size:1.05rem;letter-spacing:.01em}
+.banner .sub{color:var(--muted);font-size:.72rem;margin-top:3px}
+.verdict{font-weight:800;font-size:.82rem;padding:6px 14px;border-radius:999px;border:1px solid}
+.v-APPROVED{background:var(--success-bg);color:var(--success);border-color:var(--success-bd)}
+.v-DECLINED{background:var(--danger-bg);color:var(--danger);border-color:var(--danger-bd)}
+.v-MANUAL_REVIEW,.v-INSUFFICIENT_DATA{background:var(--amber-bg);color:var(--amber);border-color:var(--amber-bd)}
+
+/* kpi strip */
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:18px}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.kpi .k{font-size:.62rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.kpi .v{font-size:1.05rem;font-weight:800;margin-top:4px;font-variant-numeric:tabular-nums}
+.kpi .v.sm{font-size:.82rem}
+
+/* sections */
+section{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin-bottom:14px;box-shadow:0 1px 2px rgba(0,0,0,.03)}
+.s-head{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.s-num{width:24px;height:24px;border-radius:7px;background:#eef2ff;color:var(--primary);font-weight:800;font-size:.72rem;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.s-title{font-size:.86rem;font-weight:700}
+.s-note{color:var(--muted);font-size:.7rem;margin-left:auto}
+
+/* key-value grid */
+.kv{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 24px}
+.kv.three{grid-template-columns:repeat(3,minmax(0,1fr))}
+.row{display:flex;align-items:baseline;gap:8px;padding:5px 0;border-bottom:1px dashed var(--line)}
+.row .label{color:var(--muted);font-size:.72rem;min-width:130px;flex-shrink:0}
+.row .val{font-weight:600;font-variant-numeric:tabular-nums}
+
+/* provenance chips */
+.chip{font-size:.56rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;padding:1px 6px;border-radius:6px;border:1px solid;vertical-align:middle}
+.p-real{background:var(--success-bg);color:var(--success);border-color:var(--success-bd)}
+.p-derived{background:var(--info-bg);color:var(--info);border-color:#bfdbfe}
+.p-mock{background:var(--amber-bg);color:var(--amber);border-color:var(--amber-bd)}
+.p-placeholder{background:#f1f5f9;color:var(--muted);border-color:var(--line)}
+
+/* tables */
+table{width:100%;border-collapse:collapse;font-size:.72rem}
+th,td{text-align:right;padding:7px 8px;border-bottom:1px solid var(--line);font-variant-numeric:tabular-nums}
+th:first-child,td:first-child{text-align:left}
+thead th{color:var(--muted);font-size:.62rem;text-transform:uppercase;letter-spacing:.04em;font-weight:700}
+tfoot td{font-weight:800;border-top:2px solid var(--line)}
+.tag{font-size:.58rem;padding:1px 6px;border-radius:5px;background:#f1f5f9;color:var(--muted)}
+.tag.sec{background:var(--success-bg);color:var(--success)}
+.tag.uns{background:var(--amber-bg);color:var(--amber)}
+
+/* pass/fail pills */
+.pill{font-size:.62rem;font-weight:700;padding:2px 8px;border-radius:999px;border:1px solid}
+.pass{background:var(--success-bg);color:var(--success);border-color:var(--success-bd)}
+.fail{background:var(--danger-bg);color:var(--danger);border-color:var(--danger-bd)}
+.na{background:#f1f5f9;color:var(--muted);border-color:var(--line)}
+
+.note{font-size:.7rem;color:var(--muted);margin-top:10px}
+.empty{color:var(--muted);font-style:italic;font-size:.72rem;padding:8px 0}
+.warnlist{list-style:none;font-size:.7rem;color:var(--muted)}
+.warnlist li{padding:3px 0;border-bottom:1px dashed var(--line)}
+.legend{display:flex;flex-wrap:wrap;gap:10px;font-size:.62rem;color:var(--muted);margin-top:14px}
+.legend .chip{margin-right:4px}
+.sign{display:grid;grid-template-columns:repeat(2,1fr);gap:24px;margin-top:14px}
+.sign .box{border-top:1px solid var(--ink);padding-top:6px;font-size:.7rem;color:var(--muted)}
+
+/* print */
+@media print{
+  body{background:#fff;font-size:11px}
+  .wrap{max-width:none;padding:0}
+  .no-print{display:none!important}
+  section,.banner,.kpi{box-shadow:none}
+  section{break-inside:avoid;page-break-inside:avoid;border-radius:0;border-color:#cbd5e1}
+  @page{size:A4;margin:14mm 12mm}
+}
+</style>
+</head>
+<body>
+
+
+
+
+<div class="wrap">
+
+  <!-- HEADER -->
+  <div class="banner">
+    <div class="banner-top">
+      <div>
+        <h1>Credit Appraisal Memo</h1>
+        <div class="sub">
+          Personal Loan · App PL-2026-8bd9c6 · Customer 698167220
+          · Run 483b354f · Generated 2026-06-15T23:08:51
+        </div>
+      </div>
+      <span class="verdict v-DECLINED">DECLINED</span>
+    </div>
+  </div>
+
+  <!-- KPI STRIP -->
+  <div class="kpis">
+    <div class="kpi"><div class="k">Requested</div><div class="v">₹5,00,000</div></div>
+    <div class="kpi"><div class="k">Offer</div><div class="v">₹5,00,000</div></div>
+    <div class="kpi"><div class="k">CIBIL / TU</div><div class="v">785</div></div>
+    <div class="kpi"><div class="k">Proposed FOIR</div><div class="v sm">118.68%</div></div>
+  </div>
+
+  <!-- 1. APPLICATION -->
+  <section>
+    <div class="s-head"><div class="s-num">1</div><div class="s-title">Loan Application Summary</div></div>
+    <div class="kv">
+      <div class="row"><span class="label">Application No</span><span class="val">PL-2026-8bd9c6</span></div>
+      <div class="row"><span class="label">Date</span><span class="val">2026-06-15T23:08:51</span></div>
+      <div class="row"><span class="label">Channel</span><span class="val">Digital · self-serve</span></div>
+      <div class="row"><span class="label">Location</span><span class="val">Bengaluru · 560103</span></div>
+      <div class="row"><span class="label">Requested amount</span><span class="val">₹5,00,000</span>
+  <span class="chip p-mock">mock</span></div>
+      <div class="row"><span class="label">Requested tenure</span><span class="val">12 months</span></div>
+    </div>
+  </section>
+
+  <!-- 2. APPLICANT -->
+  <section>
+    <div class="s-head"><div class="s-num">2</div><div class="s-title">Applicant Details</div></div>
+    <div class="kv">
+      <div class="row"><span class="label">Name</span><span class="val">—</span>
+  <span class="chip p-mock">mock</span></div>
+      <div class="row"><span class="label">Age</span><span class="val">—</span>
+  <span class="chip p-mock">mock</span></div>
+      <div class="row"><span class="label">Qualification</span><span class="val">—</span>
+  <span class="chip p-mock">mock</span></div>
+      <div class="row"><span class="label">Residence type</span><span class="val">owned</span>
+  <span class="chip p-mock">mock</span></div>
+      <div class="row"><span class="label">Years at address</span><span class="val">6</span></div>
+      <div class="row"><span class="label">Address quality</span><span class="val">HIGH · 83.4/100</span>
+  <span class="chip p-placeholder">placeholder</span></div>
+    </div>
+    
+    <div class="note">Address drivers:
+      Low-risk geographic zone · Complete, well-formed address · Self-owned residence
+    </div>
+    
+  </section>
+
+  <!-- 3. EMPLOYMENT -->
+  <section>
+    <div class="s-head"><div class="s-num">3</div><div class="s-title">Employment Details</div></div>
+    <div class="kv">
+      <div class="row"><span class="label">Company</span><span class="val">Mock Employer Pvt Ltd</span>
+  <span class="chip p-mock">mock</span></div>
+      <div class="row"><span class="label">Category</span><span class="val">—</span></div>
+      <div class="row"><span class="label">Designation</span><span class="val">—</span></div>
+      <div class="row"><span class="label">Verified (EPFO)</span><span class="val">Yes</span>
+  <span class="chip p-mock">mock</span></div>
+      <div class="row"><span class="label">Stability</span><span class="val">— months</span>
+  <span class="chip p-mock">mock</span></div>
+      <div class="row"><span class="label">Total experience</span><span class="val">—</span></div>
+    </div>
+  </section>
+
+  <!-- 4. LOAN -->
+  <section>
+    <div class="s-head"><div class="s-num">4</div><div class="s-title">Loan Details (BRE Offer)</div></div>
+    <div class="kv three">
+      <div class="row"><span class="label">Eligible amount</span><span class="val">₹5,00,000</span>
+  <span class="chip p-derived">derived</span></div>
+      <div class="row"><span class="label">Tenure</span><span class="val">12 months</span>
+  <span class="chip p-derived">derived</span></div>
+      <div class="row"><span class="label">Interest (IRR)</span><span class="val">13.49%</span>
+  <span class="chip p-placeholder">placeholder</span></div>
+      <div class="row"><span class="label">EMI</span><span class="val">₹44,774</span>
+  <span class="chip p-derived">derived</span></div>
+      <div class="row"><span class="label">Processing fee</span><span class="val">₹7,500</span>
+  <span class="chip p-placeholder">placeholder</span></div>
+      <div class="row"><span class="label">Approved segment</span><span class="val">mass_affluent</span></div>
+    </div>
+  </section>
+
+  <!-- 5. FINANCIAL SUMMARY -->
+  <section>
+    <div class="s-head"><div class="s-num">5</div><div class="s-title">Applicant Financial Summary</div></div>
+    <div class="kv three">
+      <div class="row"><span class="label">Declared income</span><span class="val">₹60,000</span>
+  <span class="chip p-mock">mock</span></div>
+      <div class="row"><span class="label">Salary detected (bank)</span><span class="val">₹51,020</span>
+  <span class="chip p-real">real</span></div>
+      <div class="row"><span class="label">Income used</span><span class="val">₹60,000 · declared</span>
+  <span class="chip p-derived">derived</span></div>
+      <div class="row"><span class="label">Total obligation</span><span class="val">₹26,434</span>
+  <span class="chip p-real">real</span></div>
+      <div class="row"><span class="label">Existing FOIR</span><span class="val">44.06%</span>
+  <span class="chip p-derived">derived</span></div>
+      <div class="row"><span class="label">Bureau exposure</span><span class="val">₹8,22,679</span>
+  <span class="chip p-real">real</span></div>
+    </div>
+  </section>
+
+  <!-- 6. OBLIGATIONS -->
+  <section>
+    <div class="s-head"><div class="s-num">6</div><div class="s-title">Obligation Table — Live Bureau Tradelines</div>
+  <span class="chip p-real">real</span></div>
+    
+    
+    <table>
+      <thead><tr>
+        <th>Loan type</th><th>Sec?</th><th>Live / Total</th><th>Sanctioned</th>
+        <th>Outstanding</th><th>Overdue</th><th>Max DPD</th><th>Util%</th>
+      </tr></thead>
+      <tbody>
+      
+        <tr>
+          <td>credit_card</td>
+          <td><span class="tag uns">Unsecured</span></td>
+          <td>21 / 26</td>
+          <td>₹69,36,205</td>
+          <td>₹6,55,918</td>
+          <td>₹0</td>
+          <td>—</td>
+          <td>0.09%</td>
+        </tr>
+      
+        <tr>
+          <td>personal_loan</td>
+          <td><span class="tag uns">Unsecured</span></td>
+          <td>1 / 1</td>
+          <td>₹3,11,925</td>
+          <td>₹1,66,761</td>
+          <td>₹0</td>
+          <td>—</td>
+          <td>—</td>
+        </tr>
+      
+      </tbody>
+      
+      
+      <tfoot><tr>
+        <td>Total · 27 tradelines</td>
+        <td></td><td>22 / 27</td>
+        <td>₹72,48,130</td><td>₹8,22,679</td>
+        <td></td><td>—</td><td></td>
+      </tr></tfoot>
+      
+    </table>
+    <div class="note">Delinquency on file: No
+      · On-us outstanding: ₹21,705</div>
+    
+  </section>
+
+  <!-- 7. BANKING -->
+  <section>
+    <div class="s-head"><div class="s-num">7</div><div class="s-title">Banking Summary</div>
+  <span class="chip p-real">real</span></div>
+    
+    
+    <div class="kv three">
+      <div class="row"><span class="label">Salary (avg)</span><span class="val">₹51,020</span></div>
+      <div class="row"><span class="label">Salary credits</span><span class="val">6</span></div>
+      <div class="row"><span class="label">Account type</span><span class="val">primary</span></div>
+    </div>
+    
+    <div class="note" style="margin-top:14px;font-weight:700;color:var(--ink)">EMI debits detected</div>
+    <table>
+      <thead><tr><th>Reference</th><th>Avg amount</th><th>Occurrences</th></tr></thead>
+      <tbody>
+      
+        <tr><td>PLA5150547202</td><td>₹2,354</td><td>6</td></tr>
+      
+        <tr><td>LM00849846</td><td>₹15,080</td><td>2</td></tr>
+      
+        <tr><td>PATELKISHANKUMA</td><td>₹1,500</td><td>1</td></tr>
+      
+        <tr><td>EMI EV</td><td>₹5,000</td><td>1</td></tr>
+      
+        <tr><td>EMI VEHICLE</td><td>₹2,500</td><td>1</td></tr>
+      
+      </tbody>
+    </table>
+    
+    
+    <div class="note">Top spend: Finance (₹44,284)</div>
+    
+    
+    <div class="note" style="margin-top:10px">The customer&#39;s banking profile presents a mixed picture. Their average monthly cash flow shows an inflow of ₹313,622 and outflow of ₹465,174, resulting in an average net deficit of ₹151,552 per month. This translates to a stretched obligation-to-income ratio of 51.8%, indicating that their income is barely covering their essential expenses.
+
+The customer&#39;s spending categories reveal some concerning trends. The largest portion of their expenditure goes towards self-transfers (420,345 INR), followed by finance and peer-to-peer transactions (545 INR). This suggests a high level of financial risk-taking, with a significant proportion of their income being diverted towards non-essential expenses. Furthermore, the customer&#39;s EMI payments are visible, indicating that they have taken on debt to purchase a vehicle.
+
+The customer&#39;s merchant behavior is also noteworthy. The most frequent merchant is PATELKISHANKUMA, which accounts for 32 transactions and ₹412,800 in spending. Additionally, there are regular merchants such as Salary Oct 2025, BHOSALE RAJU TA, PLA5150547202, and LM00849846, among others. The customer&#39;s favourite debit merchants include PLA5150547202 and LM00849846, while their favourite credit merchant is Salary Oct 2025. Notably, the customer has received high amounts of salary income from employer credits, with one instance in Jan 2026 where ₹51,111 was received and spent within 3 days at a rate of 122%.</div>
+    
+  </section>
+
+  <!-- 8. VERIFICATION -->
+  <section>
+    <div class="s-head"><div class="s-num">8</div><div class="s-title">Verification Summary</div></div>
+    <table>
+      <thead><tr><th>Check</th><th>Detail</th><th>Status</th><th>Source</th></tr></thead>
+      <tbody>
+      
+        <tr>
+          <td>KYC (Karza)</td>
+          <td style="text-align:left;color:var(--muted)"></td>
+          <td><span class="pill pass">Yes</span></td>
+          <td>
+  <span class="chip p-mock">mock</span></td>
+        </tr>
+      
+        <tr>
+          <td>PAN validation</td>
+          <td style="text-align:left;color:var(--muted)">bundled with KYC</td>
+          <td><span class="pill pass">Yes</span></td>
+          <td>
+  <span class="chip p-mock">mock</span></td>
+        </tr>
+      
+        <tr>
+          <td>Employment (EPFO)</td>
+          <td style="text-align:left;color:var(--muted)"></td>
+          <td><span class="pill pass">Yes</span></td>
+          <td>
+  <span class="chip p-mock">mock</span></td>
+        </tr>
+      
+        <tr>
+          <td>Address verification</td>
+          <td style="text-align:left;color:var(--muted)">HIGH · 83.4/100</td>
+          <td><span class="pill pass">Yes</span></td>
+          <td>
+  <span class="chip p-mock">mock</span></td>
+        </tr>
+      
+        <tr>
+          <td>Consent captured</td>
+          <td style="text-align:left;color:var(--muted)"></td>
+          <td><span class="pill pass">Yes</span></td>
+          <td>
+  <span class="chip p-mock">mock</span></td>
+        </tr>
+      
+      </tbody>
+    </table>
+  </section>
+
+  <!-- 9. DEVIATIONS -->
+  <section>
+    <div class="s-head"><div class="s-num">9</div><div class="s-title">Deviations & Policy Waterfall</div>
+      <span class="s-note">Policy: APPROVED · Serviceable: No</span></div>
+    
+    <table>
+      <thead><tr><th>Layer</th><th>Detail</th><th>Result</th></tr></thead>
+      <tbody>
+      
+        <tr>
+          <td>L0_ADDRESS</td>
+          <td style="text-align:left;color:var(--muted)">band=HIGH score=83.4</td>
+          <td><span class="pill pass">PASS</span></td>
+        </tr>
+      
+        <tr>
+          <td>L1_NPA</td>
+          <td style="text-align:left;color:var(--muted)">npa_flag=False</td>
+          <td><span class="pill pass">PASS</span></td>
+        </tr>
+      
+        <tr>
+          <td>L2_DPD90_24M</td>
+          <td style="text-align:left;color:var(--muted)">max_dpd_overall=None</td>
+          <td><span class="pill pass">PASS</span></td>
+        </tr>
+      
+        <tr>
+          <td>L3_DPD60_18M</td>
+          <td style="text-align:left;color:var(--muted)">max_dpd_overall=None</td>
+          <td><span class="pill pass">PASS</span></td>
+        </tr>
+      
+        <tr>
+          <td>L4_NEGATIVE_FLAGS</td>
+          <td style="text-align:left;color:var(--muted)">flags=None</td>
+          <td><span class="pill pass">PASS</span></td>
+        </tr>
+      
+        <tr>
+          <td>L5_ENQUIRY_SPIKE</td>
+          <td style="text-align:left;color:var(--muted)">enq_count=0</td>
+          <td><span class="pill pass">PASS</span></td>
+        </tr>
+      
+        <tr>
+          <td>L6_EXPOSURE</td>
+          <td style="text-align:left;color:var(--muted)">exposure/income=13.711316666666667</td>
+          <td><span class="pill pass">PASS</span></td>
+        </tr>
+      
+      </tbody>
+    </table>
+    
+    
+    <div class="note" style="color:var(--danger);font-weight:700">Deviations triggered:
+      SERVICEABILITY (FOIR_CAP)
+    </div>
+    
+  </section>
+
+  <!-- 10. CREDIT MANAGER -->
+  <section>
+    <div class="s-head"><div class="s-num">10</div><div class="s-title">Credit Manager Details</div></div>
+    <div class="kv">
+      <div class="row"><span class="label">Decisioned by</span><span class="val">Agentic Underwriting Engine</span></div>
+      <div class="row"><span class="label">AI assisted</span><span class="val">No</span></div>
+    </div>
+    
+    <div class="note">Model versions:
+      banking_narrative=ollama-local · bureau_narrative=ollama-local · pd_model=placeholder · pricing=placeholder · address_model=address-quality-v1.2.0
+    </div>
+    
+    <div class="sign">
+      <div class="box">Reviewed by 
+  <span class="chip p-placeholder">placeholder</span><br><br>_____________________</div>
+      <div class="box">Approved by 
+  <span class="chip p-placeholder">placeholder</span><br><br>_____________________</div>
+    </div>
+  </section>
+
+  <!-- 11. PD SHEET -->
+  <section>
+    <div class="s-head"><div class="s-num">11</div><div class="s-title">PD Sheet</div></div>
+    <div class="kv three">
+      <div class="row"><span class="label">PD score</span><span class="val">0.0728</span>
+  <span class="chip p-placeholder">placeholder</span></div>
+      <div class="row"><span class="label">Risk band</span><span class="val">Band 2 / 5</span>
+  <span class="chip p-placeholder">placeholder</span></div>
+      <div class="row"><span class="label">Affluence segment</span><span class="val">mass_affluent</span>
+  <span class="chip p-derived">derived</span></div>
+      <div class="row"><span class="label">Affluence value</span><span class="val">₹60,000</span>
+  <span class="chip p-derived">derived</span></div>
+      <div class="row"><span class="label">PD provenance</span><span class="val">placeholder</span></div>
+    </div>
+    
+    <div class="note">Policy features:
+      address_pd_adjustment=-0.02 · address_band=HIGH
+    </div>
+    
+  </section>
+
+  <!-- LEGEND -->
+  <div class="legend">
+    <span><span class="chip p-real">real</span>analyser output</span>
+    <span><span class="chip p-derived">derived</span>computed by journey</span>
+    <span><span class="chip p-mock">mock</span>deterministic stand-in</span>
+    <span><span class="chip p-placeholder">placeholder</span>not yet a real model/table</span>
+  </div>
+
+  
+  <section style="margin-top:14px">
+    <div class="s-head"><div class="s-title" style="font-size:.78rem">Journey warnings (7)</div></div>
+    <ul class="warnlist">
+      <li>layer2: bureau.max_dpd_overall -&gt; None (field absent in report)</li><li>layer2: bureau.max_dpd_unsecured -&gt; None (field absent in report)</li><li>layer2: bureau.bureau_persona -&gt; None (field absent in report)</li><li>layer2: bureau.bureau_risk_grade -&gt; None (field absent in report)</li><li>layer2: banking.cashflow_consistency -&gt; None (field absent in report)</li><li>layer2: banking.negative_flags -&gt; None (field absent in report)</li><li>orchestrator: APPROVED but not serviceable -&gt; DECLINED</li>
+    </ul>
+  </section>
+  
+
+</div>
+</body>
+</html>

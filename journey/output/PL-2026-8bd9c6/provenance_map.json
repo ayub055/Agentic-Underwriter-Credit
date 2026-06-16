@@ -23,5 +23,8 @@
   "ml.risk_band": "placeholder",
   "decision.offer_irr": "placeholder",
   "decision.processing_fee": "placeholder",
-  "policy.thresholds": "placeholder"
+  "policy.thresholds": "placeholder",
+  "address.score": "placeholder",
+  "address.band": "placeholder",
+  "address.pd_adjustment": "placeholder"
 }

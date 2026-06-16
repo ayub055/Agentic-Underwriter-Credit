@@ -50,7 +50,7 @@ export default function OfferSimulator({ income, existingObligations, ratePct, o
   const pct = Math.round(foir * 100);
 
   return (
-    <div className="mt-6 rounded-2xl border border-agent-200/70 bg-gradient-to-br from-agent-50/60 to-white p-5">
+    <div className="mt-6 rounded-2xl border border-agent-200/70 bg-gradient-to-br from-agent-50/60 to-surface p-5">
       <div className="flex items-center gap-2">
         <Zap className="h-4 w-4 text-agent-600" strokeWidth={2.2} />
         <h2 className="text-sm font-semibold text-ink">Find what works — live</h2>
@@ -90,7 +90,7 @@ export default function OfferSimulator({ income, existingObligations, ratePct, o
               className={`rounded-lg px-2.5 py-1 text-xs font-medium transition ${
                 tenure === t
                   ? "bg-agent-600 text-white"
-                  : "bg-white text-slate-500 ring-1 ring-slate-200 hover:text-ink"
+                  : "bg-surface text-slate-500 ring-1 ring-slate-200 hover:text-ink"
               }`}
             >
               {t} mo
@@ -99,7 +99,7 @@ export default function OfferSimulator({ income, existingObligations, ratePct, o
         </div>
       </div>
 
-      <div className="mt-5 rounded-xl border border-slate-200 bg-white p-4">
+      <div className="mt-5 rounded-xl border border-slate-200 bg-surface p-4">
         <div className="flex items-center justify-between text-sm">
           <span className="flex items-center gap-1.5 text-slate-500">
             <Gauge className="h-4 w-4" strokeWidth={2} />
@@ -114,7 +114,7 @@ export default function OfferSimulator({ income, existingObligations, ratePct, o
         </div>
         <div className="relative mt-3 h-2 overflow-hidden rounded-full bg-gradient-to-r from-success-200 via-caution-200 to-caution-500/60">
           <span
-            className="absolute -top-0.5 h-3 w-1 rounded-full bg-ink shadow transition-all duration-300 ease-out"
+            className="absolute -top-0.5 h-3 w-1 rounded-full bg-night shadow transition-all duration-300 ease-out"
             style={{ left: `${Math.min(foir, 1) * 100}%` }}
             aria-hidden="true"
           />
@@ -130,7 +130,7 @@ export default function OfferSimulator({ income, existingObligations, ratePct, o
       </div>
 
       {existingObligations > 0 && (
-        <div className="mt-3 flex items-start gap-2 rounded-xl bg-white/70 p-3 text-xs leading-relaxed text-slate-600 ring-1 ring-slate-200/70">
+        <div className="mt-3 flex items-start gap-2 rounded-xl bg-surface/70 p-3 text-xs leading-relaxed text-slate-600 ring-1 ring-slate-200/70">
           <Lightbulb className="mt-0.5 h-3.5 w-3.5 flex-shrink-0 text-agent-600" strokeWidth={2.2} />
           <span>
             Your existing EMIs of ≈{formatINR(existingObligations)}/mo are what's squeezing the

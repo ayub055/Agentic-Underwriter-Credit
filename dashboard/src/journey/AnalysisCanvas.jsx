@@ -59,7 +59,7 @@ export default function AnalysisCanvas({ moments, phase, moment, facts, onSkip }
   const Icon = m?.icon;
 
   return (
-    <div className="mt-5 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8 animate-fade-in">
+    <div className="mt-5 rounded-2xl border border-slate-200 bg-surface p-6 shadow-sm sm:p-8 animate-fade-in">
       {phase === "intro" || !m ? (
         <div className="flex items-center gap-3">
           <span className="h-10 w-10 rounded-xl bg-gradient-to-r from-slate-100 via-slate-200 to-slate-100 bg-[length:200%_100%] motion-safe:animate-shimmer" />

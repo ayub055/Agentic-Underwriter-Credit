@@ -1,0 +1,601 @@
+{
+  "meta": {
+    "case_id": "PL-2026-8bd9c6",
+    "run_id": "483b354f000f4dd5afddbda8bd205bec",
+    "customer_id": 698167220,
+    "outcome": "DECLINED",
+    "generated_at": "2026-06-15T23:08:51",
+    "channel": "Digital · self-serve"
+  },
+  "application": {
+    "application_no": "PL-2026-8bd9c6",
+    "date": "2026-06-15T23:08:51",
+    "channel": "Digital · self-serve",
+    "location": "Bengaluru",
+    "pincode": "560103",
+    "loan_amount_req": 500000.0,
+    "tenure_req": 12,
+    "product": "Personal Loan"
+  },
+  "applicant": {
+    "name": null,
+    "dob": null,
+    "age": null,
+    "qualification": null,
+    "residence_type": "owned",
+    "years_at_address": 6,
+    "address_line": "Flat 7B, Lakeview Residency",
+    "city": "Bengaluru",
+    "state": "KA",
+    "pincode": "560103",
+    "address_score": 83.4,
+    "address_band": "HIGH",
+    "address_reasons": [
+      {
+        "code": "GEO_RISK_INDEX",
+        "label": "Low-risk geographic zone",
+        "impact": 0.4432,
+        "direction": "positive"
+      },
+      {
+        "code": "ADDRESS_COMPLETENESS",
+        "label": "Complete, well-formed address",
+        "impact": 0.42,
+        "direction": "positive"
+      },
+      {
+        "code": "OWNERSHIP_OWNED",
+        "label": "Self-owned residence",
+        "impact": 0.315,
+        "direction": "positive"
+      }
+    ]
+  },
+  "employment": {
+    "employer": "Mock Employer Pvt Ltd",
+    "category": null,
+    "designation": null,
+    "employment_verified": true,
+    "stability_months": null,
+    "total_experience": null
+  },
+  "loan": {
+    "offer_amount": 500000.0,
+    "offer_tenure": 12,
+    "offer_irr": 0.1349,
+    "offer_emi": 44773.66,
+    "processing_fee": 7500.0,
+    "foir_proposed": 1.1868,
+    "approved_segment": "mass_affluent"
+  },
+  "financial": {
+    "declared_income": 60000.0,
+    "income_used": 60000.0,
+    "income_source": "declared",
+    "salary_detected": 51020.333333333336,
+    "foir_existing": 0.4406,
+    "total_obligation": 26434.0,
+    "total_exposure": 822679.0
+  },
+  "obligations": {
+    "obligations": [
+      {
+        "loan_type": "credit_card",
+        "secured": false,
+        "loan_count": 26,
+        "live_count": 21,
+        "closed_count": 5,
+        "total_sanctioned": 6936205.0,
+        "total_outstanding": 655918.0,
+        "overdue_amount": 0.0,
+        "max_dpd": null,
+        "max_dpd_months_ago": null,
+        "delinquency_flag": false,
+        "utilization_ratio": 0.0896,
+        "avg_vintage_months": 0.0,
+        "earliest_opened": "Aug 2018",
+        "latest_opened": "Nov 2025",
+        "latest_closed": "Nov 2025",
+        "on_us_count": 1,
+        "on_us_outstanding": 21705.0
+      },
+      {
+        "loan_type": "personal_loan",
+        "secured": false,
+        "loan_count": 1,
+        "live_count": 1,
+        "closed_count": 0,
+        "total_sanctioned": 311925.0,
+        "total_outstanding": 166761.0,
+        "overdue_amount": 0.0,
+        "max_dpd": null,
+        "max_dpd_months_ago": null,
+        "delinquency_flag": false,
+        "utilization_ratio": null,
+        "avg_vintage_months": 0.0,
+        "earliest_opened": "May 2024",
+        "latest_opened": "May 2024",
+        "latest_closed": null,
+        "on_us_count": 0,
+        "on_us_outstanding": 0
+      }
+    ],
+    "totals": {
+      "total_tradelines": 27,
+      "live_tradelines": 22,
+      "closed_tradelines": 5,
+      "total_sanctioned": 7248130.0,
+      "total_outstanding": 822679.0,
+      "unsecured_outstanding": 822679.0,
+      "tu_score": 785,
+      "has_delinquency": false,
+      "max_dpd": null,
+      "max_dpd_loan_type": null,
+      "on_us_total_outstanding": 21705.0,
+      "total_joint_count": 0
+    },
+    "monthly_exposure": {
+      "months": [
+        "Jul 2024",
+        "Aug 2024",
+        "Sep 2024",
+        "Oct 2024",
+        "Nov 2024",
+        "Dec 2024",
+        "Jan 2025",
+        "Feb 2025",
+        "Mar 2025",
+        "Apr 2025",
+        "May 2025",
+        "Jun 2025",
+        "Jul 2025",
+        "Aug 2025",
+        "Sep 2025",
+        "Oct 2025",
+        "Nov 2025",
+        "Dec 2025",
+        "Jan 2026",
+        "Feb 2026",
+        "Mar 2026",
+        "Apr 2026",
+        "May 2026",
+        "Jun 2026"
+      ],
+      "series": {
+        "CC": [
+          5619000.0,
+          5619000.0,
+          5619000.0,
+          5619000.0,
+          5619000.0,
+          6046000.0,
+          6046000.0,
+          6346000.0,
+          6346000.0,
+          6346000.0,
+          6346000.0,
+          6346000.0,
+          6346000.0,
+          6346000.0,
+          6346000.0,
+          6146000.0,
+          6147205.0,
+          6097205.0,
+          6097205.0,
+          6097205.0,
+          6097205.0,
+          6097205.0,
+          6097205.0,
+          6097205.0
+        ],
+        "PL": [
+          311925.0,
+          311925.0,
+          311925.0,
+          311925.0,
+          311925.0,
+          311925.0,
+          311925.0,
+          311925.0,
+          311925.0,
+          311925.0,
+          311925.0,
+          311925.0,
+          311925.0,
+          311925.0,
+          311925.0,
+          311925.0,
+          311925.0,
+          311925.0,
+          311925.0,
+          311925.0,
+          311925.0,
+          311925.0,
+          311925.0,
+          311925.0
+        ]
+      }
+    },
+    "narrative": "Here is the executive summary:\n\nThe customer's tradeline portfolio consists of N=27 total tradelines (M live=22, P closed=5). The portfolio features a mix of loan products, with Credit Card being the dominant product type. Total sanctioned exposure stands at INR 72,48,130, while total outstanding is INR 8,22,679. Unsecured sanction amount and outstanding are identical to total outstanding, indicating no separation between secured and unsecured loans. The credit card utilization percentage is 9.0%, which is elevated. There are no defaulted loan types present in the data.\n\nThe customer's behavioral features indicate a relatively clean repayment profile, with zero DPD across all products and windows, no missed payments. The trade-to-enquiry ratio is 40.00% for unsecured trades, indicating moderate enquiry activity. Loan acquisition velocity is also notable, with an average interpurchase time of 3.45 months. However, the FOIR (total) stands at 68.5%, indicating over-leveraging, while the FOIR (unsecured only) is 60.8%. The sanctioned exposure trend has decreased by 4% over the last 12 months, with a stable trend over the last 6 months."
+  },
+  "banking": {
+    "salary": {
+      "avg_amount": 51020.333333333336,
+      "frequency": 6,
+      "narration": "Salary Oct 2025",
+      "latest_transaction": {
+        "date": "2026-02-27",
+        "amount": 52161.0,
+        "narration": "Salary Feb 2026"
+      }
+    },
+    "emis": [
+      {
+        "name": "PLA5150547202",
+        "amount": 2354.0,
+        "frequency": 6
+      },
+      {
+        "name": "LM00849846",
+        "amount": 15080.0,
+        "frequency": 2
+      },
+      {
+        "name": "PATELKISHANKUMA",
+        "amount": 1500.0,
+        "frequency": 1
+      },
+      {
+        "name": "EMI EV",
+        "amount": 5000.0,
+        "frequency": 1
+      },
+      {
+        "name": "EMI VEHICLE",
+        "amount": 2500.0,
+        "frequency": 1
+      }
+    ],
+    "savings": null,
+    "risk_indicators": null,
+    "account_quality": {
+      "account_type": "primary",
+      "confidence": "medium",
+      "primary_score": 65,
+      "conduit_events": [],
+      "conduit_months": 0,
+      "salary_outflow_pct_3d": 0.0,
+      "atm_debit_pct": 0.0,
+      "avg_monthly_debits": 8.8,
+      "has_emi_debits": true,
+      "has_utility_debits": false,
+      "has_rent_visible": false,
+      "has_small_ticket_txns": false,
+      "observations": [
+        "Account appears primary: EMI payments visible with avg 9 debit transactions/month."
+      ]
+    },
+    "checklist": {
+      "banking": [
+        {
+          "label": "ECS / NACH bounces",
+          "checked": false,
+          "severity": "neutral",
+          "detail": null
+        },
+        {
+          "label": "Loan disbursement detected",
+          "checked": false,
+          "severity": "neutral",
+          "detail": null
+        },
+        {
+          "label": "Post-disbursement fund diversion",
+          "checked": false,
+          "severity": "neutral",
+          "detail": null
+        },
+        {
+          "label": "Salary detected in banking",
+          "checked": true,
+          "severity": "positive",
+          "detail": "₹51,020 avg (6 transactions)"
+        },
+        {
+          "label": "Big debits after salary credit (≥40% within 3d)",
+          "checked": false,
+          "severity": "neutral",
+          "detail": null
+        },
+        {
+          "label": "Circular entry (mirror credit/debit)",
+          "checked": false,
+          "severity": "positive",
+          "detail": null
+        },
+        {
+          "label": "Counterparties on both credit & debit",
+          "checked": true,
+          "severity": "medium",
+          "detail": "2 counterparties on both sides — top: EMI EV (₹5,000 in / ₹5,000 out)"
+        },
+        {
+          "label": "EMI obligations present",
+          "checked": true,
+          "severity": "medium",
+          "detail": "₹26,434 total across 5 lender(s)"
+        },
+        {
+          "label": "NACH mandate EMI detected",
+          "checked": true,
+          "severity": "medium",
+          "detail": "Ongoing (6 months): NACH mandate / SPLN EMI debit — avg ₹5,536/month (NACH-10-DR-PLA5150547202-3BPAN9NJ1HT2QB)"
+        },
+        {
+          "label": "Rent payments present",
+          "checked": false,
+          "severity": "neutral",
+          "detail": null
+        },
+        {
+          "label": "Credit card bill payments",
+          "checked": false,
+          "severity": "neutral",
+          "detail": null
+        },
+        {
+          "label": "Land purchase payments",
+          "checked": false,
+          "severity": "neutral",
+          "detail": null
+        },
+        {
+          "label": "ATM withdrawals elevated",
+          "checked": false,
+          "severity": "neutral",
+          "detail": null
+        },
+        {
+          "label": "Transactions above 95th percentile",
+          "checked": true,
+          "severity": "medium",
+          "detail": "Salary Feb 2026: ₹52,161 (credit); PATELKISHANKUMA: ₹50,000 (debit); PATELKISHANKUMA: ₹50,000 (debit); PATELKISHANKUMA: ₹38,000 (debit)"
+        },
+        {
+          "label": "Automated (NACH/mandate) transactions",
+          "checked": true,
+          "severity": "neutral",
+          "detail": "8 total (8 debits, 0 credits)"
+        },
+        {
+          "label": "Payment mode distribution shift",
+          "checked": false,
+          "severity": "neutral",
+          "detail": null
+        },
+        {
+          "label": "Emerging merchants detected",
+          "checked": true,
+          "severity": "medium",
+          "detail": "4 new: REKHA KANSAL, SALIM AMIN ATTA, Arti Dipak Salu"
+        }
+      ]
+    },
+    "monthly_cashflow": [
+      {
+        "month": "2025-09",
+        "inflow": 50314.0,
+        "outflow": 28262.0,
+        "net": 22052.0
+      },
+      {
+        "month": "2025-10",
+        "inflow": 55314.0,
+        "outflow": 53231.0,
+        "net": 2083.0
+      },
+      {
+        "month": "2025-11",
+        "inflow": 51111.0,
+        "outflow": 91104.0,
+        "net": -39993.0
+      },
+      {
+        "month": "2025-12",
+        "inflow": 51111.0,
+        "outflow": 74624.0,
+        "net": -23513.0
+      },
+      {
+        "month": "2026-01",
+        "inflow": 51111.0,
+        "outflow": 102699.0,
+        "net": -51588.0
+      },
+      {
+        "month": "2026-02",
+        "inflow": 54661.0,
+        "outflow": 115254.0,
+        "net": -60593.0
+      }
+    ],
+    "top_categories": [
+      {
+        "category": "Finance",
+        "amount": 44284.0
+      }
+    ],
+    "customer_review": "The customer's banking profile presents a mixed picture. Their average monthly cash flow shows an inflow of ₹313,622 and outflow of ₹465,174, resulting in an average net deficit of ₹151,552 per month. This translates to a stretched obligation-to-income ratio of 51.8%, indicating that their income is barely covering their essential expenses.\n\nThe customer's spending categories reveal some concerning trends. The largest portion of their expenditure goes towards self-transfers (420,345 INR), followed by finance and peer-to-peer transactions (545 INR). This suggests a high level of financial risk-taking, with a significant proportion of their income being diverted towards non-essential expenses. Furthermore, the customer's EMI payments are visible, indicating that they have taken on debt to purchase a vehicle.\n\nThe customer's merchant behavior is also noteworthy. The most frequent merchant is PATELKISHANKUMA, which accounts for 32 transactions and ₹412,800 in spending. Additionally, there are regular merchants such as Salary Oct 2025, BHOSALE RAJU TA, PLA5150547202, and LM00849846, among others. The customer's favourite debit merchants include PLA5150547202 and LM00849846, while their favourite credit merchant is Salary Oct 2025. Notably, the customer has received high amounts of salary income from employer credits, with one instance in Jan 2026 where ₹51,111 was received and spent within 3 days at a rate of 122%."
+  },
+  "verification": [
+    {
+      "label": "KYC (Karza)",
+      "status": true,
+      "detail": null,
+      "prov_key": "intake.kyc_verified"
+    },
+    {
+      "label": "PAN validation",
+      "status": true,
+      "detail": "bundled with KYC",
+      "prov_key": "intake.kyc_verified"
+    },
+    {
+      "label": "Employment (EPFO)",
+      "status": true,
+      "detail": null,
+      "prov_key": "intake.employment_verified"
+    },
+    {
+      "label": "Address verification",
+      "status": true,
+      "detail": "HIGH · 83.4/100",
+      "prov_key": "intake.address_verified"
+    },
+    {
+      "label": "Consent captured",
+      "status": true,
+      "detail": null,
+      "prov_key": "intake.consent_captured"
+    }
+  ],
+  "deviations": {
+    "policy_result": "APPROVED",
+    "serviceable": false,
+    "layers": [
+      {
+        "layer": "L0_ADDRESS",
+        "passed": true,
+        "reason_code": "ADDRESS_LOW",
+        "detail": "band=HIGH score=83.4"
+      },
+      {
+        "layer": "L1_NPA",
+        "passed": true,
+        "reason_code": "NPA_ACTIVE",
+        "detail": "npa_flag=False"
+      },
+      {
+        "layer": "L2_DPD90_24M",
+        "passed": true,
+        "reason_code": "DPD90_24M",
+        "detail": "max_dpd_overall=None"
+      },
+      {
+        "layer": "L3_DPD60_18M",
+        "passed": true,
+        "reason_code": "DPD60_18M",
+        "detail": "max_dpd_overall=None"
+      },
+      {
+        "layer": "L4_NEGATIVE_FLAGS",
+        "passed": true,
+        "reason_code": "NEGATIVE_FLAGS",
+        "detail": "flags=None"
+      },
+      {
+        "layer": "L5_ENQUIRY_SPIKE",
+        "passed": true,
+        "reason_code": "ENQ_SPIKE",
+        "detail": "enq_count=0"
+      },
+      {
+        "layer": "L6_EXPOSURE",
+        "passed": true,
+        "reason_code": "EXPOSURE_HIGH",
+        "detail": "exposure/income=13.711316666666667"
+      }
+    ],
+    "breaches": [
+      {
+        "layer": "SERVICEABILITY",
+        "passed": false,
+        "reason_code": "FOIR_CAP",
+        "detail": "foir_proposed=1.1868 > cap"
+      }
+    ],
+    "warnings": [
+      "layer2: bureau.max_dpd_overall -> None (field absent in report)",
+      "layer2: bureau.max_dpd_unsecured -> None (field absent in report)",
+      "layer2: bureau.bureau_persona -> None (field absent in report)",
+      "layer2: bureau.bureau_risk_grade -> None (field absent in report)",
+      "layer2: banking.cashflow_consistency -> None (field absent in report)",
+      "layer2: banking.negative_flags -> None (field absent in report)",
+      "orchestrator: APPROVED but not serviceable -> DECLINED"
+    ]
+  },
+  "credit_manager": {
+    "decisioned_by": "Agentic Underwriting Engine",
+    "ai_assisted": false,
+    "model_versions": {
+      "banking_narrative": "ollama-local",
+      "bureau_narrative": "ollama-local",
+      "pd_model": "placeholder",
+      "pricing": "placeholder",
+      "address_model": "address-quality-v1.2.0"
+    },
+    "reviewed_by": null,
+    "approved_by": null,
+    "remarks": null
+  },
+  "pd_sheet": {
+    "pd_score": 0.0728,
+    "pd_provenance": "placeholder",
+    "risk_band": 2,
+    "affluence_value": 60000.0,
+    "affluence_segment": "mass_affluent",
+    "policy_features": {
+      "address_pd_adjustment": -0.02,
+      "address_band": "HIGH"
+    }
+  },
+  "provenance": {
+    "intake.kyc_verified": "mock",
+    "intake.employment_verified": "mock",
+    "intake.consent_captured": "mock",
+    "intake.address_verified": "mock",
+    "intake.declared_income": "mock",
+    "intake.loan_amount_req": "mock",
+    "summary.cibil_score": "real",
+    "summary.npa_flag": "real",
+    "summary.total_exposure": "real",
+    "summary.max_dpd_overall": "real",
+    "summary.enq_count": "real",
+    "summary.salary_income_detected": "real",
+    "summary.existing_emi_debits": "real",
+    "summary.affluence_band": "real",
+    "summary.max_dpd_unsecured": "derived",
+    "summary.bounce_count": "derived",
+    "summary.cashflow_consistency": "derived",
+    "ml.foir_existing": "derived",
+    "decision.foir_proposed": "derived",
+    "decision.offer_emi": "derived",
+    "ml.pd_score": "placeholder",
+    "ml.risk_band": "placeholder",
+    "decision.offer_irr": "placeholder",
+    "decision.processing_fee": "placeholder",
+    "policy.thresholds": "placeholder",
+    "address.score": "placeholder",
+    "address.band": "placeholder",
+    "address.pd_adjustment": "placeholder",
+    "applicant.name": "mock",
+    "applicant.dob": "mock",
+    "applicant.qualification": "mock",
+    "applicant.residence_type": "mock",
+    "applicant.address_line": "mock",
+    "employment.employer": "mock",
+    "employment.stability_months": "mock",
+    "loan.offer_amount": "derived",
+    "loan.offer_tenure": "derived",
+    "financial.income_used": "derived",
+    "financial.salary_detected": "real",
+    "financial.total_obligation": "real",
+    "financial.total_exposure": "real",
+    "obligations": "real",
+    "banking": "real",
+    "credit_manager.reviewed_by": "placeholder",
+    "credit_manager.approved_by": "placeholder",
+    "pd_sheet.affluence_value": "derived",
+    "pd_sheet.affluence_segment": "derived"
+  }
+}

@@ -18,7 +18,7 @@ export default function ApprovedCard({ view, onAcceptOffer }) {
     affordability?.foirProposed != null ? Math.round(affordability.foirProposed * 100) : null;
 
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+    <div className="rounded-2xl border border-slate-200 bg-surface p-6 shadow-sm sm:p-8">
       <div className="flex flex-wrap items-center gap-2">
         <div className="inline-flex items-center gap-1.5 rounded-full bg-success-50 px-3 py-1 animate-pop">
           <CheckCircle2 className="h-3.5 w-3.5 text-success-600" strokeWidth={2.4} />
@@ -34,7 +34,7 @@ export default function ApprovedCard({ view, onAcceptOffer }) {
 
       <div className="mt-5">
         <div className="text-xs uppercase tracking-wide text-slate-500">Your approved amount</div>
-        <div className="mt-1 text-5xl font-semibold tracking-tight tabular-nums text-ink sm:text-6xl">
+        <div className="mt-1 font-display text-5xl font-semibold tracking-tight tabular-nums text-ink sm:text-6xl">
           {formatINR(amount)}
         </div>
         <p className="mt-2 text-sm text-slate-500">

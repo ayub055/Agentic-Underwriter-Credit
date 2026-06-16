@@ -10,6 +10,7 @@ from __future__ import annotations
 import asyncio
 import json
 import os
+import shutil
 import sys
 from pathlib import Path
 
@@ -35,9 +36,22 @@ def main() -> int:
                 trace.append(json.loads(line))
     (OUT_DIR / "trace.json").write_text(json.dumps(trace, indent=2))
 
+    # CAM: copy the canonical model (for the React viewer) + the printable HTML
+    # artifact (for Download/Preview) that finalize wrote into the audit pack.
+    case_dir = ROOT / "journey" / "output" / case.case_id
+    cam_model_src = case_dir / "cam_model.json"
+    if cam_model_src.exists():
+        (OUT_DIR / "camModel.json").write_text(cam_model_src.read_text())
+    cam_html_src = case_dir / f"cam_{case.case_id}.html"
+    reports_dir = ROOT / "dashboard" / "public" / "reports"
+    if cam_html_src.exists():
+        reports_dir.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(cam_html_src, reports_dir / "cam_report.html")
+
     print(f"captured case_id={case.case_id} outcome={case.outcome.value} "
           f"branches={ {k: v.status.value for k, v in case.branches.items()} } "
-          f"trace_records={len(trace)} -> {OUT_DIR}")
+          f"trace_records={len(trace)} cam={'ok' if cam_model_src.exists() else 'missing'} "
+          f"-> {OUT_DIR}")
     return 0
 
 

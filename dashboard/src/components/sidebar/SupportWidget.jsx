@@ -3,7 +3,7 @@ import FaqAccordion from "./FaqAccordion.jsx";
 
 export default function SupportWidget({ onChat }) {
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-5">
+    <div className="rounded-2xl border border-slate-200 bg-surface p-5">
       <h2 className="mb-4 text-xs font-semibold uppercase tracking-wide text-slate-500">
         Support
       </h2>

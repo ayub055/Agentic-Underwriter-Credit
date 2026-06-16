@@ -1,5 +1,11 @@
 [
   {
+    "layer": "L0_ADDRESS",
+    "passed": true,
+    "reason_code": "ADDRESS_LOW",
+    "detail": "band=HIGH score=83.4"
+  },
+  {
     "layer": "L1_NPA",
     "passed": true,
     "reason_code": "NPA_ACTIVE",

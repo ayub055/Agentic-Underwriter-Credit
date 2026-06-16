@@ -2,6 +2,135 @@
 @tailwind components;
 @tailwind utilities;
 
-html {
-  -webkit-font-smoothing: antialiased;
+/* ───────────────────────────────────────────────────────────────────────────
+   Design tokens. Colors are space-separated RGB channels so Tailwind can apply
+   opacity via `rgb(var(--x) / <alpha-value>)`. Two themes (data-theme) × two
+   modes (data-mode) all resolve here, so components keep using bg-primary-600 /
+   text-ink / bg-surface / slate-* and re-skin for free.
+
+   Default (:root) = Modern · light  — identical to the pre-theming palette.
+   ─────────────────────────────────────────────────────────────────────────── */
+:root,
+[data-theme="modern"] {
+  /* page canvas + neutrals (Tailwind `white` + `slate` ramp are var-backed) */
+  --c-canvas: 246 247 251;        /* #f6f7fb */
+  --c-surface: 255 255 255;
+  --c-slate-50: 248 250 252;
+  --c-slate-100: 241 245 249;
+  --c-slate-200: 226 232 240;
+  --c-slate-300: 203 213 225;
+  --c-slate-400: 148 163 184;
+  --c-slate-500: 100 116 139;
+  --c-slate-600: 71 85 105;
+  --c-slate-700: 51 65 85;
+  --c-slate-800: 30 41 59;
+  --c-slate-900: 15 23 42;
+  --c-ink: 15 23 42;
+
+  /* brand — indigo */
+  --c-primary-50: 238 242 255;
+  --c-primary-100: 224 231 255;
+  --c-primary-200: 199 210 254;
+  --c-primary-400: 129 140 248;
+  --c-primary-500: 99 102 241;
+  --c-primary-600: 79 70 229;
+  --c-primary-700: 67 56 202;
+  --c-primary-900: 30 27 75;
+
+  /* status (shared) */
+  --c-success-50: 236 253 245; --c-success-100: 209 250 229; --c-success-200: 167 243 208;
+  --c-success-500: 16 185 129; --c-success-600: 5 150 105; --c-success-700: 4 120 87;
+  --c-progress-50: 239 246 255; --c-progress-100: 219 234 254; --c-progress-200: 191 219 254;
+  --c-progress-400: 96 165 250; --c-progress-500: 59 130 246; --c-progress-600: 37 99 235;
+  --c-caution-50: 255 251 235; --c-caution-100: 254 243 199; --c-caution-200: 253 230 138;
+  --c-caution-400: 251 191 36; --c-caution-500: 245 158 11; --c-caution-700: 180 83 9;
+  --c-danger-50: 254 242 242; --c-danger-100: 254 226 226; --c-danger-200: 254 202 202;
+  --c-danger-300: 252 165 165; --c-danger-500: 239 68 68; --c-danger-600: 220 38 38; --c-danger-700: 185 28 28;
+  --c-agent-50: 245 243 255; --c-agent-100: 237 233 254; --c-agent-200: 221 214 254;
+  --c-agent-300: 196 181 253; --c-agent-500: 139 92 246; --c-agent-600: 124 58 237; --c-agent-700: 109 40 217;
+
+  /* form / radius / elevation / fonts */
+  --radius-sm: 0.5rem; --radius-md: 0.75rem; --radius-lg: 1rem; --radius-xl: 1.25rem;
+  --elev-1: 0 1px 2px rgb(15 23 42 / 0.05);
+  --elev-2: 0 4px 12px rgb(15 23 42 / 0.08);
+  --elev-3: 0 12px 32px rgb(15 23 42 / 0.12);
+  --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-display: 'Inter', ui-sans-serif, system-ui, sans-serif;
 }
+
+/* ── Premium · Kotak-led (deep navy ink + crimson accent) ─────────────────── */
+[data-theme="premium"] {
+  --c-canvas: 247 248 251;
+  --c-ink: 10 31 68;              /* Kotak navy */
+  --c-slate-700: 30 45 78;
+  --c-slate-800: 18 33 64;
+  --c-slate-900: 10 31 68;
+
+  /* brand — Kotak crimson ramp */
+  --c-primary-50: 254 242 244;
+  --c-primary-100: 252 226 230;
+  --c-primary-200: 250 200 208;
+  --c-primary-400: 240 80 105;
+  --c-primary-500: 228 0 43;     /* #E4002B */
+  --c-primary-600: 200 0 38;
+  --c-primary-700: 163 0 31;
+  --c-primary-900: 86 4 18;
+
+  --font-display: 'Fraunces', 'Inter', ui-serif, Georgia, serif;
+  --elev-2: 0 6px 18px rgb(10 31 68 / 0.10);
+  --elev-3: 0 16px 40px rgb(10 31 68 / 0.16);
+}
+
+/* ── Dark mode (used mainly by Premium) ───────────────────────────────────────
+   Neutrals invert with a clear elevation ladder: canvas < surface < slate-50 <
+   slate-100 (raised). Status text shades that are NEVER used as a solid button
+   background (success-700, danger-700/600, progress-600) are lightened so chips
+   read on dark tints; shades reused as solid bg (-500/-600 bg, caution-700,
+   agent-600/700) keep their saturated values. Brand tints (primary-50/100/200)
+   stay light → "filled chip" glow for done states. */
+[data-mode="dark"] {
+  --c-canvas: 9 12 19;            /* deep neutral page */
+  --c-surface: 19 23 32;         /* cards — clearly above canvas */
+  --c-slate-50: 26 31 43;        /* subtle raised */
+  --c-slate-100: 33 40 54;       /* raised / hover */
+  --c-slate-200: 46 54 71;       /* borders — visible but quiet */
+  --c-slate-300: 64 74 95;       /* strong divider */
+  --c-slate-400: 143 153 171;    /* muted text */
+  --c-slate-500: 167 177 195;    /* secondary text */
+  --c-slate-600: 192 201 216;
+  --c-slate-700: 214 221 232;
+  --c-slate-800: 232 236 244;
+  --c-slate-900: 244 247 251;    /* near-white headings */
+  --c-ink: 247 249 253;
+
+  /* status backgrounds (deep, desaturated) — -50 darkest, -100 a touch lighter */
+  --c-success-50: 13 38 29; --c-progress-50: 12 29 51; --c-caution-50: 38 30 12;
+  --c-danger-50: 42 21 23; --c-agent-50: 28 24 50;
+  --c-success-100: 18 50 38; --c-progress-100: 16 38 66; --c-caution-100: 50 40 16;
+  --c-danger-100: 54 28 30; --c-agent-100: 36 31 62;
+  /* status borders (subtle, hue-matched) */
+  --c-success-200: 22 66 50; --c-progress-200: 27 51 86; --c-caution-200: 64 50 20;
+  --c-danger-200: 73 33 36; --c-agent-200: 52 44 82;
+  /* status text — text-only shades, lightened for dark */
+  --c-success-700: 110 231 183; --c-danger-700: 252 165 165;
+  --c-danger-600: 248 113 113; --c-progress-600: 147 197 253;
+
+  --elev-1: 0 1px 2px rgb(0 0 0 / 0.5);
+  --elev-2: 0 8px 24px rgb(0 0 0 / 0.5);
+  --elev-3: 0 18px 48px rgb(0 0 0 / 0.6);
+}
+/* Premium dark: navy-tinted neutrals + a vivid crimson that pops on navy. */
+[data-theme="premium"][data-mode="dark"] {
+  --c-canvas: 7 11 22;           /* navy-black */
+  --c-surface: 15 21 38;         /* navy card */
+  --c-slate-50: 22 30 50;
+  --c-slate-100: 29 39 62;
+  --c-slate-200: 42 54 82;       /* navy border */
+  --c-slate-300: 58 72 104;
+  --c-primary-400: 255 120 142;
+  --c-primary-500: 255 64 96;    /* #FF4060 — vivid on navy */
+  --c-primary-600: 240 36 70;
+}
+
+html { -webkit-font-smoothing: antialiased; }
+body { background: rgb(var(--c-canvas)); color: rgb(var(--c-ink)); }

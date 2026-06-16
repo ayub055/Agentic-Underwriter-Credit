@@ -3,7 +3,7 @@ import { Play, Pause, RotateCcw, FastForward } from "lucide-react";
 const SPEEDS = [0.5, 1, 2];
 
 const ghostBtn =
-  "flex items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-50";
+  "flex items-center gap-1.5 rounded-lg border border-slate-300 bg-surface px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-50";
 
 export default function JourneyControls({
   playing,
@@ -34,7 +34,7 @@ export default function JourneyControls({
       <button onClick={skipEnd} className={ghostBtn}>
         <FastForward className="h-4 w-4" /> Skip
       </button>
-      <div className="ml-1 flex items-center gap-1 rounded-lg border border-slate-300 bg-white p-1">
+      <div className="ml-1 flex items-center gap-1 rounded-lg border border-slate-300 bg-surface p-1">
         {SPEEDS.map((s) => (
           <button
             key={s}

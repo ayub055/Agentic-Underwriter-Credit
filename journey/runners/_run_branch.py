@@ -25,6 +25,7 @@ sys.path.insert(0, os.getcwd())                                # repo root leads
 
 from runners._encode import to_jsonable          # noqa: E402
 from runners._summarize import SUMMARIZERS        # noqa: E402
+from runners._cam_detail import CAM_DETAILERS     # noqa: E402
 
 
 def _call(spec: str, customer_id: int):
@@ -41,7 +42,7 @@ def main() -> int:
     ap.add_argument("--out", required=True)
     args = ap.parse_args()
 
-    result = {"ok": False, "summary": None, "report_path": None,
+    result = {"ok": False, "summary": None, "detail": None, "report_path": None,
               "model_used": None, "elapsed_s": 0.0, "error": None}
     t0 = time.time()
 
@@ -61,6 +62,7 @@ def main() -> int:
     if report is not None:
         rd = to_jsonable(report)
         result["summary"] = SUMMARIZERS[args.branch](rd)
+        result["detail"] = CAM_DETAILERS[args.branch](rd)
         narrative = rd.get("customer_review") or rd.get("narrative")
         result["model_used"] = "ollama-local" if narrative else None
         result["ok"] = True

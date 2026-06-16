@@ -38,6 +38,7 @@ class BranchResult(BaseModel):
     branch: str
     status: BranchStatus
     summary: Optional[dict] = None
+    detail: Optional[dict] = None   # rich CAM slices (obligations / banking blocks)
     report_path: Optional[str] = None
     model_used: Optional[str] = None
     error: Optional[str] = None

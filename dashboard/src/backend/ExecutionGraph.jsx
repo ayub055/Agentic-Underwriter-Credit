@@ -63,15 +63,17 @@ const EDGES = [
   { id: "e-fn", phase: 7, d: "M 921 126 L 944 126" },
 ];
 
+// Theme-aware via Tailwind stroke-* utilities (var-backed colors) so the DAG
+// reads correctly in light and dark.
 const EDGE_STROKE = {
-  waiting: { stroke: "#e2e8f0", dash: "4 5", width: 1.5, opacity: 1 },
-  running: { stroke: "#7c3aed", dash: "none", width: 2, opacity: 0.9 },
-  done: { stroke: "#6366f1", dash: "none", width: 2, opacity: 0.55 },
+  waiting: { cls: "stroke-slate-300", dash: "4 5", width: 1.5, opacity: 0.9 },
+  running: { cls: "stroke-agent-500", dash: "none", width: 2, opacity: 0.9 },
+  done: { cls: "stroke-primary-400", dash: "none", width: 2, opacity: 0.6 },
 };
 
 function Packet({ pathId, begin }) {
   return (
-    <circle r="3.2" fill="#7c3aed" opacity="0.9">
+    <circle r="3.2" className="fill-agent-500" opacity="0.9">
       <animateMotion dur="1.2s" begin={begin} repeatCount="indefinite">
         <mpath href={`#${pathId}`} />
       </animateMotion>
@@ -94,7 +96,7 @@ function Node({ node, status, selected, onSelect }) {
     >
       {/* Hover affordance: clicking nodes is the main interaction, make it obvious. */}
       <span
-        className={`pointer-events-none absolute left-1/2 z-10 hidden -translate-x-1/2 whitespace-nowrap rounded bg-ink px-1.5 py-0.5 text-[9px] font-medium text-white group-hover:block ${
+        className={`pointer-events-none absolute left-1/2 z-10 hidden -translate-x-1/2 whitespace-nowrap rounded bg-night px-1.5 py-0.5 text-[9px] font-medium text-white group-hover:block ${
           node.labelPos === "above" ? "top-full mt-2" : "bottom-full mb-2"
         }`}
       >
@@ -106,7 +108,7 @@ function Node({ node, status, selected, onSelect }) {
             ? "border-primary-200 bg-primary-50 text-primary-700"
             : running
             ? "border-agent-500 bg-agent-50 text-agent-700 shadow-[0_0_18px_rgba(124,58,237,.30)]"
-            : "border-slate-200 bg-white text-slate-300"
+            : "border-slate-200 bg-surface text-slate-300"
         } ${selected ? "ring-2 ring-primary-600 ring-offset-2" : "group-hover:border-slate-300 group-hover:shadow-md"}`}
       >
         <Icon className={node.small ? "h-4 w-4" : "h-5 w-5"} strokeWidth={2} />
@@ -168,13 +170,120 @@ function Node({ node, status, selected, onSelect }) {
   );
 }
 
+function StatusText({ status }) {
+  const map = {
+    done: ["Done", "text-success-700"],
+    running: ["Running", "text-agent-600"],
+    waiting: ["Waiting", "text-slate-400"],
+  };
+  const [label, cls] = map[status] ?? map.waiting;
+  return <span className={`flex-shrink-0 text-micro font-semibold uppercase tracking-wide ${cls}`}>{label}</span>;
+}
+
+// Compact list row used by the stacked (small-screen) layout — same data, click
+// target and tones as the SVG node, laid out horizontally instead of placed.
+function StackNode({ node, status, selected, onSelect }) {
+  const Icon = node.icon;
+  const done = status === "done";
+  const running = status === "running";
+  return (
+    <button
+      onClick={onSelect}
+      aria-label={`${node.label} — ${status}`}
+      className={`flex w-full items-center gap-3 rounded-xl border px-3 py-2.5 text-left transition ${
+        selected
+          ? "border-primary-600 bg-surface ring-1 ring-primary-600/30"
+          : running
+          ? "border-agent-300 bg-agent-50"
+          : "border-slate-200 bg-surface hover:border-slate-300"
+      }`}
+    >
+      <span
+        className={`relative flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg border ${
+          done
+            ? "border-primary-200 bg-primary-50 text-primary-700"
+            : running
+            ? "border-agent-500 bg-agent-50 text-agent-700"
+            : "border-slate-200 bg-surface text-slate-300"
+        }`}
+      >
+        <Icon className="h-5 w-5" strokeWidth={2} />
+        {done && (
+          <span className="absolute -right-1.5 -top-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-primary-700 text-white">
+            <Check className="h-2.5 w-2.5" strokeWidth={3.5} />
+          </span>
+        )}
+        {running && <span className="absolute -right-1 -top-1 h-2.5 w-2.5 rounded-full bg-agent-500 motion-safe:animate-ping" />}
+      </span>
+      <span className="min-w-0 flex-1">
+        <span className="flex items-center gap-1.5">
+          <span className="text-micro font-bold uppercase tracking-widest text-slate-400">{node.tag}</span>
+          {node.llm && (
+            <span className="rounded border border-agent-200 bg-agent-50 px-1 text-[9px] font-bold tracking-wide text-agent-700">LLM</span>
+          )}
+        </span>
+        <span className={`block text-title-sm ${done || running || selected ? "text-ink" : "text-slate-500"}`}>{node.label}</span>
+        {node.sub && <span className="block text-micro tabular-nums text-slate-400">{node.sub}</span>}
+        {node.subPhases && (
+          <span className="mt-1.5 flex flex-wrap gap-1">
+            {node.subPhases.map((sp) => {
+              const SubIcon = sp.icon;
+              return (
+                <span key={sp.id} className="flex items-center gap-1 rounded-md border border-slate-200 bg-slate-50 px-1.5 py-0.5 text-micro font-medium text-slate-500">
+                  <SubIcon className="h-2.5 w-2.5 flex-shrink-0" strokeWidth={2} />
+                  {sp.label}
+                  {sp.sub && <span className="tabular-nums text-primary-600">{sp.sub}</span>}
+                </span>
+              );
+            })}
+          </span>
+        )}
+      </span>
+      <StatusText status={status} />
+    </button>
+  );
+}
+
+// Stacked layout for < lg: a vertical step list with the parallel branches
+// grouped, so narrow viewports never force horizontal scroll.
+function StackedGraph({ statuses, selected, onSelect }) {
+  const N = Object.fromEntries(NODES.map((n) => [n.id, n]));
+  const row = (id) => (
+    <StackNode key={id} node={N[id]} status={statuses[N[id].phase]} selected={selected === N[id].phase} onSelect={() => onSelect(N[id].phase)} />
+  );
+  return (
+    <ol className="space-y-2 lg:hidden">
+      {row("form")}
+      {row("intake")}
+      <li className="rounded-xl border border-caution-200/70 bg-caution-50/30 p-2">
+        <div className="mb-1.5 px-1 text-micro font-bold uppercase tracking-widest text-caution-700">
+          ∥ Parallel · isolated subprocesses
+        </div>
+        <div className="grid gap-2 sm:grid-cols-2">
+          {row("bureau")}
+          {row("banking")}
+        </div>
+      </li>
+      {row("gate")}
+      {row("ml")}
+      {row("policy")}
+      {row("decision")}
+      {row("finalize")}
+      {row("notify")}
+    </ol>
+  );
+}
+
 export default function ExecutionGraph({ statuses, selected, onSelect, footer }) {
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-2 shadow-sm">
-      <div className="overflow-x-auto py-3">
+    <div className="rounded-2xl border border-slate-200 bg-surface p-2 shadow-sm">
+      <div className="px-1 py-1 lg:hidden">
+        <StackedGraph statuses={statuses} selected={selected} onSelect={onSelect} />
+      </div>
+      <div className="hidden py-3 lg:block">
         {/* Coordinates live in a 1000×252 space; the wrapper scales it to fill
             the card (and the presentation wall) while keeping the aspect ratio. */}
-        <div className="relative mx-auto w-full min-w-[860px]" style={{ aspectRatio: `${W} / ${H}` }}>
+        <div className="relative mx-auto w-full" style={{ aspectRatio: `${W} / ${H}` }}>
         <svg viewBox={`0 0 ${W} ${H}`} className="absolute inset-0 h-full w-full" aria-hidden="true">
           {EDGES.map((e) => {
             const s = EDGE_STROKE[statuses[e.phase]] ?? EDGE_STROKE.waiting;
@@ -184,12 +293,11 @@ export default function ExecutionGraph({ statuses, selected, onSelect, footer })
                   id={e.id}
                   d={e.d}
                   fill="none"
-                  stroke={s.stroke}
                   strokeOpacity={s.opacity}
                   strokeWidth={s.width}
                   strokeDasharray={s.dash === "none" ? undefined : s.dash}
                   strokeLinecap="round"
-                  className="transition-all duration-500"
+                  className={`${s.cls} transition-all duration-500`}
                 />
                 {statuses[e.phase] === "running" && (
                   <>

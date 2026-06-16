@@ -39,7 +39,7 @@ export default function CustomerView({ scenario = "captured", onScenarioChange }
         onChat={boundary("loan-expert chat")}
       />
       {toast && (
-        <div className="fixed bottom-6 left-1/2 z-40 flex -translate-x-1/2 items-center gap-2 rounded-full border border-slate-200 bg-white/95 px-4 py-2.5 shadow-lg backdrop-blur animate-fade-up">
+        <div className="fixed bottom-6 left-1/2 z-40 flex -translate-x-1/2 items-center gap-2 rounded-full border border-slate-200 bg-surface/95 px-4 py-2.5 shadow-lg backdrop-blur animate-fade-up">
           <Info className="h-4 w-4 flex-shrink-0 text-progress-500" />
           <span className="text-xs font-medium text-slate-600">{toast}</span>
         </div>
@@ -55,7 +55,7 @@ function ScenarioBar({ scenario, onChange }) {
         <span className="text-[10px] font-semibold uppercase tracking-widest text-slate-400">
           Scenario
         </span>
-        <div className="flex flex-wrap gap-1 rounded-lg border border-slate-300 bg-white p-1">
+        <div className="flex flex-wrap gap-1 rounded-lg border border-slate-300 bg-surface p-1">
           {SCENARIOS.map((s) => (
             <button
               key={s.key}

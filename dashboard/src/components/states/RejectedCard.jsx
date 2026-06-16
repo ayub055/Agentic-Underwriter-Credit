@@ -15,7 +15,7 @@ export default function RejectedCard({ view }) {
     offer.interestRatePct != null;
 
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+    <div className="rounded-2xl border border-slate-200 bg-surface p-6 shadow-sm sm:p-8">
       <div className="inline-flex items-center gap-1.5 rounded-full bg-caution-50 px-3 py-1">
         <Info className="h-3.5 w-3.5 text-caution-700" strokeWidth={2.4} />
         <span className="text-[11px] font-semibold uppercase tracking-wide text-caution-700">

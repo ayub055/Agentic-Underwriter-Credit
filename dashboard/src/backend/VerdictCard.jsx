@@ -1,4 +1,4 @@
-import { CheckCircle2, XCircle, ArrowRight } from "lucide-react";
+import { CheckCircle2, XCircle, ArrowRight, FileText } from "lucide-react";
 import { VIZ } from "./phaseModel.js";
 import { formatEMI, formatINR } from "../lib/format.js";
 
@@ -24,13 +24,13 @@ function Side({ pass, title, headline, detail }) {
 
 // The run's verdict, split into its two truths: credit quality vs affordability.
 // For the captured run that tension IS the story — clean credit, unaffordable EMI.
-export default function VerdictCard({ onSeeCustomer }) {
+export default function VerdictCard({ onSeeCustomer, onOpenCam }) {
   const v = VIZ.verdict;
   const creditPass = v.policyResult === "APPROVED";
   const foirPct = v.foirProposed != null ? Math.round(v.foirProposed * 1000) / 10 : null;
 
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm animate-fade-up">
+    <div className="rounded-2xl border border-slate-200 bg-surface p-5 shadow-sm animate-fade-up">
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <Side
           pass={creditPass}
@@ -65,14 +65,24 @@ export default function VerdictCard({ onSeeCustomer }) {
             </>
           )}
         </p>
-        {onSeeCustomer && (
-          <button
-            onClick={onSeeCustomer}
-            className="flex items-center gap-1.5 rounded-lg bg-agent-600 px-3.5 py-2 text-sm font-semibold text-white transition hover:bg-agent-700"
-          >
-            See what the customer experienced <ArrowRight className="h-4 w-4" />
-          </button>
-        )}
+        <div className="flex flex-wrap items-center gap-2">
+          {onOpenCam && (
+            <button
+              onClick={onOpenCam}
+              className="flex items-center gap-1.5 rounded-lg border border-slate-300 bg-surface px-3.5 py-2 text-sm font-semibold text-slate-600 transition hover:bg-slate-50"
+            >
+              <FileText className="h-4 w-4" /> Open CAM
+            </button>
+          )}
+          {onSeeCustomer && (
+            <button
+              onClick={onSeeCustomer}
+              className="flex items-center gap-1.5 rounded-lg bg-agent-600 px-3.5 py-2 text-sm font-semibold text-white transition hover:bg-agent-700"
+            >
+              See what the customer experienced <ArrowRight className="h-4 w-4" />
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );

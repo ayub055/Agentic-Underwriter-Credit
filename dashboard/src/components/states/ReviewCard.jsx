@@ -38,7 +38,7 @@ function HandoffStep({ step, isLast }) {
         className={`relative z-10 flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full ${
           done
             ? "bg-progress-500 text-white"
-            : "border border-progress-500 bg-white text-progress-500"
+            : "border border-progress-500 bg-surface text-progress-500"
         }`}
       >
         {done ? (
@@ -61,7 +61,7 @@ export default function ReviewCard({ onEnablePush, onViewDocs }) {
   const { label, isExpired } = useCountdown(299);
 
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+    <div className="rounded-2xl border border-slate-200 bg-surface p-6 shadow-sm sm:p-8">
       <div className="inline-flex items-center gap-1.5 rounded-full bg-progress-50 px-3 py-1">
         <UserRound className="h-3.5 w-3.5 text-progress-500" strokeWidth={2.4} />
         <span className="text-[11px] font-semibold uppercase tracking-wide text-progress-600">

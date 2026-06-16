@@ -54,8 +54,8 @@ export default function MomentRail({ moments, moment, phase, status }) {
                   done
                     ? "border-primary-700 bg-primary-700 text-white"
                     : current
-                    ? "border-agent-500 bg-white text-agent-600 motion-safe:animate-pulse-ring"
-                    : "border-slate-300 bg-white text-slate-300"
+                    ? "border-agent-500 bg-surface text-agent-600 motion-safe:animate-pulse-ring"
+                    : "border-slate-300 bg-surface text-slate-300"
                 }`}
               >
                 {done ? (
@@ -79,7 +79,7 @@ export default function MomentRail({ moments, moment, phase, status }) {
       <li className="flex min-w-0 flex-col items-center gap-1.5">
         <span
           className={`flex h-8 w-8 items-center justify-center rounded-full border transition-colors duration-300 ${
-            revealed ? `${outcome.node} animate-pop` : "border-dashed border-slate-300 bg-white text-slate-300"
+            revealed ? `${outcome.node} animate-pop` : "border-dashed border-slate-300 bg-surface text-slate-300"
           }`}
         >
           <OutcomeIcon className="h-4 w-4" strokeWidth={2.2} />

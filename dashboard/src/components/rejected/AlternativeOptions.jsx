@@ -8,7 +8,7 @@ export default function AlternativeOptions() {
       </h2>
 
       <div className="mt-3 space-y-3">
-        <button className="flex w-full items-center gap-3 rounded-xl border border-slate-200 bg-white p-4 text-left transition hover:border-slate-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600">
+        <button className="flex w-full items-center gap-3 rounded-xl border border-slate-200 bg-surface p-4 text-left transition hover:border-slate-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600">
           <span className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-caution-50 text-caution-700">
             <TrendingUp className="h-4 w-4" strokeWidth={2} />
           </span>
@@ -21,7 +21,7 @@ export default function AlternativeOptions() {
           <ArrowRight className="h-4 w-4 flex-shrink-0 text-slate-400" />
         </button>
 
-        <div className="flex items-center gap-3 rounded-xl border border-slate-200 bg-white p-4">
+        <div className="flex items-center gap-3 rounded-xl border border-slate-200 bg-surface p-4">
           <span className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-caution-50 text-caution-700">
             <CalendarClock className="h-4 w-4" strokeWidth={2} />
           </span>

@@ -72,6 +72,7 @@ class SubprocessTransport(Transport):
         return BranchResult(
             branch=branch, status=status,
             summary=payload.get("summary"),
+            detail=payload.get("detail"),
             report_path=payload.get("report_path"),
             model_used=payload.get("model_used"),
             elapsed_s=payload.get("elapsed_s", 0.0),

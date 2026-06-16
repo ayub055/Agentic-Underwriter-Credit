@@ -7,7 +7,7 @@ import { provPill } from "../lib/tones.js";
 // only honest sample size here is n=1.
 function Stat({ icon: Icon, label, value, note, pill }) {
   return (
-    <div className="flex items-start gap-3 rounded-xl border border-slate-200 bg-white p-4">
+    <div className="flex items-start gap-3 rounded-xl border border-slate-200 bg-surface p-4">
       <span className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-primary-50 text-primary-700">
         <Icon className="h-4.5 w-4.5" />
       </span>
@@ -18,7 +18,7 @@ function Stat({ icon: Icon, label, value, note, pill }) {
             {pill}
           </span>
         </div>
-        <div className="text-xl font-bold tabular-nums text-ink">{value}</div>
+        <div className="font-display text-xl font-bold tabular-nums text-ink">{value}</div>
         <div className="mt-0.5 text-[11px] leading-relaxed text-slate-500">{note}</div>
       </div>
     </div>

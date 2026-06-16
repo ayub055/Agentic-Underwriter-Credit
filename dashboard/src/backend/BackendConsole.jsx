@@ -52,7 +52,7 @@ function CaseDictPanel({ dict }) {
 
 export default function BackendConsole({ entries, dict }) {
   return (
-    <div className="flex h-full flex-col rounded-2xl border border-white/10 bg-ink p-4 text-slate-200 shadow-sm">
+    <div className="flex h-full flex-col rounded-2xl border border-white/10 bg-night p-4 text-slate-200 shadow-sm">
       <div className="mb-3 flex items-center gap-2">
         <span className="h-2.5 w-2.5 rounded-full bg-red-400/80" />
         <span className="h-2.5 w-2.5 rounded-full bg-amber-300/80" />

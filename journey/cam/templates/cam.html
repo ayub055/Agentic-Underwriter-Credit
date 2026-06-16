@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Credit Appraisal Memo · {{ m.meta.case_id }}</title>
+<style>
+:root{
+  --bg:#f6f7fb; --card:#ffffff; --ink:#0f172a; --muted:#64748b; --line:#e2e8f0;
+  --primary:#4f46e5; --success-bg:#ecfdf5; --success:#047857; --success-bd:#a7f3d0;
+  --danger-bg:#fef2f2; --danger:#b91c1c; --danger-bd:#fecaca;
+  --amber-bg:#fffbeb; --amber:#b45309; --amber-bd:#fde68a;
+  --info-bg:#eff6ff; --info:#1d4ed8;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font-family:'Segoe UI',system-ui,-apple-system,sans-serif;line-height:1.45;font-size:13px}
+.wrap{max-width:980px;margin:0 auto;padding:24px 20px 64px}
+a{color:var(--primary)}
+
+/* header */
+.banner{border-radius:16px;border:1px solid var(--line);background:var(--card);padding:18px 20px;box-shadow:0 1px 2px rgba(0,0,0,.04);margin-bottom:16px}
+.banner-top{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px}
+.banner h1{font-size:1.05rem;letter-spacing:.01em}
+.banner .sub{color:var(--muted);font-size:.72rem;margin-top:3px}
+.verdict{font-weight:800;font-size:.82rem;padding:6px 14px;border-radius:999px;border:1px solid}
+.v-APPROVED{background:var(--success-bg);color:var(--success);border-color:var(--success-bd)}
+.v-DECLINED{background:var(--danger-bg);color:var(--danger);border-color:var(--danger-bd)}
+.v-MANUAL_REVIEW,.v-INSUFFICIENT_DATA{background:var(--amber-bg);color:var(--amber);border-color:var(--amber-bd)}
+
+/* kpi strip */
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:18px}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.kpi .k{font-size:.62rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.kpi .v{font-size:1.05rem;font-weight:800;margin-top:4px;font-variant-numeric:tabular-nums}
+.kpi .v.sm{font-size:.82rem}
+
+/* sections */
+section{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin-bottom:14px;box-shadow:0 1px 2px rgba(0,0,0,.03)}
+.s-head{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.s-num{width:24px;height:24px;border-radius:7px;background:#eef2ff;color:var(--primary);font-weight:800;font-size:.72rem;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.s-title{font-size:.86rem;font-weight:700}
+.s-note{color:var(--muted);font-size:.7rem;margin-left:auto}
+
+/* key-value grid */
+.kv{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 24px}
+.kv.three{grid-template-columns:repeat(3,minmax(0,1fr))}
+.row{display:flex;align-items:baseline;gap:8px;padding:5px 0;border-bottom:1px dashed var(--line)}
+.row .label{color:var(--muted);font-size:.72rem;min-width:130px;flex-shrink:0}
+.row .val{font-weight:600;font-variant-numeric:tabular-nums}
+
+/* provenance chips */
+.chip{font-size:.56rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;padding:1px 6px;border-radius:6px;border:1px solid;vertical-align:middle}
+.p-real{background:var(--success-bg);color:var(--success);border-color:var(--success-bd)}
+.p-derived{background:var(--info-bg);color:var(--info);border-color:#bfdbfe}
+.p-mock{background:var(--amber-bg);color:var(--amber);border-color:var(--amber-bd)}
+.p-placeholder{background:#f1f5f9;color:var(--muted);border-color:var(--line)}
+
+/* tables */
+table{width:100%;border-collapse:collapse;font-size:.72rem}
+th,td{text-align:right;padding:7px 8px;border-bottom:1px solid var(--line);font-variant-numeric:tabular-nums}
+th:first-child,td:first-child{text-align:left}
+thead th{color:var(--muted);font-size:.62rem;text-transform:uppercase;letter-spacing:.04em;font-weight:700}
+tfoot td{font-weight:800;border-top:2px solid var(--line)}
+.tag{font-size:.58rem;padding:1px 6px;border-radius:5px;background:#f1f5f9;color:var(--muted)}
+.tag.sec{background:var(--success-bg);color:var(--success)}
+.tag.uns{background:var(--amber-bg);color:var(--amber)}
+
+/* pass/fail pills */
+.pill{font-size:.62rem;font-weight:700;padding:2px 8px;border-radius:999px;border:1px solid}
+.pass{background:var(--success-bg);color:var(--success);border-color:var(--success-bd)}
+.fail{background:var(--danger-bg);color:var(--danger);border-color:var(--danger-bd)}
+.na{background:#f1f5f9;color:var(--muted);border-color:var(--line)}
+
+.note{font-size:.7rem;color:var(--muted);margin-top:10px}
+.empty{color:var(--muted);font-style:italic;font-size:.72rem;padding:8px 0}
+.warnlist{list-style:none;font-size:.7rem;color:var(--muted)}
+.warnlist li{padding:3px 0;border-bottom:1px dashed var(--line)}
+.legend{display:flex;flex-wrap:wrap;gap:10px;font-size:.62rem;color:var(--muted);margin-top:14px}
+.legend .chip{margin-right:4px}
+.sign{display:grid;grid-template-columns:repeat(2,1fr);gap:24px;margin-top:14px}
+.sign .box{border-top:1px solid var(--ink);padding-top:6px;font-size:.7rem;color:var(--muted)}
+
+/* print */
+@media print{
+  body{background:#fff;font-size:11px}
+  .wrap{max-width:none;padding:0}
+  .no-print{display:none!important}
+  section,.banner,.kpi{box-shadow:none}
+  section{break-inside:avoid;page-break-inside:avoid;border-radius:0;border-color:#cbd5e1}
+  @page{size:A4;margin:14mm 12mm}
+}
+</style>
+</head>
+<body>
+{% macro chip(key) -%}
+  {% set p = prov.get(key) %}
+  {% if p %}<span class="chip p-{{ p }}">{{ p }}</span>{% endif %}
+{%- endmacro %}
+
+{% macro kv(label, value, key=None) -%}
+  <div class="row"><span class="label">{{ label }}</span><span class="val">{{ value }}</span>{% if key %}{{ chip(key) }}{% endif %}</div>
+{%- endmacro %}
+
+<div class="wrap">
+
+  <!-- HEADER -->
+  <div class="banner">
+    <div class="banner-top">
+      <div>
+        <h1>Credit Appraisal Memo</h1>
+        <div class="sub">
+          {{ m.application.product }} · App {{ m.meta.case_id }} · Customer {{ m.meta.customer_id }}
+          · Run {{ (m.meta.run_id or '')[:8] }} · Generated {{ m.meta.generated_at }}
+        </div>
+      </div>
+      <span class="verdict v-{{ m.meta.outcome }}">{{ m.meta.outcome }}</span>
+    </div>
+  </div>
+
+  <!-- KPI STRIP -->
+  <div class="kpis">
+    <div class="kpi"><div class="k">Requested</div><div class="v">{{ m.application.loan_amount_req|inr }}</div></div>
+    <div class="kpi"><div class="k">Offer</div><div class="v">{{ m.loan.offer_amount|inr }}</div></div>
+    <div class="kpi"><div class="k">CIBIL / TU</div><div class="v">{{ m.obligations.totals.tu_score|num if m.obligations.totals else '—' }}</div></div>
+    <div class="kpi"><div class="k">Proposed FOIR</div><div class="v sm">{{ m.loan.foir_proposed|pct }}</div></div>
+  </div>
+
+  <!-- 1. APPLICATION -->
+  <section>
+    <div class="s-head"><div class="s-num">1</div><div class="s-title">Loan Application Summary</div></div>
+    <div class="kv">
+      {{ kv('Application No', m.application.application_no) }}
+      {{ kv('Date', m.application.date) }}
+      {{ kv('Channel', m.application.channel) }}
+      {{ kv('Location', (m.application.location or '—') ~ (' · ' ~ m.application.pincode if m.application.pincode else '')) }}
+      {{ kv('Requested amount', m.application.loan_amount_req|inr, 'intake.loan_amount_req') }}
+      {{ kv('Requested tenure', (m.application.tenure_req|num) ~ ' months') }}
+    </div>
+  </section>
+
+  <!-- 2. APPLICANT -->
+  <section>
+    <div class="s-head"><div class="s-num">2</div><div class="s-title">Applicant Details</div></div>
+    <div class="kv">
+      {{ kv('Name', m.applicant.name or '—', 'applicant.name') }}
+      {{ kv('Age', m.applicant.age|num, 'applicant.dob') }}
+      {{ kv('Qualification', m.applicant.qualification or '—', 'applicant.qualification') }}
+      {{ kv('Residence type', m.applicant.residence_type or '—', 'applicant.residence_type') }}
+      {{ kv('Years at address', m.applicant.years_at_address|num) }}
+      {{ kv('Address quality', (m.applicant.address_band or '—') ~ (' · ' ~ (m.applicant.address_score|num) ~ '/100' if m.applicant.address_score is not none else ''), 'address.score') }}
+    </div>
+    {% if m.applicant.address_reasons %}
+    <div class="note">Address drivers:
+      {% for r in m.applicant.address_reasons %}{{ r.label }}{% if not loop.last %} · {% endif %}{% endfor %}
+    </div>
+    {% endif %}
+  </section>
+
+  <!-- 3. EMPLOYMENT -->
+  <section>
+    <div class="s-head"><div class="s-num">3</div><div class="s-title">Employment Details</div></div>
+    <div class="kv">
+      {{ kv('Company', m.employment.employer or '—', 'employment.employer') }}
+      {{ kv('Category', m.employment.category or '—') }}
+      {{ kv('Designation', m.employment.designation or '—') }}
+      {{ kv('Verified (EPFO)', m.employment.employment_verified|yn, 'intake.employment_verified') }}
+      {{ kv('Stability', (m.employment.stability_months|num) ~ ' months', 'employment.stability_months') }}
+      {{ kv('Total experience', m.employment.total_experience or '—') }}
+    </div>
+  </section>
+
+  <!-- 4. LOAN -->
+  <section>
+    <div class="s-head"><div class="s-num">4</div><div class="s-title">Loan Details (BRE Offer)</div></div>
+    <div class="kv three">
+      {{ kv('Eligible amount', m.loan.offer_amount|inr, 'loan.offer_amount') }}
+      {{ kv('Tenure', (m.loan.offer_tenure|num) ~ ' months', 'loan.offer_tenure') }}
+      {{ kv('Interest (IRR)', m.loan.offer_irr|pct, 'decision.offer_irr') }}
+      {{ kv('EMI', m.loan.offer_emi|inr, 'decision.offer_emi') }}
+      {{ kv('Processing fee', m.loan.processing_fee|inr, 'decision.processing_fee') }}
+      {{ kv('Approved segment', m.loan.approved_segment or '—') }}
+    </div>
+  </section>
+
+  <!-- 5. FINANCIAL SUMMARY -->
+  <section>
+    <div class="s-head"><div class="s-num">5</div><div class="s-title">Applicant Financial Summary</div></div>
+    <div class="kv three">
+      {{ kv('Declared income', m.financial.declared_income|inr, 'intake.declared_income') }}
+      {{ kv('Salary detected (bank)', m.financial.salary_detected|inr, 'financial.salary_detected') }}
+      {{ kv('Income used', (m.financial.income_used|inr) ~ ' · ' ~ (m.financial.income_source or '—'), 'financial.income_used') }}
+      {{ kv('Total obligation', m.financial.total_obligation|inr, 'financial.total_obligation') }}
+      {{ kv('Existing FOIR', m.financial.foir_existing|pct, 'ml.foir_existing') }}
+      {{ kv('Bureau exposure', m.financial.total_exposure|inr, 'financial.total_exposure') }}
+    </div>
+  </section>
+
+  <!-- 6. OBLIGATIONS -->
+  <section>
+    <div class="s-head"><div class="s-num">6</div><div class="s-title">Obligation Table — Live Bureau Tradelines</div>{{ chip('obligations') }}</div>
+    {% set obs = m.obligations.obligations %}
+    {% if obs %}
+    <table>
+      <thead><tr>
+        <th>Loan type</th><th>Sec?</th><th>Live / Total</th><th>Sanctioned</th>
+        <th>Outstanding</th><th>Overdue</th><th>Max DPD</th><th>Util%</th>
+      </tr></thead>
+      <tbody>
+      {% for o in obs %}
+        <tr>
+          <td>{{ o.loan_type }}</td>
+          <td><span class="tag {{ 'sec' if o.secured else 'uns' }}">{{ 'Secured' if o.secured else 'Unsecured' }}</span></td>
+          <td>{{ o.live_count|num }} / {{ o.loan_count|num }}</td>
+          <td>{{ o.total_sanctioned|inr }}</td>
+          <td>{{ o.total_outstanding|inr }}</td>
+          <td>{{ o.overdue_amount|inr }}</td>
+          <td>{{ o.max_dpd|num }}</td>
+          <td>{{ (o.utilization_ratio|pct(false)) if o.utilization_ratio is not none else '—' }}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+      {% if m.obligations.totals %}
+      {% set t = m.obligations.totals %}
+      <tfoot><tr>
+        <td>Total · {{ t.total_tradelines|num }} tradelines</td>
+        <td></td><td>{{ t.live_tradelines|num }} / {{ t.total_tradelines|num }}</td>
+        <td>{{ t.total_sanctioned|inr }}</td><td>{{ t.total_outstanding|inr }}</td>
+        <td></td><td>{{ t.max_dpd|num }}</td><td></td>
+      </tr></tfoot>
+      {% endif %}
+    </table>
+    <div class="note">Delinquency on file: {{ 'Yes' if (m.obligations.totals and m.obligations.totals.has_delinquency) else 'No' }}
+      · On-us outstanding: {{ (m.obligations.totals.on_us_total_outstanding if m.obligations.totals else None)|inr }}</div>
+    {% else %}
+    <div class="empty">No live tradelines returned by the bureau analyser.</div>
+    {% endif %}
+  </section>
+
+  <!-- 7. BANKING -->
+  <section>
+    <div class="s-head"><div class="s-num">7</div><div class="s-title">Banking Summary</div>{{ chip('banking') }}</div>
+    {% set bk = m.banking %}
+    {% if bk %}
+    <div class="kv three">
+      {{ kv('Salary (avg)', (bk.salary.avg_amount if bk.salary else None)|inr) }}
+      {{ kv('Salary credits', (bk.salary.frequency if bk.salary else None)|num) }}
+      {{ kv('Account type', (bk.account_quality.account_type if bk.account_quality else None) or '—') }}
+    </div>
+    {% if bk.emis %}
+    <div class="note" style="margin-top:14px;font-weight:700;color:var(--ink)">EMI debits detected</div>
+    <table>
+      <thead><tr><th>Reference</th><th>Avg amount</th><th>Occurrences</th></tr></thead>
+      <tbody>
+      {% for e in bk.emis %}
+        <tr><td>{{ e.name }}</td><td>{{ e.amount|inr }}</td><td>{{ e.frequency|num }}</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    {% endif %}
+    {% if bk.top_categories %}
+    <div class="note">Top spend: {% for c in bk.top_categories %}{{ c.category }} ({{ c.amount|inr }}){% if not loop.last %} · {% endif %}{% endfor %}</div>
+    {% endif %}
+    {% if bk.savings %}
+    <div class="kv" style="margin-top:10px">
+      {{ kv('Net savings', bk.savings.net_savings|inr) }}
+      {{ kv('Savings rate', bk.savings.savings_rate|pct) }}
+    </div>
+    {% endif %}
+    {% if bk.customer_review %}<div class="note" style="margin-top:10px">{{ bk.customer_review }}</div>{% endif %}
+    {% else %}
+    <div class="empty">Banking analyser produced no summary for this case.</div>
+    {% endif %}
+  </section>
+
+  <!-- 8. VERIFICATION -->
+  <section>
+    <div class="s-head"><div class="s-num">8</div><div class="s-title">Verification Summary</div></div>
+    <table>
+      <thead><tr><th>Check</th><th>Detail</th><th>Status</th><th>Source</th></tr></thead>
+      <tbody>
+      {% for v in m.verification %}
+        <tr>
+          <td>{{ v.label }}</td>
+          <td style="text-align:left;color:var(--muted)">{{ v.detail or '' }}</td>
+          <td><span class="pill {{ 'pass' if v.status else ('na' if v.status is none else 'fail') }}">{{ v.status|yn }}</span></td>
+          <td>{{ chip(v.prov_key) if v.prov_key }}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </section>
+
+  <!-- 9. DEVIATIONS -->
+  <section>
+    <div class="s-head"><div class="s-num">9</div><div class="s-title">Deviations & Policy Waterfall</div>
+      <span class="s-note">Policy: {{ m.deviations.policy_result or '—' }} · Serviceable: {{ m.deviations.serviceable|yn }}</span></div>
+    {% if m.deviations.layers %}
+    <table>
+      <thead><tr><th>Layer</th><th>Detail</th><th>Result</th></tr></thead>
+      <tbody>
+      {% for l in m.deviations.layers %}
+        <tr>
+          <td>{{ l.layer }}</td>
+          <td style="text-align:left;color:var(--muted)">{{ l.detail or l.reason_code }}</td>
+          <td><span class="pill {{ 'pass' if l.passed else 'fail' }}">{{ 'PASS' if l.passed else 'BREACH' }}</span></td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    {% else %}<div class="empty">No policy layers were evaluated (case stopped earlier).</div>{% endif %}
+    {% if m.deviations.breaches %}
+    <div class="note" style="color:var(--danger);font-weight:700">Deviations triggered:
+      {% for b in m.deviations.breaches %}{{ b.layer }} ({{ b.reason_code }}){% if not loop.last %} · {% endif %}{% endfor %}
+    </div>
+    {% endif %}
+  </section>
+
+  <!-- 10. CREDIT MANAGER -->
+  <section>
+    <div class="s-head"><div class="s-num">10</div><div class="s-title">Credit Manager Details</div></div>
+    <div class="kv">
+      {{ kv('Decisioned by', m.credit_manager.decisioned_by) }}
+      {{ kv('AI assisted', m.credit_manager.ai_assisted|yn) }}
+    </div>
+    {% if m.credit_manager.model_versions %}
+    <div class="note">Model versions:
+      {% for k, v in m.credit_manager.model_versions.items() %}{{ k }}={{ v }}{% if not loop.last %} · {% endif %}{% endfor %}
+    </div>
+    {% endif %}
+    <div class="sign">
+      <div class="box">Reviewed by {{ chip('credit_manager.reviewed_by') }}<br><br>_____________________</div>
+      <div class="box">Approved by {{ chip('credit_manager.approved_by') }}<br><br>_____________________</div>
+    </div>
+  </section>
+
+  <!-- 11. PD SHEET -->
+  <section>
+    <div class="s-head"><div class="s-num">11</div><div class="s-title">PD Sheet</div></div>
+    <div class="kv three">
+      {{ kv('PD score', m.pd_sheet.pd_score|num, 'ml.pd_score') }}
+      {{ kv('Risk band', ('Band ' ~ (m.pd_sheet.risk_band|num) ~ ' / 5'), 'ml.risk_band') }}
+      {{ kv('Affluence segment', m.pd_sheet.affluence_segment or '—', 'pd_sheet.affluence_segment') }}
+      {{ kv('Affluence value', m.pd_sheet.affluence_value|inr, 'pd_sheet.affluence_value') }}
+      {{ kv('PD provenance', m.pd_sheet.pd_provenance or '—') }}
+    </div>
+    {% if m.pd_sheet.policy_features %}
+    <div class="note">Policy features:
+      {% for k, v in m.pd_sheet.policy_features.items() %}{{ k }}={{ v }}{% if not loop.last %} · {% endif %}{% endfor %}
+    </div>
+    {% endif %}
+  </section>
+
+  <!-- LEGEND -->
+  <div class="legend">
+    <span><span class="chip p-real">real</span>analyser output</span>
+    <span><span class="chip p-derived">derived</span>computed by journey</span>
+    <span><span class="chip p-mock">mock</span>deterministic stand-in</span>
+    <span><span class="chip p-placeholder">placeholder</span>not yet a real model/table</span>
+  </div>
+
+  {% if m.deviations.warnings %}
+  <section style="margin-top:14px">
+    <div class="s-head"><div class="s-title" style="font-size:.78rem">Journey warnings ({{ m.deviations.warnings|length }})</div></div>
+    <ul class="warnlist">
+      {% for w in m.deviations.warnings %}<li>{{ w }}</li>{% endfor %}
+    </ul>
+  </section>
+  {% endif %}
+
+</div>
+</body>
+</html>

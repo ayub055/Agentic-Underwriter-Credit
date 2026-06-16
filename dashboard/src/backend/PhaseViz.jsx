@@ -31,7 +31,7 @@ function FormField({ label, value, wide }) {
   return (
     <div className={wide ? "col-span-2" : ""}>
       <div className="text-[9px] font-semibold uppercase tracking-wide text-slate-400">{label}</div>
-      <div className="mt-0.5 rounded-md border border-slate-200 bg-white px-2 py-1.5 text-[12px] font-medium tabular-nums text-ink">
+      <div className="mt-0.5 rounded-md border border-slate-200 bg-surface px-2 py-1.5 text-[12px] font-medium tabular-nums text-ink">
         {value}
       </div>
     </div>
@@ -78,7 +78,7 @@ function ParallelBars() {
         {VIZ.branches.map((b) => (
           <div key={b.id} className="flex items-center gap-2">
             <span className="w-28 flex-shrink-0 text-[11px] text-slate-500">
-              <span className="mr-1.5 rounded bg-ink px-1 font-bold text-white">{b.tag}</span>
+              <span className="mr-1.5 rounded bg-night px-1 font-bold text-white">{b.tag}</span>
               {b.label}
             </span>
             <div className="h-4 flex-1 overflow-hidden rounded bg-slate-200/60">
@@ -133,7 +133,7 @@ function AddressGauge() {
           style={{ width: grown ? `${score}%` : "0%" }}
         />
         {[a.bandMedium, a.bandHigh].map((t) => (
-          <span key={t} className="absolute top-0 h-full w-px bg-white/70" style={{ left: `${t}%` }} />
+          <span key={t} className="absolute top-0 h-full w-px bg-surface/70" style={{ left: `${t}%` }} />
         ))}
       </div>
       <div className="mt-1 flex justify-between text-[9px] uppercase tracking-wide text-slate-400">
@@ -265,9 +265,9 @@ function FoirGauge() {
               transition: "transform 1.2s cubic-bezier(.34,1.2,.4,1)",
             }}
           >
-            <line x1={cx} y1={cy} x2={cx} y2={cy - r + 18} stroke="#0f172a" strokeWidth="2.5" strokeLinecap="round" />
+            <line x1={cx} y1={cy} x2={cx} y2={cy - r + 18} className="stroke-ink" strokeWidth="2.5" strokeLinecap="round" />
           </g>
-          <circle cx={cx} cy={cy} r="4.5" fill="#0f172a" />
+          <circle cx={cx} cy={cy} r="4.5" className="fill-ink" />
         </svg>
         <div className="min-w-[150px]">
           <div className={`text-2xl font-bold tabular-nums ${breach ? "text-danger-600" : "text-success-700"}`}>

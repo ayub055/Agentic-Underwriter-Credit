@@ -23,7 +23,7 @@ export default function ExplainChips({ items }) {
             className={`rounded-full border px-3 py-1.5 text-xs font-medium transition ${
               open === i
                 ? "border-agent-500 bg-agent-500 text-white"
-                : "border-slate-200 bg-white text-slate-600 hover:border-agent-300 hover:text-agent-700"
+                : "border-slate-200 bg-surface text-slate-600 hover:border-agent-300 hover:text-agent-700"
             } focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-agent-500`}
           >
             {item.q}

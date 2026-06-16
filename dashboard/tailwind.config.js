@@ -1,42 +1,58 @@
 /** @type {import('tailwindcss').Config} */
+
+// Colors resolve through CSS variables (src/index.css) so the same utility
+// classes (bg-primary-600, text-ink, bg-white, border-slate-200, …) re-skin
+// across themes (modern/premium) and modes (light/dark). Channels are
+// space-separated RGB so `<alpha-value>` opacity modifiers keep working.
+const v = (name) => `rgb(var(--c-${name}) / <alpha-value>)`;
+
+const ramp = (key, steps) =>
+  Object.fromEntries(steps.map((s) => [s, v(`${key}-${s}`)]));
+
 export default {
   content: ["./index.html", "./src/**/*.{js,jsx}"],
   theme: {
     extend: {
       colors: {
-        // Cool slate ink to match bank_report_v2 (--ink:#0f172a).
-        ink: "#0f172a",
-        // Brand accent: indigo (report --indigo:#6366f1 / --indigo-deep:#4338ca).
-        primary: {
-          50: "#eef2ff",
-          100: "#e0e7ff",
-          200: "#c7d2fe",
-          400: "#818cf8",
-          500: "#6366f1",
-          600: "#4f46e5",
-          700: "#4338ca",
-          900: "#1e1b4b",
-        },
-        // Status — emerald / blue / amber (report --green / --amber + status chips).
-        success: { 50: "#ecfdf5", 100: "#d1fae5", 200: "#a7f3d0", 500: "#10b981", 600: "#059669", 700: "#047857" },
-        progress: { 50: "#eff6ff", 100: "#dbeafe", 200: "#bfdbfe", 400: "#60a5fa", 500: "#3b82f6", 600: "#2563eb" },
-        caution: { 50: "#fffbeb", 100: "#fef3c7", 200: "#fde68a", 400: "#fbbf24", 500: "#f59e0b", 700: "#b45309" },
-        // Hard-gate breach (backend truth). Customer-facing "not approved" stays
-        // caution by design — empathy downgrade, not drift.
-        danger: { 50: "#fef2f2", 100: "#fee2e2", 200: "#fecaca", 300: "#fca5a5", 500: "#ef4444", 600: "#dc2626", 700: "#b91c1c" },
-        // AI "agent" accent: a distinct violet/purple, separated from brand indigo.
-        agent: {
-          50: "#f5f3ff",
-          100: "#ede9fe",
-          200: "#ddd6fe",
-          300: "#c4b5fd",
-          500: "#8b5cf6",
-          600: "#7c3aed",
-          700: "#6d28d9",
-        },
+        canvas: v("canvas"),
+        surface: v("surface"),
+        ink: v("ink"),
+        // `white` stays true #fff so text-white survives dark mode; `night` is an
+        // always-dark constant for terminals, tooltips and overlays.
+        night: "#0b1220",
+        slate: ramp("slate", [50, 100, 200, 300, 400, 500, 600, 700, 800, 900]),
+        primary: ramp("primary", [50, 100, 200, 400, 500, 600, 700, 900]),
+        success: ramp("success", [50, 100, 200, 500, 600, 700]),
+        progress: ramp("progress", [50, 100, 200, 400, 500, 600]),
+        caution: ramp("caution", [50, 100, 200, 400, 500, 700]),
+        danger: ramp("danger", [50, 100, 200, 300, 500, 600, 700]),
+        agent: ramp("agent", [50, 100, 200, 300, 500, 600, 700]),
       },
       fontFamily: {
-        sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        sans: ["var(--font-sans)", "Inter", "ui-sans-serif", "system-ui", "sans-serif"],
+        display: ["var(--font-display)", "Inter", "ui-sans-serif", "system-ui", "sans-serif"],
+      },
+      fontSize: {
+        // Deliberate scale; micro floor raised to 10px for legibility.
+        micro: ["0.625rem", { lineHeight: "0.875rem", letterSpacing: "0.04em" }], // 10px
+        caption: ["0.6875rem", { lineHeight: "1rem" }], // 11px
+        "title-sm": ["0.95rem", { lineHeight: "1.3rem", fontWeight: "600" }],
+        title: ["1.125rem", { lineHeight: "1.55rem", letterSpacing: "-0.01em" }],
+        h2: ["1.5rem", { lineHeight: "1.9rem", letterSpacing: "-0.015em" }],
+        h1: ["2rem", { lineHeight: "2.4rem", letterSpacing: "-0.02em" }],
+        display: ["2.75rem", { lineHeight: "3rem", letterSpacing: "-0.025em" }],
+      },
+      borderRadius: {
+        sm: "var(--radius-sm)",
+        md: "var(--radius-md)",
+        lg: "var(--radius-lg)",
+        xl: "var(--radius-xl)",
+      },
+      boxShadow: {
+        sm: "var(--elev-1)",
+        DEFAULT: "var(--elev-1)",
+        md: "var(--elev-2)",
+        lg: "var(--elev-3)",
       },
       keyframes: {
         slide: {

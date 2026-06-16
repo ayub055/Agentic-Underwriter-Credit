@@ -69,6 +69,30 @@ class FinalizeStage(Stage):
         (case_dir / "sal_slip.json").write_text(json.dumps(
             {"status": "placeholder", "sal_gross": None, "sal_net": None}, indent=2))
 
+        # CAM-detail pack: rich obligation table (bureau) + banking summary blocks.
+        # A degraded/failed branch contributes None for its slice (fail-soft).
+        bureau_branch = case.branches.get("bureau")
+        banking_branch = case.branches.get("banking")
+        cam_data = {
+            "bureau_detail": bureau_branch.detail if bureau_branch else None,
+            "banking_detail": banking_branch.detail if banking_branch else None,
+        }
+        (case_dir / "cam_data.json").write_text(json.dumps(cam_data, indent=2, ensure_ascii=False))
+
+        # Render the canonical Credit Appraisal Memo into the audit pack (fail-soft:
+        # a missing jinja2 / render error must never break a completed journey).
+        try:
+            from cam import build_cam_model
+            from cam.render import write_cam_html
+
+            sal_slip = {"status": "placeholder", "sal_gross": None, "sal_net": None}
+            cam_model = build_cam_model(case.model_dump(mode="json"), cam_data, sal_slip)
+            write_cam_html(cam_model, case_dir / f"cam_{case.case_id}.html")
+            (case_dir / "cam_model.json").write_text(
+                cam_model.model_dump_json(indent=2))
+        except Exception as e:  # noqa: BLE001 — fail-soft per repo convention
+            case.warnings.append(f"finalize: CAM render skipped ({e})")
+
         # Mock push (log only).
         fin.push_sent = True
         case.warnings.append(f"finalize: [mock-push] case {case.case_id} -> {fin.decision.value}")
