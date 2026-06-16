@@ -5,6 +5,15 @@ import ExplainChips from "../../journey/ExplainChips.jsx";
 import { CHIPS } from "../../journey/agentScript.js";
 import { formatINR, formatTenure } from "../../lib/format.js";
 
+function Stat({ label, value, tone }) {
+  return (
+    <div>
+      <div className="text-[10px] font-semibold uppercase tracking-wide text-slate-500">{label}</div>
+      <div className={`text-base font-bold tabular-nums ${tone ?? "text-ink"}`}>{value}</div>
+    </div>
+  );
+}
+
 export default function RejectedCard({ view }) {
   const { applicant, affordability, offer } = view;
   const canExplain =
@@ -13,6 +22,7 @@ export default function RejectedCard({ view }) {
     applicant?.income != null &&
     affordability?.existingObligations != null &&
     offer.interestRatePct != null;
+  const pct = canExplain ? Math.round((offer.emi / applicant.income) * 100) : null;
 
   return (
     <div className="rounded-2xl border border-slate-200 bg-surface p-6 shadow-sm sm:p-8">
@@ -27,19 +37,23 @@ export default function RejectedCard({ view }) {
         This amount didn't fit — let's find one that does
       </h1>
 
+      {/* Why — a scannable callout aligned to the heading, instead of a long sentence */}
       {canExplain ? (
-        <p className="mt-2 max-w-md text-sm leading-relaxed text-slate-500">
-          In plain terms: {formatINR(applicant.requestedAmount)} over{" "}
-          {formatTenure(applicant.requestedTenure)} means an EMI of{" "}
-          {formatINR(Math.round(offer.emi))} —{" "}
-          <span className="font-medium text-ink">
-            {Math.round((offer.emi / applicant.income) * 100)}% of your{" "}
-            {formatINR(applicant.income)} monthly income
-          </span>{" "}
-          before your existing EMIs. That's beyond what's safe to lend.
-        </p>
+        <div className="mt-4 rounded-xl border border-caution-200 bg-caution-50/40 p-4">
+          <div className="flex flex-wrap items-end gap-x-8 gap-y-3">
+            <Stat label="Requested EMI" value={`${formatINR(Math.round(offer.emi))}/mo`} />
+            <Stat label="Share of income" value={`${pct}%`} tone="text-caution-700" />
+            <Stat label="Safe limit" value="50%" tone="text-success-700" />
+          </div>
+          <p className="mt-3 text-sm leading-relaxed text-slate-600">
+            {formatINR(applicant.requestedAmount)} over {formatTenure(applicant.requestedTenure)} needs an
+            EMI of {formatINR(Math.round(offer.emi))} — that's{" "}
+            <span className="font-semibold text-ink">{pct}% of your {formatINR(applicant.income)} income</span>{" "}
+            before existing EMIs, beyond what's safe to lend.
+          </p>
+        </div>
       ) : (
-        <p className="mt-2 max-w-md text-sm leading-relaxed text-slate-500">
+        <p className="mt-3 text-sm leading-relaxed text-slate-500">
           This isn't the end of the road. Based on your current profile we're unable to extend an
           offer right now — but there are a few good ways to get there.
         </p>
@@ -53,9 +67,14 @@ export default function RejectedCard({ view }) {
         />
       )}
 
-      <ExplainChips items={CHIPS.rejected} />
-
       <AlternativeOptions />
+
+      <div className="mt-6 border-t border-slate-100 pt-5">
+        <h2 className="mb-1 text-xs font-semibold uppercase tracking-wide text-slate-500">
+          Common questions
+        </h2>
+        <ExplainChips items={CHIPS.rejected} />
+      </div>
     </div>
   );
 }
