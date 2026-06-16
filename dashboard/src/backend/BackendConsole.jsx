@@ -34,15 +34,37 @@ function AgentCallLog({ entries }) {
 }
 
 function CaseDictPanel({ dict }) {
-  const count = Object.keys(dict).length;
+  const keys = Object.keys(dict);
+  const prevKeys = useRef(new Set());
+  const isNew = (k) => !prevKeys.current.has(k);
+  useEffect(() => {
+    prevKeys.current = new Set(keys);
+  });
+
   return (
     <div className="mt-4 flex min-h-0 flex-col">
       <div className="mb-2 flex items-center justify-between text-[11px] font-semibold uppercase tracking-widest text-primary-100/80">
         <span className="flex items-center gap-2">
           <Database className="h-3.5 w-3.5" /> Live Case Dict
         </span>
-        <span className="text-slate-500">{count} keys</span>
+        <span className="text-slate-500">{keys.length} keys</span>
       </div>
+      {keys.length > 0 && (
+        <div className="mb-2 flex flex-wrap gap-1">
+          {keys.map((k) => (
+            <span
+              key={k}
+              className={`rounded border px-1.5 py-px font-mono text-[10px] transition-colors ${
+                isNew(k)
+                  ? "border-agent-400 bg-agent-500/25 text-agent-200 animate-fade-up"
+                  : "border-white/10 bg-white/5 text-slate-400"
+              }`}
+            >
+              {k}
+            </span>
+          ))}
+        </div>
+      )}
       <pre className="max-h-[34vh] overflow-auto rounded-lg border border-white/10 bg-black/30 p-3 font-mono text-[11px] leading-relaxed text-progress-200">
         {count === 0 ? "// {}" : JSON.stringify(dict, null, 2)}
       </pre>

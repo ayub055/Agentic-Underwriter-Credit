@@ -26,7 +26,7 @@ export default {
         progress: ramp("progress", [50, 100, 200, 400, 500, 600]),
         caution: ramp("caution", [50, 100, 200, 400, 500, 700]),
         danger: ramp("danger", [50, 100, 200, 300, 500, 600, 700]),
-        agent: ramp("agent", [50, 100, 200, 300, 500, 600, 700]),
+        agent: ramp("agent", [50, 100, 200, 300, 400, 500, 600, 700]),
       },
       fontFamily: {
         sans: ["var(--font-sans)", "Inter", "ui-sans-serif", "system-ui", "sans-serif"],

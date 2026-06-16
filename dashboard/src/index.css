@@ -47,7 +47,8 @@
   --c-danger-50: 254 242 242; --c-danger-100: 254 226 226; --c-danger-200: 254 202 202;
   --c-danger-300: 252 165 165; --c-danger-500: 239 68 68; --c-danger-600: 220 38 38; --c-danger-700: 185 28 28;
   --c-agent-50: 245 243 255; --c-agent-100: 237 233 254; --c-agent-200: 221 214 254;
-  --c-agent-300: 196 181 253; --c-agent-500: 139 92 246; --c-agent-600: 124 58 237; --c-agent-700: 109 40 217;
+  --c-agent-300: 196 181 253; --c-agent-400: 167 139 250; --c-agent-500: 139 92 246;
+  --c-agent-600: 124 58 237; --c-agent-700: 109 40 217;
 
   /* form / radius / elevation / fonts */
   --radius-sm: 0.5rem; --radius-md: 0.75rem; --radius-lg: 1rem; --radius-xl: 1.25rem;

@@ -56,6 +56,29 @@ export default function ScalePanel() {
           pill="real"
         />
       </div>
+      <div className="mt-3 rounded-xl border border-slate-200 bg-surface p-3">
+        <div className="mb-2 flex items-center justify-between">
+          <span className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">
+            Time to decision — agentic vs manual
+          </span>
+          <span className="text-[11px] font-bold tabular-nums text-primary-700">
+            ≈ {Math.round((2.5 * 24 * 3600) / Math.max(META.wallClockS, 0.1)).toLocaleString("en-IN")}× faster
+          </span>
+        </div>
+        {[
+          { label: "Agentic", value: `${META.wallClockS}s`, w: Math.max((META.wallClockS / (2.5 * 24 * 3600)) * 100, 1.5), cls: "bg-gradient-to-r from-primary-500 to-primary-600 text-white" },
+          { label: "Typical manual", value: "~2–3 days", w: 100, cls: "bg-slate-300 text-slate-600" },
+        ].map((r) => (
+          <div key={r.label} className="mb-1.5 flex items-center gap-2 last:mb-0">
+            <span className="w-24 flex-shrink-0 text-[10px] text-slate-500">{r.label}</span>
+            <div className="h-3.5 flex-1 overflow-hidden rounded bg-slate-100">
+              <div className={`flex h-full items-center justify-end rounded pr-1.5 text-[9px] font-semibold tabular-nums ${r.cls}`} style={{ width: `${r.w}%` }}>
+                {r.value}
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
       <p className="mt-3 text-[11px] leading-relaxed text-slate-500">
         The two <span className="font-semibold text-agent-600">LLM analysers</span> account for
         virtually all of the {VIZ.layer2Wall ?? "—"}s spent — the deterministic stages are

@@ -3,6 +3,14 @@ import { X, Download, ExternalLink, FileText } from "lucide-react";
 import camModel from "../data/realRun/camModel.json";
 import { formatINR, emDash } from "../lib/format.js";
 import { provPill } from "../lib/tones.js";
+import Sparkline from "../journey/Sparkline.jsx";
+
+const PROV_SEG = {
+  real: "bg-success-500",
+  derived: "bg-progress-500",
+  mock: "bg-slate-400",
+  placeholder: "bg-caution-500",
+};
 
 // The canonical, print-ready artifact finalize wrote into the audit pack and
 // capture copied into public/reports. Preview renders camModel natively; the PDF
@@ -64,6 +72,16 @@ export default function CamReport({ onClose }) {
   const obs = m.obligations?.obligations ?? [];
   const bk = m.banking ?? {};
 
+  // Charts from real captured data (honest empty state when sparse).
+  const provVals = Object.values(m.provenance ?? {});
+  const provTotal = provVals.length || 1;
+  const provReal = provVals.filter((v) => v === "real").length;
+  const expo = m.obligations?.monthly_exposure;
+  const expoTotals = expo?.months?.map((_, i) =>
+    Object.values(expo.series || {}).reduce((s, arr) => s + (arr?.[i] || 0), 0)
+  );
+  const cashflow = bk.monthly_cashflow ?? [];
+
   const openCam = (print) => {
     const w = window.open(CAM_URL, "_blank", "noopener");
     if (print && w) w.addEventListener("load", () => w.print());
@@ -124,6 +142,21 @@ export default function CamReport({ onClose }) {
               {id}
             </button>
           ))}
+        </div>
+
+        {/* provenance coverage — always visible, the anti-vaporware proof */}
+        <div className="flex items-center gap-2 border-b border-slate-200 bg-surface px-5 py-1.5">
+          <span className="text-[10px] uppercase tracking-wide text-slate-400">Provenance</span>
+          <span className="flex h-2 w-40 overflow-hidden rounded-full bg-slate-200" title="field provenance coverage">
+            {["real", "derived", "mock", "placeholder"].map((p) => {
+              const c = provVals.filter((v) => v === p).length;
+              return c ? <span key={p} className={PROV_SEG[p]} style={{ width: `${(c / provTotal) * 100}%` }} /> : null;
+            })}
+          </span>
+          <span className="text-[10px] font-semibold tabular-nums text-success-700">
+            {Math.round((provReal / provTotal) * 100)}% real
+          </span>
+          <span className="ml-auto text-[10px] text-slate-400">{provTotal} fields tagged</span>
         </div>
 
         {/* body */}
@@ -209,7 +242,7 @@ export default function CamReport({ onClose }) {
                         <th className="py-2 text-left">Loan type</th><th className="text-left">Sec?</th>
                         <th className="text-right">Live/Total</th><th className="text-right">Sanctioned</th>
                         <th className="text-right">Outstanding</th><th className="text-right">Overdue</th>
-                        <th className="text-right">Max DPD</th>
+                        <th className="text-right">Max DPD</th><th className="text-right">Util</th>
                       </tr>
                     </thead>
                     <tbody className="tabular-nums">
@@ -222,6 +255,18 @@ export default function CamReport({ onClose }) {
                           <td className="text-right">{formatINR(o.total_outstanding)}</td>
                           <td className="text-right">{formatINR(o.overdue_amount)}</td>
                           <td className="text-right">{num(o.max_dpd)}</td>
+                          <td className="text-right">
+                            {o.utilization_ratio != null ? (
+                              <span className="inline-flex items-center justify-end gap-1.5">
+                                <span className="h-1.5 w-10 overflow-hidden rounded bg-slate-200">
+                                  <span className="block h-full rounded bg-primary-500" style={{ width: `${Math.min(o.utilization_ratio * 100, 100)}%` }} />
+                                </span>
+                                <span className="text-[10px] tabular-nums text-slate-500">{Math.round(o.utilization_ratio * 100)}%</span>
+                              </span>
+                            ) : (
+                              emDash
+                            )}
+                          </td>
                         </tr>
                       ))}
                     </tbody>
@@ -231,13 +276,24 @@ export default function CamReport({ onClose }) {
                         <td className="text-right">{num(t.live_tradelines)}/{num(t.total_tradelines)}</td>
                         <td className="text-right">{formatINR(t.total_sanctioned)}</td>
                         <td className="text-right">{formatINR(t.total_outstanding)}</td>
-                        <td /><td className="text-right">{num(t.max_dpd)}</td>
+                        <td /><td className="text-right">{num(t.max_dpd)}</td><td />
                       </tr>
                     </tfoot>
                   </table>
                   <div className="mt-2 text-xs text-slate-500">
                     Delinquency on file: {yn(t.has_delinquency)} · On-us outstanding: {formatINR(t.on_us_total_outstanding)}
                   </div>
+                  {expoTotals?.length > 1 && (
+                    <div className="mt-4">
+                      <div className="mb-1 flex items-center justify-between text-[10px] uppercase tracking-wide text-slate-400">
+                        <span>Total exposure · {expo.months[0]} → {expo.months[expo.months.length - 1]}</span>
+                        <span className="tabular-nums text-slate-500">{formatINR(expoTotals[expoTotals.length - 1])}</span>
+                      </div>
+                      <div className="h-12">
+                        <Sparkline values={expoTotals} className="stroke-primary-500" fillClassName="fill-primary-500/10" />
+                      </div>
+                    </div>
+                  )}
                 </div>
               ) : (
                 <div className="py-3 text-xs italic text-slate-500">No live tradelines returned by the bureau analyser.</div>
@@ -263,6 +319,26 @@ export default function CamReport({ onClose }) {
                       ))}
                     </tbody>
                   </table>
+                </Card>
+              )}
+              {cashflow.length > 0 && (
+                <Card title="Monthly cashflow — net inflow/outflow">
+                  <div className="flex h-20 items-end gap-1">
+                    {cashflow.map((r, i) => {
+                      const max = Math.max(...cashflow.map((x) => Math.abs(x.net || 0)), 1);
+                      const h = (Math.abs(r.net || 0) / max) * 100;
+                      const pos = (r.net || 0) >= 0;
+                      return (
+                        <div key={i} className="flex flex-1 flex-col items-center justify-end" title={`${r.month}: ${formatINR(r.net)}`}>
+                          <div className={`w-full rounded-t ${pos ? "bg-success-500" : "bg-danger-500"}`} style={{ height: `${Math.max(h, 3)}%` }} />
+                        </div>
+                      );
+                    })}
+                  </div>
+                  <div className="mt-1 flex justify-between text-[9px] tabular-nums text-slate-400">
+                    <span>{cashflow[0].month}</span>
+                    <span>{cashflow[cashflow.length - 1].month}</span>
+                  </div>
                 </Card>
               )}
               {bk.top_categories?.length > 0 && (
