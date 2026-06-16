@@ -29,6 +29,7 @@ export function buildScript(view) {
       id: "identity",
       label: "Identity & Address",
       icon: ShieldCheck,
+      checks: ["Confirming it's really you", "Checking your address"],
       narration:
         addr?.score != null
           ? `First, I made sure it's really you — PAN via Karza, KYC and employer records all line up. I also scored ${
@@ -54,6 +55,7 @@ export function buildScript(view) {
       id: "finances",
       label: "Income & Banking",
       icon: Wallet,
+      checks: ["Reading your bank statements", "Mapping your obligations"],
       narration:
         salary != null
           ? `Next, I read your recent bank statements — salary credits of about ${formatINR(
@@ -80,6 +82,7 @@ export function buildScript(view) {
       id: "bureau",
       label: "Credit History",
       icon: BarChart3,
+      checks: ["Pulling your credit report", "Reviewing repayment history"],
       narration:
         sum.cibilScore != null
           ? `With your consent, I pulled your bureau report — a CIBIL of ${sum.cibilScore} shows you've handled credit well so far.`
@@ -104,6 +107,7 @@ export function buildScript(view) {
       id: "decision",
       label: "Decision",
       icon: Scale,
+      checks: ["Running lending policies", "Stress-testing affordability"],
       narration: DECISION_NARRATION[view.status](view),
       facts: [
         "All 6 lending policies evaluated",
