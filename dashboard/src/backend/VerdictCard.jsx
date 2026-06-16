@@ -1,6 +1,8 @@
+import { useEffect, useState } from "react";
 import { CheckCircle2, XCircle, ArrowRight, FileText } from "lucide-react";
 import { VIZ } from "./phaseModel.js";
 import { formatEMI, formatINR } from "../lib/format.js";
+import { prefersReducedMotion } from "../lib/motion.js";
 
 function Side({ pass, title, headline, detail }) {
   const Icon = pass ? CheckCircle2 : XCircle;
@@ -22,6 +24,49 @@ function Side({ pass, title, headline, detail }) {
   );
 }
 
+// The decision as a balance: credit quality vs affordability. The beam settles
+// toward the side that failed — the run's whole tension (clean credit, failed
+// FOIR) read in one glance. Balanced when both pass.
+function VerdictScale({ creditPass, affordPass }) {
+  const reduce = prefersReducedMotion();
+  const [grown, setGrown] = useState(reduce);
+  useEffect(() => {
+    const id = requestAnimationFrame(() => setGrown(true));
+    return () => cancelAnimationFrame(id);
+  }, []);
+
+  const tip = creditPass === affordPass ? 0 : creditPass ? 9 : -9; // + = affordability sinks
+  const angle = grown ? tip : 0;
+  const disc = (pass) => (pass ? "fill-success-500" : "fill-danger-500");
+
+  return (
+    <div className="mb-4 flex flex-col items-center">
+      <svg viewBox="0 0 260 96" className="w-full max-w-[280px]" aria-hidden="true">
+        <line x1="104" y1="84" x2="156" y2="84" className="stroke-slate-300" strokeWidth="3" strokeLinecap="round" />
+        <line x1="130" y1="84" x2="130" y2="34" className="stroke-slate-400" strokeWidth="3" strokeLinecap="round" />
+        <polygon points="130,27 123,38 137,38" className="fill-slate-400" />
+        <g
+          style={{
+            transform: `rotate(${angle}deg)`,
+            transformOrigin: "130px 32px",
+            transition: reduce ? "none" : "transform 1.1s cubic-bezier(.34,1.2,.4,1)",
+          }}
+        >
+          <line x1="54" y1="32" x2="206" y2="32" className="stroke-ink" strokeWidth="3" strokeLinecap="round" />
+          <line x1="54" y1="32" x2="54" y2="47" className="stroke-slate-300" strokeWidth="1.5" />
+          <circle cx="54" cy="53" r="9" className={disc(creditPass)} />
+          <line x1="206" y1="32" x2="206" y2="47" className="stroke-slate-300" strokeWidth="1.5" />
+          <circle cx="206" cy="53" r="9" className={disc(affordPass)} />
+        </g>
+      </svg>
+      <div className="flex w-full max-w-[280px] justify-between px-1 text-micro font-semibold uppercase tracking-wide">
+        <span className={creditPass ? "text-success-700" : "text-danger-600"}>Credit {creditPass ? "✓" : "✕"}</span>
+        <span className={affordPass ? "text-success-700" : "text-danger-600"}>Affordability {affordPass ? "✓" : "✕"}</span>
+      </div>
+    </div>
+  );
+}
+
 // The run's verdict, split into its two truths: credit quality vs affordability.
 // For the captured run that tension IS the story — clean credit, unaffordable EMI.
 export default function VerdictCard({ onSeeCustomer, onOpenCam }) {
@@ -31,6 +76,8 @@ export default function VerdictCard({ onSeeCustomer, onOpenCam }) {
 
   return (
     <div className="rounded-2xl border border-slate-200 bg-surface p-5 shadow-sm animate-fade-up">
+      <VerdictScale creditPass={creditPass} affordPass={v.serviceable} />
+
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <Side
           pass={creditPass}

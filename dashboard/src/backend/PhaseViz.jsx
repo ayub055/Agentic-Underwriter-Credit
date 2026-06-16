@@ -92,11 +92,30 @@ function ParallelBars() {
           </div>
         ))}
       </div>
-      <p className="mt-3 text-[11px] leading-relaxed text-slate-500">
-        <span className="font-semibold text-primary-700">{Math.round(sum * 10) / 10}s</span> of
-        analyser work finished in{" "}
-        <span className="font-semibold text-primary-700">{wall}s</span> wall-clock — both agents ran
-        simultaneously in isolated subprocesses.
+      {/* serial-vs-parallel comparison: the actual run scaled against the
+          hypothetical of running both agents one after another. */}
+      <div className="mt-4 space-y-1.5">
+        {[
+          { label: "Parallel (actual)", t: wall, cls: "bg-gradient-to-r from-primary-500 to-primary-600 text-white", ghost: false },
+          { label: "If run serially", t: Math.round(sum * 10) / 10, cls: "bg-slate-300/70 text-slate-600", ghost: true },
+        ].map((r) => (
+          <div key={r.label} className="flex items-center gap-2">
+            <span className="w-28 flex-shrink-0 text-[10px] text-slate-500">{r.label}</span>
+            <div className="h-3.5 flex-1 overflow-hidden rounded bg-slate-200/50">
+              <div
+                className={`flex h-full items-center justify-end rounded pr-1.5 text-[9px] font-semibold tabular-nums transition-all duration-1000 ease-out ${r.cls}`}
+                style={{ width: grown ? `${Math.max((r.t / Math.max(sum, 0.1)) * 100, 8)}%` : "0%" }}
+              >
+                {r.t}s
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+      <p className="mt-2 text-[11px] leading-relaxed text-slate-500">
+        Both agents ran simultaneously in isolated subprocesses —{" "}
+        <span className="font-semibold text-primary-700">~{Math.round((sum - wall) * 10) / 10}s saved</span>{" "}
+        versus running them one after another.
       </p>
     </VizShell>
   );
@@ -142,20 +161,37 @@ function AddressGauge() {
         <span>High</span>
       </div>
 
-      {/* top reason drivers */}
-      <div className="mt-3 space-y-1.5">
-        {a.reasons.map((r) => (
-          <div key={r.code} className="flex items-center gap-2 text-[11px]">
-            <span
-              className={`flex h-4 w-4 flex-shrink-0 items-center justify-center rounded-full ${
-                r.direction === "positive" ? "bg-success-100 text-success-700" : "bg-caution-100 text-caution-700"
-              }`}
-            >
-              {r.direction === "positive" ? <Check className="h-3 w-3" /> : <X className="h-3 w-3" />}
-            </span>
-            <span className="text-slate-600">{r.label}</span>
-          </div>
-        ))}
+      {/* top drivers as signed contribution bars (how each pushed the score) */}
+      <div className="mt-3">
+        <div className="mb-1.5 text-[9px] font-semibold uppercase tracking-wide text-slate-400">
+          Top drivers · contribution
+        </div>
+        <div className="space-y-2">
+          {a.reasons.map((r) => {
+            const pos = r.direction === "positive";
+            const w = Math.min((r.impact ?? 0.3) * 100, 48); // half-axis %
+            return (
+              <div key={r.code} className="text-[11px]">
+                <div className="mb-0.5 flex items-center justify-between">
+                  <span className="text-slate-600">{r.label}</span>
+                  <span className={`font-semibold tabular-nums ${pos ? "text-success-700" : "text-caution-700"}`}>
+                    {pos ? "+" : "−"}
+                    {Math.round((r.impact ?? 0) * 100) / 100}
+                  </span>
+                </div>
+                <div className="relative h-2 overflow-hidden rounded bg-slate-100">
+                  <span className="absolute left-1/2 top-0 h-full w-px bg-slate-300" />
+                  <span
+                    className={`absolute top-0 h-full rounded transition-all duration-700 ease-out ${
+                      pos ? "bg-success-500" : "bg-caution-500"
+                    }`}
+                    style={{ left: pos ? "50%" : `${50 - (grown ? w : 0)}%`, width: grown ? `${w}%` : "0%" }}
+                  />
+                </div>
+              </div>
+            );
+          })}
+        </div>
       </div>
 
       <p className="mt-3 text-[11px] leading-relaxed text-slate-500">
@@ -180,41 +216,57 @@ function AddressGauge() {
 function PolicyWaterfall() {
   const grown = useGrown();
   const { layers, result } = VIZ.policy;
+  const breachIdx = layers.findIndex((l) => !l.passed);
 
   return (
-    <VizShell title="L1–L6 policy waterfall">
-      <div className="space-y-1.5">
-        {layers.map((l, i) => (
-          <div key={l.layer} className="flex items-center gap-2">
-            <span className="w-36 flex-shrink-0 font-mono text-[10px] text-slate-500">{l.layer}</span>
-            <div className="h-3.5 flex-1">
+    <VizShell title="L1–L6 policy waterfall — gate cascade">
+      <div className="mx-auto flex max-w-[15rem] flex-col items-center">
+        {layers.map((l, i) => {
+          const width = 100 - i * 8; // funnel: each gate a little narrower
+          const halted = breachIdx !== -1 && i > breachIdx; // gates past a breach never run
+          return (
+            <div key={l.layer} className="flex w-full flex-col items-center" style={{ width: `${width}%` }}>
+              {i > 0 && (
+                <span
+                  className={`h-2.5 w-0.5 transition-colors duration-500 ${
+                    layers[i - 1].passed ? "bg-success-500" : "bg-danger-400"
+                  }`}
+                  style={{ transitionDelay: `${i * 90}ms` }}
+                />
+              )}
               <div
-                className={`h-full rounded transition-all duration-700 ease-out ${
-                  l.passed ? "bg-success-600/80" : "bg-danger-500"
+                className={`flex w-full items-center justify-between gap-2 rounded-full border px-3 py-1.5 transition-all duration-500 ease-out ${
+                  halted
+                    ? "border-slate-200 bg-slate-50 text-slate-400"
+                    : l.passed
+                    ? "border-success-200 bg-success-50 text-success-700"
+                    : "border-danger-200 bg-danger-50 text-danger-600"
                 }`}
                 style={{
-                  width: grown ? `${100 - i * 12}%` : "0%",
-                  transitionDelay: `${i * 110}ms`,
+                  opacity: grown ? 1 : 0,
+                  transform: grown ? "none" : "translateY(-6px)",
+                  transitionDelay: `${i * 90}ms`,
                 }}
-              />
+              >
+                <span className="font-mono text-[10px]">{l.layer}</span>
+                {halted ? (
+                  <span className="text-[9px] font-semibold uppercase tracking-wide">skipped</span>
+                ) : l.passed ? (
+                  <Check className="h-3.5 w-3.5" strokeWidth={3} />
+                ) : (
+                  <X className="h-3.5 w-3.5" strokeWidth={3} />
+                )}
+              </div>
             </div>
-            <span
-              className={`flex w-16 flex-shrink-0 items-center gap-1 text-[10px] font-bold ${
-                l.passed ? "text-success-700" : "text-danger-600"
-              }`}
-            >
-              {l.passed ? <Check className="h-3 w-3" strokeWidth={3} /> : <X className="h-3 w-3" strokeWidth={3} />}
-              {l.passed ? "PASS" : "BREACH"}
-            </span>
-          </div>
-        ))}
+          );
+        })}
       </div>
-      <p className="mt-3 text-[11px] text-slate-500">
+      <p className="mt-3 text-center text-[11px] text-slate-500">
         Waterfall result:{" "}
         <span className={`font-bold ${result === "APPROVED" ? "text-success-700" : "text-danger-600"}`}>
           {result}
         </span>{" "}
-        — every layer cleared on credit quality.
+        {breachIdx === -1 ? "— every layer cleared on credit quality." : `— halted at ${layers[breachIdx].layer}.`}
       </p>
     </VizShell>
   );
@@ -293,24 +345,26 @@ function StageGantt() {
 
   return (
     <VizShell title="Run telemetry — where time went">
-      <div className="space-y-1.5">
+      {/* one stacked ribbon: each segment a stage, proportional to wall-clock */}
+      <div className="flex h-5 w-full overflow-hidden rounded-full bg-slate-200/50">
+        {VIZ.stages.map((s, i) => (
+          <div
+            key={s.stage}
+            title={`${s.stage} · ${s.elapsed}s`}
+            className={`h-full transition-all duration-1000 ease-out ${i > 0 ? "border-l border-surface/60" : ""} ${
+              s.stage === "layer2" ? "bg-gradient-to-r from-agent-500 to-agent-600" : "bg-primary-500/80"
+            }`}
+            style={{ width: grown ? `${Math.max((s.elapsed / wall) * 100, 0.6)}%` : "0%" }}
+          />
+        ))}
+      </div>
+      <div className="mt-3 flex flex-wrap gap-x-3 gap-y-1">
         {VIZ.stages.map((s) => (
-          <div key={s.stage} className="flex items-center gap-2">
-            <span className="w-24 flex-shrink-0 font-mono text-[10px] text-slate-500">{s.stage}</span>
-            <div className="h-3 flex-1 overflow-hidden rounded bg-slate-200/60">
-              <div
-                className={`h-full rounded transition-all duration-1000 ease-out ${
-                  s.stage === "layer2"
-                    ? "bg-gradient-to-r from-agent-500 to-agent-600"
-                    : "bg-primary-500/80"
-                }`}
-                style={{ width: grown ? `${Math.max((s.elapsed / wall) * 100, 0.8)}%` : "0%" }}
-              />
-            </div>
-            <span className="w-14 flex-shrink-0 text-right text-[10px] tabular-nums text-slate-400">
-              {s.elapsed}s
-            </span>
-          </div>
+          <span key={s.stage} className="flex items-center gap-1 text-[10px] text-slate-500">
+            <span className={`h-2 w-2 rounded-sm ${s.stage === "layer2" ? "bg-agent-500" : "bg-primary-500/80"}`} />
+            <span className="font-mono">{s.stage}</span>
+            <span className="tabular-nums text-slate-400">{s.elapsed}s</span>
+          </span>
         ))}
       </div>
       <p className="mt-3 text-[11px] leading-relaxed text-slate-500">

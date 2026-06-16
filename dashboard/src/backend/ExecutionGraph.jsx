@@ -14,7 +14,7 @@ import {
   Stamp,
   Wallet,
 } from "lucide-react";
-import { VIZ } from "./phaseModel.js";
+import { VIZ, PHASES } from "./phaseModel.js";
 
 // The execution DAG, drawn to scale with the real architecture: Intake (three
 // sub-steps — Karza API, KYC API, Address Agent) fans out into two isolated
@@ -86,6 +86,9 @@ function Node({ node, status, selected, onSelect }) {
   const done = status === "done";
   const running = status === "running";
   const box = node.small ? "h-10 w-10 rounded-lg" : "h-12 w-12 rounded-xl";
+  // Hover peek: show this phase's headline metric instead of a generic label.
+  const headline = PHASES[node.phase]?.data?.[0];
+  const peek = headline ? `${headline.key} = ${headline.value}` : "View details";
 
   return (
     <button
@@ -96,12 +99,21 @@ function Node({ node, status, selected, onSelect }) {
     >
       {/* Hover affordance: clicking nodes is the main interaction, make it obvious. */}
       <span
-        className={`pointer-events-none absolute left-1/2 z-10 hidden -translate-x-1/2 whitespace-nowrap rounded bg-night px-1.5 py-0.5 text-[9px] font-medium text-white group-hover:block ${
+        className={`pointer-events-none absolute left-1/2 z-10 hidden max-w-[160px] -translate-x-1/2 truncate rounded bg-night px-1.5 py-0.5 text-[9px] font-medium text-white group-hover:block ${
           node.labelPos === "above" ? "top-full mt-2" : "bottom-full mb-2"
         }`}
       >
-        View details
+        {peek}
       </span>
+      {/* live-computation ring while this node runs (calm, gated by motion-safe) */}
+      {running && (
+        <svg className="pointer-events-none absolute -inset-1.5" viewBox="0 0 100 100" aria-hidden="true">
+          <circle cx="50" cy="50" r="46" fill="none" className="stroke-agent-200" strokeWidth="3" />
+          <g className="origin-center motion-safe:animate-[spin_1.6s_linear_infinite]">
+            <circle cx="50" cy="50" r="46" fill="none" className="stroke-agent-500" strokeWidth="3" strokeLinecap="round" strokeDasharray="64 240" />
+          </g>
+        </svg>
+      )}
       <span
         className={`relative flex ${box} items-center justify-center border transition-all duration-300 group-hover:-translate-y-0.5 ${
           done

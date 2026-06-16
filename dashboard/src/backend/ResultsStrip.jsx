@@ -13,6 +13,12 @@ function Kpi({ label, value, tone }) {
 }
 
 const PROV = ["real", "derived", "mock", "placeholder"];
+const PROV_SEG = {
+  real: "bg-success-500",
+  derived: "bg-progress-500",
+  mock: "bg-slate-400",
+  placeholder: "bg-caution-500",
+};
 
 // "We tag every field's provenance" is the strongest anti-vaporware proof in
 // the run — so the legend opens the actual field-by-field map.
@@ -21,6 +27,8 @@ function ProvenancePopover() {
   const ref = useRef(null);
   const entries = Object.entries(PROVENANCE);
   const counts = PROV.reduce((acc, p) => ({ ...acc, [p]: entries.filter(([, v]) => v === p).length }), {});
+  const total = entries.length || 1;
+  const realPct = Math.round((counts.real / total) * 100);
 
   useEffect(() => {
     if (!open) return;
@@ -41,16 +49,14 @@ function ProvenancePopover() {
         <span className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">
           Provenance
         </span>
-        <span className="flex flex-wrap gap-1.5">
-          {PROV.map((p) => (
-            <span
-              key={p}
-              className={`rounded border px-1.5 py-px text-[10px] font-medium uppercase ${provPill[p]}`}
-            >
-              {p} · {counts[p]}
-            </span>
-          ))}
+        <span className="flex h-2 w-32 overflow-hidden rounded-full bg-slate-200" title="field provenance coverage">
+          {PROV.map((p) =>
+            counts[p] > 0 ? (
+              <span key={p} className={PROV_SEG[p]} style={{ width: `${(counts[p] / total) * 100}%` }} />
+            ) : null
+          )}
         </span>
+        <span className="text-[10px] font-semibold tabular-nums text-success-700">{realPct}% real</span>
         <ChevronDown className={`h-3.5 w-3.5 text-slate-400 transition-transform ${open ? "rotate-180" : ""}`} />
       </button>
 
