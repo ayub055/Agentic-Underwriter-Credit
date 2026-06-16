@@ -7,15 +7,9 @@ import ReviewCard from "../components/states/ReviewCard.jsx";
 import RejectedCard from "../components/states/RejectedCard.jsx";
 import { buildScript } from "./agentScript.js";
 import { useJourneyPlayback } from "./useJourneyPlayback.js";
-import MomentRail from "./MomentRail.jsx";
+import JourneyProgress from "./JourneyProgress.jsx";
 import Narrator from "./Narrator.jsx";
 import AnalysisCanvas from "./AnalysisCanvas.jsx";
-import JourneySpine from "../components/JourneySpine.jsx";
-
-// Narrative moment → shared journey-spine stage (the same spine the backend
-// view shows, so both lenses read as one journey).
-const SPINE_BY_MOMENT = [1, 2, 2, 5];
-const OUTCOME_TONE = { approved: "success", review: "progress", rejected: "caution" };
 
 const CARDS = {
   approved: ApprovedCard,
@@ -47,14 +41,15 @@ export default function JourneyExperience({ view, onAcceptOffer, onEnablePush, o
     <main className="mx-auto max-w-4xl px-4 py-6 sm:py-10">
       <Header applicationId={view.applicationId} />
 
-      <JourneySpine
-        current={phase === "intro" ? 0 : phase === "working" ? SPINE_BY_MOMENT[moment] ?? 1 : 6}
-        complete={phase === "reveal"}
-        outcomeTone={OUTCOME_TONE[view.status] ?? "progress"}
-        className="mt-4 px-1 opacity-80"
-      />
-
-      <MomentRail moments={script.moments} moment={moment} phase={phase} status={view.status} />
+      <div className="mt-4">
+        <JourneyProgress
+          moments={script.moments}
+          moment={moment}
+          phase={phase}
+          facts={facts}
+          status={view.status}
+        />
+      </div>
 
       <Narrator
         text={narration}
