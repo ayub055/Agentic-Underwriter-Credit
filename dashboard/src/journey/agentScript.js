@@ -38,7 +38,6 @@ export function buildScript(view) {
             }`
           : "First, I made sure it's really you — your PAN, KYC and employer records all line up, and your home address checks out as real and serviceable.",
       facts: [
-        "Form received · application submitted",
         "PAN verified via Karza · KYC confirmed",
         "Employment & consent captured (EPFO)",
         addr?.score != null
