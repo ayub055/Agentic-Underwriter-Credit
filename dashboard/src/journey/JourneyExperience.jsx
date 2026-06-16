@@ -38,7 +38,7 @@ export default function JourneyExperience({ view, onAcceptOffer, onEnablePush, o
       : script.reveal.narration;
 
   return (
-    <main className="mx-auto max-w-4xl px-4 py-6 sm:py-10">
+    <main className="mx-auto max-w-6xl px-4 py-6 sm:py-10">
       <Header applicationId={view.applicationId} />
 
       <div className="mt-4">

@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Lightbulb, Zap } from "lucide-react";
 import { formatINR } from "../lib/format.js";
-import Sparkline from "./Sparkline.jsx";
 
 const MIN = 25000;
 const MAX = 300000;
@@ -50,23 +49,16 @@ export default function OfferSimulator({ income, existingObligations, ratePct, o
   const band = BANDS.find((b) => foir <= b.max) ?? BANDS[BANDS.length - 1];
   const pct = Math.round(foir * 100);
 
-  // Live affordability ring + amortization curve recomputed on every drag.
+  // Live affordability ring recomputed on every drag.
   // Literal class strings (Tailwind JIT can't see `stroke-${tone}` templates).
   const RING = {
-    success: { stroke: "stroke-success-500", text: "text-success-700", fill: "fill-success-500/10" },
-    caution: { stroke: "stroke-caution-500", text: "text-caution-700", fill: "fill-caution-500/10" },
-    danger: { stroke: "stroke-danger-500", text: "text-danger-700", fill: "fill-danger-500/10" },
+    success: { stroke: "stroke-success-500", text: "text-success-700" },
+    caution: { stroke: "stroke-caution-500", text: "text-caution-700" },
+    danger: { stroke: "stroke-danger-500", text: "text-danger-700" },
   };
   const ring = RING[foir < 0.4 ? "success" : foir < 0.6 ? "caution" : "danger"];
   const r = 26;
   const circ = 2 * Math.PI * r;
-  const balances = [];
-  let bal = amount;
-  const mr = ratePct / 100 / 12;
-  for (let mo = 0; mo <= tenure; mo++) {
-    balances.push(Math.max(bal, 0));
-    bal = bal * (1 + mr) - emi;
-  }
   const totalPayable = Math.round(emi * tenure);
 
   return (
@@ -144,10 +136,6 @@ export default function OfferSimulator({ income, existingObligations, ratePct, o
             <div className="flex items-baseline justify-between gap-2">
               <span className="text-xs uppercase tracking-wide text-slate-500">Monthly outgo</span>
               <span className="font-semibold tabular-nums text-ink">{formatINR(Math.round(emi))}/mo</span>
-            </div>
-            {/* amortization: outstanding balance falling to zero over the tenure */}
-            <div className="mt-2 h-8">
-              <Sparkline values={balances} className={ring.stroke} fillClassName={ring.fill} />
             </div>
             <div className="mt-1 text-[11px] tabular-nums text-slate-500">
               {formatINR(totalPayable)} total over {tenure} months
