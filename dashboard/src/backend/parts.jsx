@@ -115,12 +115,12 @@ function AgentNarrative({ narrative, running }) {
       return;
     }
     setThinking(true);
-    const t = setTimeout(() => setThinking(false), 1600);
+    const t = setTimeout(() => setThinking(false), 2400);
     return () => clearTimeout(t);
   }, [running]);
 
   const typing = running && !thinking;
-  const { text } = useTypewriter(narrative.excerpt, { speed: 18, chunk: 3, enabled: typing });
+  const { text } = useTypewriter(narrative.excerpt, { speed: 32, chunk: 2, enabled: typing });
   const shown = running ? text : narrative.excerpt;
 
   return (

@@ -19,7 +19,7 @@ function ThinkingDots() {
 // The agent's voice: one persistent panel that narrates the whole journey —
 // greeting, per-moment commentary, then the outcome + next best action.
 export default function Narrator({ text, thinking = false, nextAction = null }) {
-  const typed = useTypewriter(text);
+  const typed = useTypewriter(text, { speed: 36, chunk: 1 });
 
   return (
     <div className="mt-5 flex items-start gap-3 rounded-2xl border border-agent-200/70 bg-gradient-to-br from-agent-50 to-surface p-4 shadow-sm sm:p-5">

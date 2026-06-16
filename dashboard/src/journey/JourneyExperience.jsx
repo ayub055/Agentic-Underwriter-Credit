@@ -30,7 +30,10 @@ export default function JourneyExperience({ view, onAcceptOffer, onEnablePush, o
   // Bumping replay restarts the whole narrative — lets a presenter rerun the
   // customer story on stage without reloading.
   const [replay, setReplay] = useState(0);
-  const { phase, moment, facts, skip } = useJourneyPlayback(script.moments, `${view.status}:${replay}`);
+  const { phase, moment, facts, skip, paused, togglePause } = useJourneyPlayback(
+    script.moments,
+    `${view.status}:${replay}`
+  );
   const StateCard = CARDS[view.status] ?? ReviewCard;
 
   const narration =
@@ -66,6 +69,8 @@ export default function JourneyExperience({ view, onAcceptOffer, onEnablePush, o
           moment={moment}
           facts={facts}
           onSkip={skip}
+          paused={paused}
+          onPause={togglePause}
         />
       ) : (
         <>

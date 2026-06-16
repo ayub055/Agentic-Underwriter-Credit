@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 
-const BASE_MS = 600;
+const BASE_MS = 850;
 
 export function usePlayback(length) {
   const [cursor, setCursor] = useState(0);

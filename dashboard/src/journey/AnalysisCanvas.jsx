@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Check, ChevronDown, FastForward, Search } from "lucide-react";
+import { Check, ChevronDown, FastForward, Pause, Play, Search } from "lucide-react";
 
 // Optional depth-on-demand: the real numbers behind the friendly copy.
 // Customers keep the clean default; exploring execs tap it open.
@@ -8,7 +8,7 @@ function EvidenceDrawer({ momentId, evidence }) {
   if (!evidence?.length) return null;
 
   return (
-    <div key={momentId} className="mt-4">
+    <div key={momentId} className="mt-3">
       <button
         onClick={() => setOpen((o) => !o)}
         className="inline-flex items-center gap-1.5 rounded-lg border border-agent-200/70 bg-agent-50 px-2.5 py-1.5 text-xs font-medium text-agent-700 transition hover:bg-agent-100"
@@ -32,33 +32,8 @@ function EvidenceDrawer({ momentId, evidence }) {
   );
 }
 
-// Moment progress ring: fills as findings tick in, wrapping the moment icon.
-function ProgressRing({ pct, children }) {
-  const r = 18;
-  const c = 2 * Math.PI * r;
-  return (
-    <span className="relative flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-agent-50">
-      <svg className="absolute inset-0 h-full w-full -rotate-90" viewBox="0 0 40 40" aria-hidden="true">
-        <circle cx="20" cy="20" r={r} fill="none" className="stroke-agent-100" strokeWidth="3" />
-        <circle
-          cx="20"
-          cy="20"
-          r={r}
-          fill="none"
-          className="stroke-agent-500"
-          strokeWidth="3"
-          strokeLinecap="round"
-          strokeDasharray={c}
-          strokeDashoffset={(1 - Math.min(Math.max(pct, 0), 1)) * c}
-          style={{ transition: "stroke-dashoffset .6s cubic-bezier(.16,1,.3,1)" }}
-        />
-      </svg>
-      {children}
-    </span>
-  );
-}
-
-function FactRow({ text }) {
+// A completed process step (a "part of" the stage above it).
+function ProcStep({ text }) {
   return (
     <li className="flex items-center gap-2.5 animate-fade-up">
       <span className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-agent-100 text-agent-700">
@@ -69,7 +44,7 @@ function FactRow({ text }) {
   );
 }
 
-function SkeletonRow() {
+function ProcSkeleton() {
   return (
     <li className="flex items-center gap-2.5" aria-hidden="true">
       <span className="h-5 w-5 flex-shrink-0 rounded-full bg-slate-100" />
@@ -78,52 +53,104 @@ function SkeletonRow() {
   );
 }
 
-// The "agent at work" stage: shows the moment currently being replayed with
-// its findings ticking in, skeletons holding space for what's still coming.
-export default function AnalysisCanvas({ moments, phase, moment, facts, onSkip }) {
-  const m = moment >= 0 ? moments[moment] : null;
-  const Icon = m?.icon;
+// A super-step: the stage node on the rail + its nested process steps.
+function StageNode({ m, state, shownFacts, isLast, showEvidence }) {
+  const Icon = m.icon;
+  const done = state === "done";
+  const active = state === "active";
+
+  return (
+    <li className="flex gap-3">
+      {/* rail: node + the connector down to the next stage */}
+      <div className="flex flex-col items-center">
+        <span
+          className={`flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full border transition-colors ${
+            done
+              ? "border-primary-700 bg-primary-700 text-white"
+              : active
+              ? "border-agent-500 bg-agent-50 text-agent-600 motion-safe:animate-pulse-ring"
+              : "border-slate-300 bg-surface text-slate-300"
+          }`}
+        >
+          {done ? <Check className="h-4 w-4" strokeWidth={2.5} /> : <Icon className="h-3.5 w-3.5" strokeWidth={2} />}
+        </span>
+        {!isLast && <span className={`mt-1 w-px flex-1 ${done ? "bg-primary-200" : "bg-slate-200"}`} />}
+      </div>
+
+      {/* content: the stage label + its connected process steps */}
+      <div className="min-w-0 flex-1 pb-5">
+        <div className="flex flex-wrap items-center gap-x-2 gap-y-1 pt-0.5">
+          <span className={`text-sm font-semibold ${done || active ? "text-ink" : "text-slate-400"}`}>{m.label}</span>
+          {active && (
+            <span className="flex items-center gap-1 text-[11px] text-agent-600">
+              <span className="h-1.5 w-1.5 rounded-full bg-agent-500 motion-safe:animate-pulse" />
+              Working on it
+            </span>
+          )}
+        </div>
+        {(done || active) && (
+          <ul className="mt-2.5 space-y-2 border-l border-slate-200 pl-4">
+            {m.facts.map((fact, f) =>
+              f < shownFacts ? <ProcStep key={fact} text={fact} /> : active ? <ProcSkeleton key={fact} /> : null
+            )}
+          </ul>
+        )}
+        {showEvidence && <EvidenceDrawer momentId={m.id} evidence={m.evidence} />}
+      </div>
+    </li>
+  );
+}
+
+// The "agent at work" stage: a vertical tree of stages, each a super-step with
+// its process steps ticking in beneath it; the active stage holds skeletons for
+// what's still coming.
+export default function AnalysisCanvas({ moments, phase, moment, facts, onSkip, paused, onPause }) {
+  const intro = phase === "intro";
+  const revealed = phase === "reveal";
 
   return (
     <div className="mt-5 rounded-2xl border border-slate-200 bg-surface p-6 shadow-sm sm:p-8 animate-fade-in">
-      {phase === "intro" || !m ? (
+      {intro ? (
         <div className="flex items-center gap-3">
-          <span className="h-10 w-10 rounded-xl bg-gradient-to-r from-slate-100 via-slate-200 to-slate-100 bg-[length:200%_100%] motion-safe:animate-shimmer" />
+          <span className="h-10 w-10 rounded-full bg-gradient-to-r from-slate-100 via-slate-200 to-slate-100 bg-[length:200%_100%] motion-safe:animate-shimmer" />
           <div className="space-y-2">
             <div className="h-3 w-40 rounded bg-gradient-to-r from-slate-100 via-slate-200 to-slate-100 bg-[length:200%_100%] motion-safe:animate-shimmer" />
             <div className="text-xs text-slate-400">Pulling your file…</div>
           </div>
         </div>
       ) : (
-        <div key={m.id} className="animate-fade-up">
-          <div className="flex items-center gap-3">
-            <ProgressRing pct={m.facts.length ? facts / m.facts.length : 0}>
-              <Icon className="h-5 w-5 text-agent-600" strokeWidth={2} />
-            </ProgressRing>
-            <div>
-              <div className="text-sm font-semibold text-ink">{m.label}</div>
-              <div className="flex items-center gap-1.5 text-xs text-agent-600">
-                <span className="h-1.5 w-1.5 rounded-full bg-agent-500 motion-safe:animate-pulse" />
-                {facts >= m.facts.length ? "Done" : "Reading your file…"}
-              </div>
-            </div>
-          </div>
-          <div className="relative mt-5 overflow-hidden">
-            {/* scanning sweep while findings are still ticking in */}
-            {facts < m.facts.length && (
-              <span className="pointer-events-none absolute inset-x-0 h-10 -translate-y-1/2 bg-gradient-to-b from-transparent via-agent-500/10 to-transparent motion-safe:animate-scan" />
-            )}
-            <ul className="space-y-3">
-              {m.facts.map((fact, f) =>
-                f < facts ? <FactRow key={fact} text={fact} /> : <SkeletonRow key={fact} />
-              )}
-            </ul>
-          </div>
-          {facts >= m.facts.length && <EvidenceDrawer momentId={m.id} evidence={m.evidence} />}
-        </div>
+        <ol>
+          {moments.map((m, i) => {
+            const state = revealed || i < moment ? "done" : i === moment ? "active" : "upcoming";
+            const shownFacts = state === "done" ? m.facts.length : state === "active" ? facts : 0;
+            const showEvidence = state === "done" || (state === "active" && shownFacts >= m.facts.length);
+            return (
+              <StageNode
+                key={m.id}
+                m={m}
+                state={state}
+                shownFacts={shownFacts}
+                isLast={i === moments.length - 1}
+                showEvidence={showEvidence}
+              />
+            );
+          })}
+        </ol>
       )}
 
-      <div className="mt-6 flex justify-end border-t border-slate-100 pt-4">
+      <div className="mt-6 flex items-center justify-between gap-2 border-t border-slate-100 pt-4">
+        {onPause ? (
+          <button
+            onClick={onPause}
+            aria-pressed={paused}
+            className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium text-slate-500 transition hover:bg-slate-50 hover:text-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600"
+          >
+            {paused ? <Play className="h-3.5 w-3.5" strokeWidth={2} /> : <Pause className="h-3.5 w-3.5" strokeWidth={2} />}
+            {paused ? "Resume" : "Stay on this step"}
+          </button>
+        ) : (
+          <span />
+        )}
         <button
           onClick={onSkip}
           className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium text-slate-500 transition hover:bg-slate-50 hover:text-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600"
