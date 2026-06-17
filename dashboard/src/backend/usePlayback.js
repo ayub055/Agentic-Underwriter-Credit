@@ -2,7 +2,10 @@ import { useEffect, useRef, useState } from "react";
 
 const BASE_MS = 850;
 
-export function usePlayback(length) {
+// `delayAt(cursor)` (optional) lets a caller stretch specific steps — e.g. slow
+// the intake stage so viewers can read each verification — returning the ms for
+// that step; falls back to BASE_MS.
+export function usePlayback(length, delayAt) {
   const [cursor, setCursor] = useState(0);
   const [playing, setPlaying] = useState(false);
   const [speed, setSpeed] = useState(1);
@@ -14,8 +17,10 @@ export function usePlayback(length) {
       setPlaying(false);
       return;
     }
-    timer.current = setTimeout(() => setCursor((c) => Math.min(c + 1, length)), BASE_MS / speed);
+    const base = typeof delayAt === "function" ? delayAt(cursor) : BASE_MS;
+    timer.current = setTimeout(() => setCursor((c) => Math.min(c + 1, length)), base / speed);
     return () => clearTimeout(timer.current);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [playing, cursor, length, speed]);
 
   const play = () => {

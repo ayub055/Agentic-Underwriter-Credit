@@ -1,5 +1,4 @@
 import {
-  BadgeCheck,
   BarChart3,
   BellRing,
   Check,
@@ -8,13 +7,12 @@ import {
   GitMerge,
   Inbox,
   Calculator,
-  MapPinned,
   Scale,
-  ShieldCheck,
   Stamp,
   Wallet,
 } from "lucide-react";
 import { VIZ, PHASES } from "./phaseModel.js";
+import IntakeChecksCallout from "./IntakeChecksCallout.jsx";
 
 // The execution DAG, drawn to scale with the real architecture: Intake (three
 // sub-steps — Karza API, KYC API, Address Agent) fans out into two isolated
@@ -28,17 +26,13 @@ const H = 252;
 
 const sec = (s) => (s == null ? "" : `${Math.round(s * 10) / 10}s`);
 
-// The three sub-steps that make up Intake (P1), rendered as small chips.
-const INTAKE_SUBPHASES = [
-  { id: "karza_api", label: "Karza API", icon: ShieldCheck },
-  { id: "kyc_api", label: "KYC API", icon: BadgeCheck },
-  { id: "address_agent", label: "Address Agent", icon: MapPinned, sub: VIZ.address.score != null ? `${VIZ.address.score}/100` : "" },
-];
+// Intake's verification sub-steps now live in the IntakeChecksCallout (below the
+// node), not as chips on the node.
 
 // phase: index into PHASES/statuses that drives this node's state.
 const NODES = [
   { id: "form", phase: 0, x: 40, y: 110, icon: FileText, tag: "P0", label: "Application", labelPos: "below" },
-  { id: "intake", phase: 1, x: 148, y: 110, icon: Inbox, tag: "P1", label: "Intake", labelPos: "below", subPhases: INTAKE_SUBPHASES },
+  { id: "intake", phase: 1, x: 148, y: 110, icon: Inbox, tag: "P1", label: "Intake & Verification", labelPos: "above" },
   { id: "bureau", phase: 2, x: 308, y: 56, icon: BarChart3, tag: "2A", label: "Bureau Agent", sub: sec(VIZ.branches[0].elapsed), llm: true, labelPos: "above" },
   { id: "banking", phase: 2, x: 308, y: 196, icon: Wallet, tag: "2B", label: "Banking Agent", sub: sec(VIZ.branches[1].elapsed), llm: true, labelPos: "below" },
   { id: "gate", phase: 2, x: 462, y: 126, icon: GitMerge, tag: "Σ", label: "Fold · Gate", labelPos: "below", small: true },
@@ -286,7 +280,8 @@ function StackedGraph({ statuses, selected, onSelect }) {
   );
 }
 
-export default function ExecutionGraph({ statuses, selected, onSelect, footer }) {
+export default function ExecutionGraph({ statuses, selected, onSelect, footer, intakeOpen, intakeProgress }) {
+  const intakeNode = NODES.find((n) => n.id === "intake");
   return (
     <div className="rounded-2xl border border-slate-200 bg-surface p-2 shadow-sm">
       <div className="px-1 py-1 lg:hidden">
@@ -333,6 +328,18 @@ export default function ExecutionGraph({ statuses, selected, onSelect, footer })
         <span className="absolute left-[30.8%] top-[46.8%] -translate-x-1/2 rounded border border-caution-200 bg-caution-50 px-1.5 py-px text-[9px] font-bold tracking-widest text-caution-700">
           ∥ PARALLEL
         </span>
+        {/* Verification ceremony floats above the Intake node while it runs. */}
+        {intakeOpen && (
+          <div
+            className="pointer-events-none absolute z-30 flex -translate-x-1/2 flex-col items-center"
+            style={{ left: `${(intakeNode.x / W) * 100}%`, top: `${((intakeNode.y + 28) / H) * 100}%` }}
+          >
+            <span className="-mb-px h-3 w-3 rotate-45 border-l border-t border-slate-200 bg-surface" />
+            <div className="pointer-events-auto animate-fade-up">
+              <IntakeChecksCallout progress={intakeProgress} />
+            </div>
+          </div>
+        )}
         </div>
       </div>
       {footer && <div className="mt-1 border-t border-slate-100 px-2 pb-1 pt-2.5">{footer}</div>}

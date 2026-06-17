@@ -35,7 +35,14 @@ export default function BackendJourney({ onSeeCustomer }) {
     return map;
   }, [timeline]);
 
-  const { cursor, playing, speed, setSpeed, play, pause, reset, skipEnd, seek } = usePlayback(timeline.length);
+  // Slow the intake & verification stage (~2×) so viewers can read each check.
+  const intakeBounds = bounds[1];
+  const stepDelay = (c) =>
+    intakeBounds && c >= intakeBounds.start && c < intakeBounds.done ? 1700 : 850;
+  const { cursor, playing, speed, setSpeed, play, pause, reset, skipEnd, seek } = usePlayback(
+    timeline.length,
+    stepDelay
+  );
   const [selected, setSelected] = useState(0);
   const [presenting, setPresenting] = useState(false);
   const [camOpen, setCamOpen] = useState(false);
@@ -76,6 +83,13 @@ export default function BackendJourney({ onSeeCustomer }) {
   const dict = PHASES.reduce((acc, p, i) => (cursor > bounds[i].done ? { ...acc, ...p.patch } : acc), {});
 
   const complete = cursor >= timeline.length;
+
+  // Intake (phase 1) verification ceremony: a modal pops up only while intake is
+  // running, ticking through checks in sync with the intake stage's playback.
+  const ib = bounds[1] ?? { start: 0, done: 0 };
+  const intakeOpen = statuses[1] === "running";
+  const intakeProgress =
+    cursor <= ib.start ? 0 : cursor >= ib.done ? 1 : (cursor - ib.start) / Math.max(ib.done - ib.start, 1);
 
   // Keyboard: space play/pause, arrows scrub, R reset, S skip to end.
   useEffect(() => {
@@ -183,6 +197,8 @@ export default function BackendJourney({ onSeeCustomer }) {
           <ExecutionGraph
             statuses={statuses}
             selected={selected}
+            intakeOpen={intakeOpen}
+            intakeProgress={intakeProgress}
             onSelect={(i) => {
               pause();
               setSelected(i);

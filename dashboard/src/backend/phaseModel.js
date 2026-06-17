@@ -62,7 +62,7 @@ export const PHASES = [
   {
     id: "intake",
     phase: "Phase 1",
-    title: "Intake",
+    title: "Intake & Verification",
     subtitle: "Karza API · KYC API · Address Agent",
     kind: "native",
     modelTags: ["deterministic · no LLM", `address model · ${addr.model_version ?? "address-quality"}`],
