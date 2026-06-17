@@ -125,79 +125,85 @@ tfoot td{font-weight:800;border-top:2px solid var(--line)}
     <div class="kpi"><div class="k">Proposed FOIR</div><div class="v sm">{{ m.loan.foir_proposed|pct }}</div></div>
   </div>
 
-  <!-- 1. APPLICATION -->
+  <!-- 1. GENERAL DETAIL -->
   <section>
-    <div class="s-head"><div class="s-num">1</div><div class="s-title">Loan Application Summary</div></div>
+    <div class="s-head"><div class="s-num">1</div><div class="s-title">General Detail</div></div>
     <div class="kv">
-      {{ kv('Application No', m.application.application_no) }}
-      {{ kv('Date', m.application.date) }}
-      {{ kv('Channel', m.application.channel) }}
-      {{ kv('Location', (m.application.location or '—') ~ (' · ' ~ m.application.pincode if m.application.pincode else '')) }}
-      {{ kv('Requested amount', m.application.loan_amount_req|inr, 'intake.loan_amount_req') }}
-      {{ kv('Requested tenure', (m.application.tenure_req|num) ~ ' months') }}
+      {{ kv('Applicant Name', m.applicant.name or '—', 'applicant.name') }}
+      {{ kv('Lead Reference', m.application.lead_reference or '—', 'application.lead_reference') }}
+      {{ kv('City / Location', (m.application.location or '—') ~ (' · ' ~ m.application.pincode if m.application.pincode else '')) }}
+      {{ kv('Sub-Source', m.application.sub_source or '—', 'application.sub_source') }}
+      {{ kv('Product', m.application.product or '—') }}
+      {{ kv('Loan Amount Applied', m.application.loan_amount_req|inr, 'intake.loan_amount_req') }}
+      {{ kv('Existing Kotak Customer', m.application.existing_kotak_customer|yn, 'application.existing_kotak_customer') }}
+      {{ kv('Tenure Applied', (m.application.tenure_req|num) ~ ' months') }}
+      {{ kv('Purpose of Loan', m.application.purpose_of_loan or '—', 'application.purpose_of_loan') }}
+      {{ kv('DMA Name', m.application.dma_name or '—', 'application.dma_name') }}
     </div>
   </section>
 
   <!-- 2. APPLICANT -->
   <section>
-    <div class="s-head"><div class="s-num">2</div><div class="s-title">Applicant Details</div></div>
+    <div class="s-head"><div class="s-num">2</div><div class="s-title">Applicant Detail &amp; Employment</div></div>
+    <div class="note" style="font-weight:700;color:var(--ink);margin-top:0">2.1 · Applicant Detail</div>
     <div class="kv">
       {{ kv('Name', m.applicant.name or '—', 'applicant.name') }}
       {{ kv('Age', m.applicant.age|num, 'applicant.dob') }}
+      {{ kv('Marital Status', m.applicant.marital_status or '—', 'applicant.marital_status') }}
+      {{ kv('Residence Type', m.applicant.residence_type or '—', 'applicant.residence_type') }}
       {{ kv('Qualification', m.applicant.qualification or '—', 'applicant.qualification') }}
-      {{ kv('Residence type', m.applicant.residence_type or '—', 'applicant.residence_type') }}
-      {{ kv('Years at address', m.applicant.years_at_address|num) }}
-      {{ kv('Address quality', (m.applicant.address_band or '—') ~ (' · ' ~ (m.applicant.address_score|num) ~ '/100' if m.applicant.address_score is not none else ''), 'address.score') }}
+      {{ kv('Color Band', m.applicant.color_band or '—', 'applicant.color_band') }}
+      {{ kv('Is Salary Account', m.applicant.salary_account_flag|yn, 'applicant.salary_account_flag') }}
+      {{ kv('Salary = Disbursement A/c', m.applicant.salary_disb_same|yn, 'applicant.salary_disb_same') }}
     </div>
-    {% if m.applicant.address_reasons %}
-    <div class="note">Address drivers:
-      {% for r in m.applicant.address_reasons %}{{ r.label }}{% if not loop.last %} · {% endif %}{% endfor %}
-    </div>
-    {% endif %}
-  </section>
-
-  <!-- 3. EMPLOYMENT -->
-  <section>
-    <div class="s-head"><div class="s-num">3</div><div class="s-title">Employment Details</div></div>
+    <div class="note" style="font-weight:700;color:var(--ink);margin-top:12px">2.2 · Applicant Employment Detail</div>
     <div class="kv">
-      {{ kv('Company', m.employment.employer or '—', 'employment.employer') }}
-      {{ kv('Category', m.employment.category or '—') }}
-      {{ kv('Designation', m.employment.designation or '—') }}
-      {{ kv('Verified (EPFO)', m.employment.employment_verified|yn, 'intake.employment_verified') }}
-      {{ kv('Stability', (m.employment.stability_months|num) ~ ' months', 'employment.stability_months') }}
-      {{ kv('Total experience', m.employment.total_experience or '—') }}
+      {{ kv('Name of Employment', m.employment.employer or '—', 'employment.employer') }}
+      {{ kv('Designation', m.employment.designation or '—', 'employment.designation') }}
+      {{ kv('Company Category', m.employment.category or '—', 'employment.category') }}
+      {{ kv('Years in Current Company', m.employment.years_in_current_company or '—', 'employment.years_in_current_company') }}
+      {{ kv('Total Work Experience', m.employment.total_experience or '—') }}
+      {{ kv('Income Band', m.employment.income_band or '—', 'employment.income_band') }}
     </div>
   </section>
 
-  <!-- 4. LOAN -->
+  <!-- 3. LOAN APPLICATION / DETAILS -->
   <section>
-    <div class="s-head"><div class="s-num">4</div><div class="s-title">Loan Details (BRE Offer)</div></div>
-    <div class="kv three">
-      {{ kv('Eligible amount', m.loan.offer_amount|inr, 'loan.offer_amount') }}
-      {{ kv('Tenure', (m.loan.offer_tenure|num) ~ ' months', 'loan.offer_tenure') }}
-      {{ kv('Interest (IRR)', m.loan.offer_irr|pct, 'decision.offer_irr') }}
-      {{ kv('EMI', m.loan.offer_emi|inr, 'decision.offer_emi') }}
-      {{ kv('Processing fee', m.loan.processing_fee|inr, 'decision.processing_fee') }}
-      {{ kv('Approved segment', m.loan.approved_segment or '—') }}
-    </div>
+    <div class="s-head"><div class="s-num">3</div><div class="s-title">Loan Application / Details</div></div>
+    {% set sa = m.loan.system_approval %}{% set ap = m.loan.applied %}{% set sn = m.loan.sanctioned %}
+    <table>
+      <thead><tr><th>Field</th><th>System Approval</th><th>Applied</th><th>Sanctioned</th></tr></thead>
+      <tbody>
+        <tr><td>Loan Amount</td><td>{{ sa.amount|inr }}</td><td>{{ ap.amount|inr }}</td><td>{{ sn.amount|inr }}</td></tr>
+        <tr><td>Tenure</td><td>{{ (sa.tenure|num) ~ (' mo' if sa.tenure is not none else '') }}</td><td>{{ (ap.tenure|num) ~ (' mo' if ap.tenure is not none else '') }}</td><td>{{ (sn.tenure|num) ~ (' mo' if sn.tenure is not none else '') }}</td></tr>
+        <tr><td>Interest Rate</td><td>{{ sa.irr|pct }}</td><td>{{ ap.irr|pct }}</td><td>{{ sn.irr|pct }}</td></tr>
+        <tr><td>EMI</td><td>{{ sa.emi|inr }}</td><td>{{ ap.emi|inr }}</td><td>{{ sn.emi|inr }}</td></tr>
+        <tr><td>FOIR</td><td>{{ sa.foir|pct }}</td><td>{{ ap.foir|pct }}</td><td>{{ sn.foir|pct }}</td></tr>
+        <tr><td>Unsecured FOIR</td><td>{{ sa.unsecured_foir|pct }}</td><td>{{ ap.unsecured_foir|pct }}</td><td>{{ sn.unsecured_foir|pct }}</td></tr>
+        <tr><td>Multiplier</td><td>{{ (sa.multiplier|num) ~ ('x' if sa.multiplier is not none else '') }}</td><td>{{ (ap.multiplier|num) ~ ('x' if ap.multiplier is not none else '') }}</td><td>{{ (sn.multiplier|num) ~ ('x' if sn.multiplier is not none else '') }}</td></tr>
+      </tbody>
+    </table>
   </section>
 
-  <!-- 5. FINANCIAL SUMMARY -->
+  <!-- 4. FINANCIAL SUMMARY -->
   <section>
-    <div class="s-head"><div class="s-num">5</div><div class="s-title">Applicant Financial Summary</div></div>
-    <div class="kv three">
-      {{ kv('Declared income', m.financial.declared_income|inr, 'intake.declared_income') }}
-      {{ kv('Salary detected (bank)', m.financial.salary_detected|inr, 'financial.salary_detected') }}
-      {{ kv('Income used', (m.financial.income_used|inr) ~ ' · ' ~ (m.financial.income_source or '—'), 'financial.income_used') }}
-      {{ kv('Total obligation', m.financial.total_obligation|inr, 'financial.total_obligation') }}
-      {{ kv('Existing FOIR', m.financial.foir_existing|pct, 'ml.foir_existing') }}
-      {{ kv('Bureau exposure', m.financial.total_exposure|inr, 'financial.total_exposure') }}
+    <div class="s-head"><div class="s-num">4</div><div class="s-title">Applicant Financial Summary</div></div>
+    <div class="kv">
+      {{ kv('Net Salary', m.financial.net_salary|inr, 'financial.net_salary') }}
+      {{ kv('Current Fixed Obligation', m.financial.current_fixed_obligation|inr, 'financial.current_fixed_obligation') }}
+      {% for mon in m.financial.obligation_months %}
+        {{ kv('Obligation · ' ~ mon, (m.financial.monthly_obligation[loop.index0] if m.financial.monthly_obligation|length > loop.index0 else None)|inr, 'financial.monthly_obligation') }}
+      {% endfor %}
+      {{ kv('FCU Trigger', m.financial.fcu_trigger|yn, 'financial.fcu_trigger') }}
+      {{ kv('Max Serviceable EMI', m.financial.max_serviceable_emi|inr, 'financial.max_serviceable_emi') }}
     </div>
+    <div class="note">Income used: {{ m.financial.income_used|inr }} ({{ m.financial.income_source or '—' }})
+      · Existing FOIR: {{ m.financial.foir_existing|pct }} · Bureau exposure: {{ m.financial.total_exposure|inr }}</div>
   </section>
 
-  <!-- 6. OBLIGATIONS -->
+  <!-- 5. OBLIGATIONS -->
   <section>
-    <div class="s-head"><div class="s-num">6</div><div class="s-title">Obligation Table — Live Bureau Tradelines</div>{{ chip('obligations') }}</div>
+    <div class="s-head"><div class="s-num">5</div><div class="s-title">Obligation — Live Bureau Tradelines</div>{{ chip('obligations') }}</div>
     {% set obs = m.obligations.obligations %}
     {% if obs %}
     <table>
@@ -236,17 +242,46 @@ tfoot td{font-weight:800;border-top:2px solid var(--line)}
     {% endif %}
   </section>
 
-  <!-- 7. BANKING -->
+  <!-- 6. BANKING SUMMARY -->
   <section>
-    <div class="s-head"><div class="s-num">7</div><div class="s-title">Banking Summary</div>{{ chip('banking') }}</div>
+    <div class="s-head"><div class="s-num">6</div><div class="s-title">Banking Summary — Applicant</div>{{ chip('banking') }}</div>
     {% set bk = m.banking %}
     {% if bk %}
     <div class="kv three">
       {{ kv('Salary (avg)', (bk.salary.avg_amount if bk.salary else None)|inr) }}
-      {{ kv('Salary credits', (bk.salary.frequency if bk.salary else None)|num) }}
-      {{ kv('Account type', (bk.account_quality.account_type if bk.account_quality else None) or '—') }}
+      {{ kv('Salary credits', ((bk.salary.frequency|num) ~ ' months') if (bk.salary and bk.salary.frequency is not none) else '—') }}
+      {{ kv('Account type', ((bk.account_quality.account_type ~ (' · ' ~ bk.account_quality.confidence ~ ' confidence' if bk.account_quality.confidence else '')) if bk.account_quality and bk.account_quality.account_type else '—')) }}
+      {{ kv('Primary-account score', ((bk.account_quality.primary_score|num) ~ ' / 100') if (bk.account_quality and bk.account_quality.primary_score is not none) else '—') }}
+      {{ kv('Avg debits / month', (bk.account_quality.avg_monthly_debits|num) if bk.account_quality else '—') }}
+      {{ kv('Net savings', (bk.savings.net_savings if bk.savings else None)|inr) }}
     </div>
-    {% if bk.emis %}
+    {% if bk.top_categories %}
+    <div class="note">Top spend: {% for c in bk.top_categories %}{{ c.category }} ({{ c.amount|inr }}){% if not loop.last %} · {% endif %}{% endfor %}</div>
+    {% endif %}
+    {% if bk.account_quality and bk.account_quality.observations %}
+    <div class="note" style="font-style:italic">{{ bk.account_quality.observations|join(' ') }}</div>
+    {% endif %}
+    {% endif %}
+    <div class="note" style="margin-top:14px;font-weight:700;color:var(--ink)">Monthly Banking Matrix</div>
+    {% set bm = m.banking_matrix %}
+    {% if bm and bm.months %}
+    <table>
+      <thead><tr><th>Feature</th>{% for mo in bm.months %}<th>{{ mo }}</th>{% endfor %}<th>Source</th></tr></thead>
+      <tbody>
+      {% for r in bm.rows %}
+        <tr>
+          <td>{{ r.feature }}</td>
+          {% for v in r.values %}<td>{{ v|inr if (v is not none and 'count' not in r.feature|lower) else v|num }}</td>{% endfor %}
+          <td>{% if r.prov %}<span class="chip p-{{ r.prov }}">{{ r.prov }}</span>{% endif %}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <div class="empty">Banking analyser produced no monthly summary for this case.</div>
+    {% endif %}
+    {% set bk = m.banking %}
+    {% if bk and bk.emis %}
     <div class="note" style="margin-top:14px;font-weight:700;color:var(--ink)">EMI debits detected</div>
     <table>
       <thead><tr><th>Reference</th><th>Avg amount</th><th>Occurrences</th></tr></thead>
@@ -257,24 +292,15 @@ tfoot td{font-weight:800;border-top:2px solid var(--line)}
       </tbody>
     </table>
     {% endif %}
-    {% if bk.top_categories %}
-    <div class="note">Top spend: {% for c in bk.top_categories %}{{ c.category }} ({{ c.amount|inr }}){% if not loop.last %} · {% endif %}{% endfor %}</div>
-    {% endif %}
-    {% if bk.savings %}
-    <div class="kv" style="margin-top:10px">
-      {{ kv('Net savings', bk.savings.net_savings|inr) }}
-      {{ kv('Savings rate', bk.savings.savings_rate|pct) }}
-    </div>
-    {% endif %}
-    {% if bk.customer_review %}<div class="note" style="margin-top:10px">{{ bk.customer_review }}</div>{% endif %}
-    {% else %}
-    <div class="empty">Banking analyser produced no summary for this case.</div>
+    {% if bk and bk.customer_review %}
+    <div class="note" style="margin-top:14px;font-weight:700;color:var(--ink)">Banking Analyser Summary</div>
+    <div class="note" style="white-space:pre-line">{{ bk.customer_review }}</div>
     {% endif %}
   </section>
 
-  <!-- 8. VERIFICATION -->
+  <!-- 7. VERIFICATION -->
   <section>
-    <div class="s-head"><div class="s-num">8</div><div class="s-title">Verification Summary</div></div>
+    <div class="s-head"><div class="s-num">7</div><div class="s-title">Verification Summary</div></div>
     <table>
       <thead><tr><th>Check</th><th>Detail</th><th>Status</th><th>Source</th></tr></thead>
       <tbody>
@@ -290,37 +316,67 @@ tfoot td{font-weight:800;border-top:2px solid var(--line)}
     </table>
   </section>
 
-  <!-- 9. DEVIATIONS -->
+  <!-- 8. DEVIATION -->
   <section>
-    <div class="s-head"><div class="s-num">9</div><div class="s-title">Deviations & Policy Waterfall</div>
+    <div class="s-head"><div class="s-num">8</div><div class="s-title">Deviation</div>
       <span class="s-note">Policy: {{ m.deviations.policy_result or '—' }} · Serviceable: {{ m.deviations.serviceable|yn }}</span></div>
-    {% if m.deviations.layers %}
+    {% if m.deviations.rows %}
     <table>
-      <thead><tr><th>Layer</th><th>Detail</th><th>Result</th></tr></thead>
+      <thead><tr><th>Deviation Type</th><th>Applicant Type</th><th>Rule Description</th><th>Credit Approval Level</th><th>System Decision</th></tr></thead>
       <tbody>
-      {% for l in m.deviations.layers %}
+      {% for d in m.deviations.rows %}
         <tr>
-          <td>{{ l.layer }}</td>
-          <td style="text-align:left;color:var(--muted)">{{ l.detail or l.reason_code }}</td>
-          <td><span class="pill {{ 'pass' if l.passed else 'fail' }}">{{ 'PASS' if l.passed else 'BREACH' }}</span></td>
+          <td>{{ d.deviation_type or '—' }}</td>
+          <td style="text-align:left">{{ d.applicant_type or '—' }}</td>
+          <td style="text-align:left;color:var(--muted)">{{ d.rule_description or '—' }}</td>
+          <td style="text-align:left">{{ d.credit_approval_level or '—' }}</td>
+          <td><span class="pill fail">{{ d.system_decision or '—' }}</span></td>
         </tr>
       {% endfor %}
       </tbody>
     </table>
-    {% else %}<div class="empty">No policy layers were evaluated (case stopped earlier).</div>{% endif %}
-    {% if m.deviations.breaches %}
-    <div class="note" style="color:var(--danger);font-weight:700">Deviations triggered:
-      {% for b in m.deviations.breaches %}{{ b.layer }} ({{ b.reason_code }}){% if not loop.last %} · {% endif %}{% endfor %}
-    </div>
-    {% endif %}
+    {% else %}<div class="empty">No deviations triggered — all policy layers passed.</div>{% endif %}
   </section>
 
-  <!-- 10. CREDIT MANAGER -->
+  <!-- 9. CREDIT CONDITION -->
   <section>
-    <div class="s-head"><div class="s-num">10</div><div class="s-title">Credit Manager Details</div></div>
+    <div class="s-head"><div class="s-num">9</div><div class="s-title">Credit Condition</div>{{ chip('credit_conditions') }}</div>
+    {% if m.credit_conditions %}
+    <table>
+      <thead><tr><th>Applicant Type</th><th>Credit Condition For</th><th>Credit Condition Name</th><th>Remarks</th></tr></thead>
+      <tbody>
+      {% for c in m.credit_conditions %}
+        <tr>
+          <td>{{ c.applicant_type or '—' }}</td>
+          <td style="text-align:left">{{ c.condition_for or '—' }}</td>
+          <td style="text-align:left">{{ c.condition_name or '—' }}</td>
+          <td style="text-align:left;color:var(--muted)">{{ c.remarks or '—' }}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    {% else %}<div class="empty">No credit conditions attached to this case.</div>{% endif %}
+  </section>
+
+  <!-- 10. LOAN AMOUNT -->
+  <section>
+    <div class="s-head"><div class="s-num">10</div><div class="s-title">Loan Amount</div></div>
+    <div class="kv">
+      {{ kv('Final Loan Amt Approved', m.loan_amount.final_amount|inr, 'loan_amount.final_amount') }}
+      {{ kv('Final Tenor Approved', (m.loan_amount.final_tenor|num) ~ (' months' if m.loan_amount.final_tenor is not none else '')) }}
+      {{ kv('Rejection Reason', m.loan_amount.rejection_reason or '—', 'loan_amount.rejection_reason') }}
+      {{ kv('Reject Date & Time', m.loan_amount.reject_datetime or '—') }}
+    </div>
+  </section>
+
+  <!-- 11. CREDIT MANAGER -->
+  <section>
+    <div class="s-head"><div class="s-num">11</div><div class="s-title">Credit Manager Details</div></div>
     <div class="kv">
       {{ kv('Decisioned by', m.credit_manager.decisioned_by) }}
       {{ kv('AI assisted', m.credit_manager.ai_assisted|yn) }}
+      {{ kv('Decision date', m.credit_manager.decision_date or '—', 'credit_manager.decision_date') }}
+      {{ kv('Remarks', m.credit_manager.remarks or '—', 'credit_manager.remarks') }}
     </div>
     {% if m.credit_manager.model_versions %}
     <div class="note">Model versions:
@@ -333,10 +389,11 @@ tfoot td{font-weight:800;border-top:2px solid var(--line)}
     </div>
   </section>
 
-  <!-- 11. PD SHEET -->
+  <!-- 12. PD SHEET REMARKS -->
   <section>
-    <div class="s-head"><div class="s-num">11</div><div class="s-title">PD Sheet</div></div>
-    <div class="kv three">
+    <div class="s-head"><div class="s-num">12</div><div class="s-title">PD Sheet Remarks</div></div>
+    {{ kv('Remarks', m.pd_sheet.remarks or '—', 'pd_sheet.remarks') }}
+    <div class="kv three" style="margin-top:8px">
       {{ kv('PD score', m.pd_sheet.pd_score|num, 'ml.pd_score') }}
       {{ kv('Risk band', ('Band ' ~ (m.pd_sheet.risk_band|num) ~ ' / 5'), 'ml.risk_band') }}
       {{ kv('Affluence segment', m.pd_sheet.affluence_segment or '—', 'pd_sheet.affluence_segment') }}

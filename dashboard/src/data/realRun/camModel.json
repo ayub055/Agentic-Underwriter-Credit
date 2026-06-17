@@ -4,18 +4,23 @@
     "run_id": "483b354f000f4dd5afddbda8bd205bec",
     "customer_id": 698167220,
     "outcome": "DECLINED",
-    "generated_at": "2026-06-15T23:08:51",
+    "generated_at": "2026-06-17T12:25:46",
     "channel": "Digital · self-serve"
   },
   "application": {
     "application_no": "PL-2026-8bd9c6",
-    "date": "2026-06-15T23:08:51",
+    "date": "2026-06-17T12:25:46",
     "channel": "Digital · self-serve",
     "location": "Bengaluru",
     "pincode": "560103",
     "loan_amount_req": 500000.0,
     "tenure_req": 12,
-    "product": "Personal Loan"
+    "product": "Personal Loan",
+    "lead_reference": null,
+    "sub_source": null,
+    "existing_kotak_customer": null,
+    "purpose_of_loan": null,
+    "dma_name": null
   },
   "applicant": {
     "name": null,
@@ -49,7 +54,11 @@
         "impact": 0.315,
         "direction": "positive"
       }
-    ]
+    ],
+    "marital_status": null,
+    "color_band": null,
+    "salary_account_flag": true,
+    "salary_disb_same": null
   },
   "employment": {
     "employer": "Mock Employer Pvt Ltd",
@@ -57,7 +66,9 @@
     "designation": null,
     "employment_verified": true,
     "stability_months": null,
-    "total_experience": null
+    "total_experience": null,
+    "years_in_current_company": null,
+    "income_band": null
   },
   "loan": {
     "offer_amount": 500000.0,
@@ -66,7 +77,34 @@
     "offer_emi": 44773.66,
     "processing_fee": 7500.0,
     "foir_proposed": 1.1868,
-    "approved_segment": "mass_affluent"
+    "approved_segment": "mass_affluent",
+    "system_approval": {
+      "amount": 500000.0,
+      "tenure": 12,
+      "irr": 0.1349,
+      "emi": 44773.66,
+      "foir": 1.1868,
+      "unsecured_foir": null,
+      "multiplier": 8.33
+    },
+    "applied": {
+      "amount": 500000.0,
+      "tenure": 12,
+      "irr": null,
+      "emi": null,
+      "foir": null,
+      "unsecured_foir": null,
+      "multiplier": null
+    },
+    "sanctioned": {
+      "amount": null,
+      "tenure": null,
+      "irr": null,
+      "emi": null,
+      "foir": null,
+      "unsecured_foir": null,
+      "multiplier": null
+    }
   },
   "financial": {
     "declared_income": 60000.0,
@@ -75,7 +113,23 @@
     "salary_detected": 51020.333333333336,
     "foir_existing": 0.4406,
     "total_obligation": 26434.0,
-    "total_exposure": 822679.0
+    "total_exposure": 822679.0,
+    "net_salary": 51020.333333333336,
+    "current_fixed_obligation": 26434.0,
+    "monthly_obligation": [
+      null,
+      null,
+      null,
+      null
+    ],
+    "obligation_months": [
+      "2025-11",
+      "2025-12",
+      "2026-01",
+      "2026-02"
+    ],
+    "fcu_trigger": null,
+    "max_serviceable_emi": null
   },
   "obligations": {
     "obligations": [
@@ -427,36 +481,196 @@
     ],
     "customer_review": "The customer's banking profile presents a mixed picture. Their average monthly cash flow shows an inflow of ₹313,622 and outflow of ₹465,174, resulting in an average net deficit of ₹151,552 per month. This translates to a stretched obligation-to-income ratio of 51.8%, indicating that their income is barely covering their essential expenses.\n\nThe customer's spending categories reveal some concerning trends. The largest portion of their expenditure goes towards self-transfers (420,345 INR), followed by finance and peer-to-peer transactions (545 INR). This suggests a high level of financial risk-taking, with a significant proportion of their income being diverted towards non-essential expenses. Furthermore, the customer's EMI payments are visible, indicating that they have taken on debt to purchase a vehicle.\n\nThe customer's merchant behavior is also noteworthy. The most frequent merchant is PATELKISHANKUMA, which accounts for 32 transactions and ₹412,800 in spending. Additionally, there are regular merchants such as Salary Oct 2025, BHOSALE RAJU TA, PLA5150547202, and LM00849846, among others. The customer's favourite debit merchants include PLA5150547202 and LM00849846, while their favourite credit merchant is Salary Oct 2025. Notably, the customer has received high amounts of salary income from employer credits, with one instance in Jan 2026 where ₹51,111 was received and spent within 3 days at a rate of 122%."
   },
+  "banking_matrix": {
+    "months": [
+      "2025-11",
+      "2025-12",
+      "2026-01",
+      "2026-02"
+    ],
+    "rows": [
+      {
+        "feature": "EOD Balance — 1st",
+        "values": [
+          null,
+          null,
+          null,
+          null
+        ],
+        "prov": "placeholder"
+      },
+      {
+        "feature": "EOD Balance — 5th",
+        "values": [
+          null,
+          null,
+          null,
+          null
+        ],
+        "prov": "placeholder"
+      },
+      {
+        "feature": "EOD Balance — 10th",
+        "values": [
+          null,
+          null,
+          null,
+          null
+        ],
+        "prov": "placeholder"
+      },
+      {
+        "feature": "EOD Balance — 20th",
+        "values": [
+          null,
+          null,
+          null,
+          null
+        ],
+        "prov": "placeholder"
+      },
+      {
+        "feature": "Monthly average balance",
+        "values": [
+          null,
+          null,
+          null,
+          null
+        ],
+        "prov": "placeholder"
+      },
+      {
+        "feature": "Credit amount",
+        "values": [
+          51111.0,
+          51111.0,
+          51111.0,
+          54661.0
+        ],
+        "prov": "real"
+      },
+      {
+        "feature": "Debit amount",
+        "values": [
+          91104.0,
+          74624.0,
+          102699.0,
+          115254.0
+        ],
+        "prov": "real"
+      },
+      {
+        "feature": "Credit count",
+        "values": [
+          null,
+          null,
+          null,
+          null
+        ],
+        "prov": "placeholder"
+      },
+      {
+        "feature": "Debit count",
+        "values": [
+          null,
+          null,
+          null,
+          null
+        ],
+        "prov": "placeholder"
+      },
+      {
+        "feature": "Transaction start date",
+        "values": [
+          null,
+          null,
+          null,
+          null
+        ],
+        "prov": "placeholder"
+      },
+      {
+        "feature": "Transaction end date",
+        "values": [
+          null,
+          null,
+          null,
+          null
+        ],
+        "prov": "placeholder"
+      },
+      {
+        "feature": "AQB / EMI ratio",
+        "values": [
+          null,
+          null,
+          null,
+          null
+        ],
+        "prov": "placeholder"
+      }
+    ]
+  },
   "verification": [
     {
-      "label": "KYC (Karza)",
+      "label": "PAN · Karza",
       "status": true,
       "detail": null,
       "prov_key": "intake.kyc_verified"
     },
     {
-      "label": "PAN validation",
+      "label": "KYC",
+      "status": true,
+      "detail": null,
+      "prov_key": "intake.kyc_verified"
+    },
+    {
+      "label": "Aadhaar",
       "status": true,
       "detail": "bundled with KYC",
       "prov_key": "intake.kyc_verified"
     },
     {
-      "label": "Employment (EPFO)",
+      "label": "PAN–Aadhaar link",
+      "status": true,
+      "detail": null,
+      "prov_key": "intake.kyc_verified"
+    },
+    {
+      "label": "Email",
+      "status": null,
+      "detail": null,
+      "prov_key": "intake.consent_captured"
+    },
+    {
+      "label": "Mobile OTP",
+      "status": true,
+      "detail": null,
+      "prov_key": "intake.consent_captured"
+    },
+    {
+      "label": "De-dupe",
+      "status": null,
+      "detail": null,
+      "prov_key": "intake.dedupe_checked"
+    },
+    {
+      "label": "Negative address",
+      "status": true,
+      "detail": null,
+      "prov_key": "intake.address_verified"
+    },
+    {
+      "label": "Employment",
       "status": true,
       "detail": null,
       "prov_key": "intake.employment_verified"
     },
     {
-      "label": "Address verification",
+      "label": "Address",
       "status": true,
       "detail": "HIGH · 83.4/100",
       "prov_key": "intake.address_verified"
-    },
-    {
-      "label": "Consent captured",
-      "status": true,
-      "detail": null,
-      "prov_key": "intake.consent_captured"
     }
   ],
   "deviations": {
@@ -522,7 +736,23 @@
       "layer2: banking.cashflow_consistency -> None (field absent in report)",
       "layer2: banking.negative_flags -> None (field absent in report)",
       "orchestrator: APPROVED but not serviceable -> DECLINED"
+    ],
+    "rows": [
+      {
+        "deviation_type": "SERVICEABILITY",
+        "applicant_type": "Primary",
+        "rule_description": "foir_proposed=1.1868 > cap",
+        "credit_approval_level": null,
+        "system_decision": "BREACH"
+      }
     ]
+  },
+  "credit_conditions": [],
+  "loan_amount": {
+    "final_amount": null,
+    "final_tenor": null,
+    "rejection_reason": "SERVICEABILITY (FOIR_CAP)",
+    "reject_datetime": "2026-06-17T12:25:46"
   },
   "credit_manager": {
     "decisioned_by": "Agentic Underwriting Engine",
@@ -536,7 +766,8 @@
     },
     "reviewed_by": null,
     "approved_by": null,
-    "remarks": null
+    "remarks": null,
+    "decision_date": "2026-06-17T12:25:46"
   },
   "pd_sheet": {
     "pd_score": 0.0728,
@@ -547,7 +778,8 @@
     "policy_features": {
       "address_pd_adjustment": -0.02,
       "address_band": "HIGH"
-    }
+    },
+    "remarks": "PD 7.28% · risk band 2/5 · mass affluent"
   },
   "provenance": {
     "intake.kyc_verified": "mock",
@@ -583,19 +815,47 @@
     "applicant.qualification": "mock",
     "applicant.residence_type": "mock",
     "applicant.address_line": "mock",
+    "applicant.marital_status": "mock",
+    "applicant.color_band": "mock",
+    "applicant.salary_account_flag": "derived",
+    "applicant.salary_disb_same": "placeholder",
+    "application.lead_reference": "placeholder",
+    "application.sub_source": "placeholder",
+    "application.existing_kotak_customer": "placeholder",
+    "application.purpose_of_loan": "placeholder",
+    "application.dma_name": "mock",
     "employment.employer": "mock",
     "employment.stability_months": "mock",
+    "employment.designation": "mock",
+    "employment.category": "mock",
+    "employment.years_in_current_company": "mock",
+    "employment.income_band": "mock",
     "loan.offer_amount": "derived",
     "loan.offer_tenure": "derived",
+    "loan.system_approval": "derived",
+    "loan.applied": "mock",
+    "loan.sanctioned": "derived",
     "financial.income_used": "derived",
     "financial.salary_detected": "real",
+    "financial.net_salary": "real",
     "financial.total_obligation": "real",
+    "financial.current_fixed_obligation": "real",
     "financial.total_exposure": "real",
+    "financial.monthly_obligation": "placeholder",
+    "financial.fcu_trigger": "placeholder",
+    "financial.max_serviceable_emi": "placeholder",
     "obligations": "real",
     "banking": "real",
+    "banking_matrix": "real",
+    "credit_conditions": "placeholder",
+    "loan_amount.final_amount": "derived",
+    "loan_amount.rejection_reason": "derived",
     "credit_manager.reviewed_by": "placeholder",
     "credit_manager.approved_by": "placeholder",
+    "credit_manager.decision_date": "real",
+    "credit_manager.remarks": "placeholder",
     "pd_sheet.affluence_value": "derived",
-    "pd_sheet.affluence_segment": "derived"
+    "pd_sheet.affluence_segment": "derived",
+    "pd_sheet.remarks": "derived"
   }
 }
