@@ -8,10 +8,14 @@ export default defineConfig({
   base: "./",
   server: {
     host: true,
+    port: 8080,
+    strictPort: true,
     allowedHosts: [".sagemaker.aws"],
   },
   preview: {
     host: true,
+    port: 8080,
+    strictPort: true,
     allowedHosts: [".sagemaker.aws"],
   },
 });
