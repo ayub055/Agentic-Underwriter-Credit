@@ -586,6 +586,31 @@
       "address.pd_adjustment": "placeholder"
     }
   },
+  "tele_pd": {
+    "status": "completed",
+    "officer": "Credit Ops · Tele Verification",
+    "conducted_at": "2026-06-18",
+    "ctc_document": "offered",
+    "questions": [
+      {
+        "id": "income",
+        "q": "Income & designation (fixed / net / take-home)",
+        "answer": "Fixed ₹60,000 · Net ₹54,000 · Take-home ₹51,000 · Sr. Software Engineer",
+        "note": "CTC document offered",
+        "tone": "caution"
+      },
+      { "id": "dependents", "q": "Number of dependents", "answer": "2 (spouse, 1 child)", "tone": "info" },
+      { "id": "residence", "q": "Residence — owned / rented", "answer": "Owned · 6 yrs at address", "tone": "ok" },
+      { "id": "earners", "q": "Other earning members", "answer": "1 (spouse · ₹35,000 / mo)", "tone": "ok" },
+      { "id": "purpose", "q": "Purpose of loan", "answer": "Home renovation", "tone": "info" },
+      { "id": "vehicle", "q": "Owns car / bike", "answer": "Bike (owned) · no car", "tone": "info" }
+    ],
+    "deviation_reasons": [
+      "Declared income ₹60,000 vs banking-detected ₹51,020 — variable allowances credited quarterly",
+      "Proposed EMI ₹44,774 breaches FOIR cap (119% vs 50%) — customer requests longer tenure",
+      "Spouse income ₹35,000 / mo not on application — can be added as co-applicant"
+    ]
+  },
   "outcome": "DECLINED",
   "stage_status": {
     "intake": "done",

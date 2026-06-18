@@ -180,6 +180,22 @@ class CreditManagerSection(BaseModel):
     decision_date: Optional[str] = None
 
 
+class TelePdQuestion(BaseModel):
+    id: Optional[str] = None
+    q: Optional[str] = None
+    answer: Optional[str] = None
+    note: Optional[str] = None
+
+
+class TelePdSection(BaseModel):
+    status: Optional[str] = None
+    officer: Optional[str] = None
+    conducted_at: Optional[str] = None
+    ctc_document: Optional[str] = None
+    questions: list[TelePdQuestion] = Field(default_factory=list)
+    deviation_reasons: list[str] = Field(default_factory=list)
+
+
 class PDSheetSection(BaseModel):
     pd_score: Optional[float] = None
     pd_provenance: Optional[str] = None
@@ -188,6 +204,7 @@ class PDSheetSection(BaseModel):
     affluence_segment: Optional[str] = None
     policy_features: dict = Field(default_factory=dict)
     remarks: Optional[str] = None
+    tele_pd: TelePdSection = Field(default_factory=TelePdSection)
 
 
 class CamModel(BaseModel):

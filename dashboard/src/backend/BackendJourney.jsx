@@ -6,8 +6,9 @@ import ScalePanel from "./ScalePanel.jsx";
 import HintOverlay from "../components/HintOverlay.jsx";
 import JourneySpine from "../components/JourneySpine.jsx";
 
-// Backend phase index → shared journey-spine stage (finalize+notify share "outcome").
-const SPINE_BY_PHASE = [0, 1, 2, 3, 4, 5, 6, 6];
+// Backend phase index → shared journey-spine stage. Tele PD (human-in-the-loop)
+// shares the policy stage; finalize+notify share "outcome".
+const SPINE_BY_PHASE = [0, 1, 2, 3, 4, 4, 5, 6, 6];
 import { usePlayback } from "./usePlayback.js";
 import JourneyControls from "./JourneyControls.jsx";
 import ExecutionGraph from "./ExecutionGraph.jsx";
@@ -35,10 +36,11 @@ export default function BackendJourney({ onSeeCustomer }) {
     return map;
   }, [timeline]);
 
-  // Slow the intake & verification stage (~2×) so viewers can read each check.
-  const intakeBounds = bounds[1];
+  // Slow the human-paced stages (~2×) so viewers can read each intake check and
+  // each Tele PD question: intake = phase 1, Tele PD = phase 5.
+  const slowBounds = [bounds[1], bounds[5]].filter(Boolean);
   const stepDelay = (c) =>
-    intakeBounds && c >= intakeBounds.start && c < intakeBounds.done ? 1700 : 850;
+    slowBounds.some((b) => c >= b.start && c < b.done) ? 1700 : 850;
   const { cursor, playing, speed, setSpeed, play, pause, reset, skipEnd, seek } = usePlayback(
     timeline.length,
     stepDelay
@@ -90,6 +92,12 @@ export default function BackendJourney({ onSeeCustomer }) {
   const intakeOpen = statuses[1] === "running";
   const intakeProgress =
     cursor <= ib.start ? 0 : cursor >= ib.done ? 1 : (cursor - ib.start) / Math.max(ib.done - ib.start, 1);
+
+  // Tele PD (phase 5) call ceremony: the question callout ticks through in sync.
+  const pb = bounds[5] ?? { start: 0, done: 0 };
+  const telePdOpen = statuses[5] === "running";
+  const telePdProgress =
+    cursor <= pb.start ? 0 : cursor >= pb.done ? 1 : (cursor - pb.start) / Math.max(pb.done - pb.start, 1);
 
   // Keyboard: space play/pause, arrows scrub, R reset, S skip to end.
   useEffect(() => {
@@ -199,6 +207,8 @@ export default function BackendJourney({ onSeeCustomer }) {
             selected={selected}
             intakeOpen={intakeOpen}
             intakeProgress={intakeProgress}
+            telePdOpen={telePdOpen}
+            telePdProgress={telePdProgress}
             onSelect={(i) => {
               pause();
               setSelected(i);

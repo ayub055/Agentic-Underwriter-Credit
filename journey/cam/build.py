@@ -27,6 +27,8 @@ from cam.model import (
     LoanColumn,
     LoanSection,
     PDSheetSection,
+    TelePdQuestion,
+    TelePdSection,
     VerificationItem,
 )
 from provenance import Provenance
@@ -106,6 +108,7 @@ _CAM_PROV = {
     "pd_sheet.affluence_value": Provenance.derived,
     "pd_sheet.affluence_segment": Provenance.derived,
     "pd_sheet.remarks": Provenance.derived,
+    "pd_sheet.tele_pd": Provenance.placeholder,
 }
 
 
@@ -346,6 +349,17 @@ def build_cam_model(
         if affluence_segment:
             bits.append(affluence_segment.replace("_", " "))
         pd_remarks = " · ".join(bits)
+    # Tele PD: the human officer-call Q&A (placeholder — captured on a call, not
+    # the pipeline) folded into the PD sheet alongside the scorecard outputs.
+    tp = cs.get("tele_pd") or {}
+    tele_pd = TelePdSection(
+        status=tp.get("status"),
+        officer=tp.get("officer"),
+        conducted_at=tp.get("conducted_at"),
+        ctc_document=tp.get("ctc_document"),
+        questions=[TelePdQuestion(**q) for q in (tp.get("questions") or [])],
+        deviation_reasons=tp.get("deviation_reasons") or [],
+    )
     pd_sheet = PDSheetSection(
         pd_score=pd_score,
         pd_provenance=ml.get("pd_provenance"),
@@ -354,6 +368,7 @@ def build_cam_model(
         affluence_segment=affluence_segment,
         policy_features=ml.get("policy_features") or {},
         remarks=pd_remarks,
+        tele_pd=tele_pd,
     )
 
     return CamModel(

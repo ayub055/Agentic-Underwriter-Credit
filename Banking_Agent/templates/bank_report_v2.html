@@ -746,6 +746,12 @@
     <h2>All Transactions <span class="count">{{ bank_v2.transactions.total }} total · showing {{ bank_v2.transactions.showing }}</span></h2>
     <div class="tx-tools">
       <input type="text" id="txSearch" placeholder="Search merchant, narration, amount…" oninput="filterTx()" />
+      <select id="txCatFilter" onchange="filterTxCat(this)" style="font:inherit;padding:4px 8px;border-radius:8px;border:1px solid #cbd5e1;background:#fff;color:var(--ink)">
+        <option value="all">All categories</option>
+        {% for c in bank_v2.transactions.categories %}
+        <option value="{{ c|lower }}">{{ c }}</option>
+        {% endfor %}
+      </select>
       <span class="chip on" data-cls="all" onclick="togClass(this)">All</span>
       <span class="chip" data-cls="salary" onclick="togClass(this)">Salary</span>
       <span class="chip" data-cls="emi" onclick="togClass(this)">EMI</span>
@@ -767,7 +773,7 @@
       </tr></thead>
       <tbody id="txBody">
         {% for t in bank_v2.transactions.rows %}
-        <tr data-cls="{{ t.cls }}" data-text="{{ (t.narration ~ ' ' ~ t.category ~ ' ' ~ t.category_l2)|lower }}"
+        <tr data-cls="{{ t.cls }}" data-category="{{ t.category|lower }}" data-text="{{ (t.narration ~ ' ' ~ t.category ~ ' ' ~ t.category_l2)|lower }}"
             data-date="{{ t.date_raw }}"
             data-debit="{{ t.debit if t.debit is not none else 0 }}"
             data-credit="{{ t.credit if t.credit is not none else 0 }}"
@@ -776,7 +782,7 @@
             data-narr-norm="{{ t.narration_full|lower|trim }}">
           <td>{{ t.date }}</td>
           <td>{{ t.narration }}{% if t.flag == 'bounce' %} <span class="tag fraud">BOUNCE</span>{% endif %}</td>
-          <td><span class="tag {{ t.cls }}">{{ t.cls|upper }}</span></td>
+          <td><span class="tag mode">{{ t.mode }}</span></td>
           <td class="cat-l1-cell"><span class="tag cat">{{ t.category }}</span></td>
           <td class="cat-l2-cell" data-l2="{{ t.category_l2 }}"><span class="tag cat">{{ t.category_l2 }}</span></td>
           <td class="num dr">{% if t.debit is not none %}{{ t.debit|inr }}{% endif %}</td>
@@ -1400,6 +1406,7 @@
 
   // ---- TX TABLE: FILTER + SORT + PAGINATION ---------------------------------
   let activeCls = 'all';
+  let activeCategory = 'all';
   let sortKey = null, sortDir = 'desc';
   let txPage = 1;
   const TX_PAGE_SIZE = parseInt((document.getElementById('txTable')||{}).dataset?.pageSize || '20', 10);
@@ -1410,6 +1417,7 @@
     txPage = 1; applyTxView();
   }
   function filterTx(){ txPage = 1; applyTxView(); }
+  function filterTxCat(el){ activeCategory = el.value; txPage = 1; applyTxView(); }
 
   function sortTx(key){
     if(sortKey === key){ sortDir = (sortDir === 'asc') ? 'desc' : 'asc'; }
@@ -1445,8 +1453,9 @@
     const q = search ? search.value.toLowerCase() : '';
     return Array.from(document.querySelectorAll('#txBody tr')).filter(r => {
       const matchCls = activeCls === 'all' || r.dataset.cls === activeCls;
+      const matchCat = activeCategory === 'all' || r.dataset.category === activeCategory;
       const matchQ = !q || (r.dataset.text || '').includes(q);
-      return matchCls && matchQ;
+      return matchCls && matchCat && matchQ;
     });
   }
 

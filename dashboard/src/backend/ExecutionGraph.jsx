@@ -7,12 +7,14 @@ import {
   GitMerge,
   Inbox,
   Calculator,
+  Phone,
   Scale,
   Stamp,
   Wallet,
 } from "lucide-react";
 import { VIZ, PHASES } from "./phaseModel.js";
 import IntakeChecksCallout from "./IntakeChecksCallout.jsx";
+import TelePdCallout from "./TelePdCallout.jsx";
 
 // The execution DAG, drawn to scale with the real architecture: Intake (three
 // sub-steps — Karza API, KYC API, Address Agent) fans out into two isolated
@@ -37,10 +39,13 @@ const NODES = [
   { id: "banking", phase: 2, x: 308, y: 196, icon: Wallet, tag: "2B", label: "Banking Agent", sub: sec(VIZ.branches[1].elapsed), llm: true, labelPos: "below" },
   { id: "gate", phase: 2, x: 462, y: 126, icon: GitMerge, tag: "Σ", label: "Fold · Gate", labelPos: "below", small: true },
   { id: "ml", phase: 3, x: 584, y: 126, icon: Cpu, tag: "P3", label: "ML Scorecard", labelPos: "below" },
-  { id: "policy", phase: 4, x: 700, y: 126, icon: Scale, tag: "P4", label: "Policy L1–L6", labelPos: "below" },
-  { id: "decision", phase: 5, x: 806, y: 126, icon: Calculator, tag: "P5", label: "Decision", labelPos: "below" },
-  { id: "finalize", phase: 6, x: 894, y: 126, icon: Stamp, tag: "P6", label: "Finalize", labelPos: "below" },
-  { id: "notify", phase: 7, x: 966, y: 126, icon: BellRing, tag: "P7", label: "Notify", labelPos: "below", small: true },
+  { id: "policy", phase: 4, x: 700, y: 126, icon: Scale, tag: "P4", label: "Policy L1–L6", labelPos: "above" },
+  // Human-in-the-loop node, dropped BELOW the spine between Policy and Decision,
+  // wired by the two arcs below (pulls from Policy, feeds Decision).
+  { id: "telePd", phase: 5, x: 753, y: 200, icon: Phone, tag: "PD", label: "Tele PD", labelPos: "below", human: true },
+  { id: "decision", phase: 6, x: 806, y: 126, icon: Calculator, tag: "P5", label: "Decision", labelPos: "above" },
+  { id: "finalize", phase: 7, x: 894, y: 126, icon: Stamp, tag: "P6", label: "Finalize", labelPos: "below" },
+  { id: "notify", phase: 8, x: 966, y: 126, icon: BellRing, tag: "P7", label: "Notify", labelPos: "below", small: true },
 ];
 
 // Each edge lights up with the phase that pulls data across it.
@@ -52,9 +57,19 @@ const EDGES = [
   { id: "e-kg", phase: 2, d: "M 336 196 C 395 196, 415 148, 440 134" },
   { id: "e-gm", phase: 3, d: "M 483 126 L 557 126" },
   { id: "e-mp", phase: 4, d: "M 611 126 L 673 126" },
-  { id: "e-pd", phase: 5, d: "M 727 126 L 779 126" },
-  { id: "e-df", phase: 6, d: "M 833 126 L 867 126" },
-  { id: "e-fn", phase: 7, d: "M 921 126 L 944 126" },
+  { id: "e-pd", phase: 6, d: "M 727 126 L 779 126" },
+  { id: "e-df", phase: 7, d: "M 833 126 L 867 126" },
+  { id: "e-fn", phase: 8, d: "M 921 126 L 944 126" },
+];
+
+// The two Tele PD arcs dip BELOW the spine: an "in" arc dropping from Policy
+// into the Tele PD node and an "out" arc rising back into Decision. Drawn dashed
+// in the human (violet) tone to read as a person stepping into the pipeline.
+const PD_EDGES = [
+  // Policy (700,126) ↘ Tele PD (753,200) — lights while the call runs.
+  { id: "e-ptd", phase: 5, dir: "in", d: "M 702 142 C 718 184, 730 194, 742 194" },
+  // Tele PD (753,200) ↗ Decision (806,126) — lights as the decision is taken.
+  { id: "e-tdd", phase: 6, dir: "out", d: "M 764 194 C 778 194, 790 184, 806 142" },
 ];
 
 // Theme-aware via Tailwind stroke-* utilities (var-backed colors) so the DAG
@@ -129,6 +144,11 @@ function Node({ node, status, selected, onSelect }) {
         {node.llm && (
           <span className="absolute -bottom-1.5 -right-2 rounded border border-agent-200 bg-agent-50 px-1 text-[8px] font-bold tracking-wide text-agent-700">
             LLM
+          </span>
+        )}
+        {node.human && (
+          <span className="absolute -bottom-1.5 -right-3 rounded border border-progress-200 bg-progress-50 px-1 text-[8px] font-bold tracking-wide text-progress-600">
+            HUMAN
           </span>
         )}
       </span>
@@ -273,6 +293,12 @@ function StackedGraph({ statuses, selected, onSelect }) {
       {row("gate")}
       {row("ml")}
       {row("policy")}
+      <li className="rounded-xl border border-progress-200/70 bg-progress-50/30 p-2">
+        <div className="mb-1.5 px-1 text-micro font-bold uppercase tracking-widest text-progress-600">
+          ◷ Human-in-the-loop · pulls policy deviations → feeds decision
+        </div>
+        {row("telePd")}
+      </li>
       {row("decision")}
       {row("finalize")}
       {row("notify")}
@@ -280,8 +306,9 @@ function StackedGraph({ statuses, selected, onSelect }) {
   );
 }
 
-export default function ExecutionGraph({ statuses, selected, onSelect, footer, intakeOpen, intakeProgress }) {
+export default function ExecutionGraph({ statuses, selected, onSelect, footer, intakeOpen, intakeProgress, telePdOpen, telePdProgress }) {
   const intakeNode = NODES.find((n) => n.id === "intake");
+  const telePdNode = NODES.find((n) => n.id === "telePd");
   return (
     <div className="rounded-2xl border border-slate-200 bg-surface p-2 shadow-sm">
       <div className="px-1 py-1 lg:hidden">
@@ -292,6 +319,40 @@ export default function ExecutionGraph({ statuses, selected, onSelect, footer, i
             the card (and the presentation wall) while keeping the aspect ratio. */}
         <div className="relative mx-auto w-full" style={{ aspectRatio: `${W} / ${H}` }}>
         <svg viewBox={`0 0 ${W} ${H}`} className="absolute inset-0 h-full w-full" aria-hidden="true">
+          {/* Tele PD arcs (absolute space): a person reaching across the pipeline. */}
+          {PD_EDGES.map((e) => {
+            const st = statuses[e.phase] ?? "waiting";
+            const live = st === "running";
+            return (
+              <g key={e.id}>
+                <path
+                  id={e.id}
+                  d={e.d}
+                  fill="none"
+                  strokeOpacity={st === "waiting" ? 0.5 : 0.85}
+                  strokeWidth={live ? 2 : 1.5}
+                  strokeDasharray="2 6"
+                  strokeLinecap="round"
+                  className={`${live ? "stroke-progress-500" : st === "done" ? "stroke-progress-400" : "stroke-slate-300"} transition-all duration-500`}
+                />
+                {live && (
+                  <>
+                    <circle r="3.2" className="fill-progress-500" opacity="0.9">
+                      <animateMotion dur="1.4s" begin="0s" repeatCount="indefinite">
+                        <mpath href={`#${e.id}`} />
+                      </animateMotion>
+                    </circle>
+                    <circle r="3.2" className="fill-progress-500" opacity="0.9">
+                      <animateMotion dur="1.4s" begin="0.7s" repeatCount="indefinite">
+                        <mpath href={`#${e.id}`} />
+                      </animateMotion>
+                    </circle>
+                  </>
+                )}
+              </g>
+            );
+          })}
+          {/* Automated spine edges. */}
           {EDGES.map((e) => {
             const s = EDGE_STROKE[statuses[e.phase]] ?? EDGE_STROKE.waiting;
             return (
@@ -338,6 +399,18 @@ export default function ExecutionGraph({ statuses, selected, onSelect, footer, i
             <div className="pointer-events-auto animate-fade-up">
               <IntakeChecksCallout progress={intakeProgress} />
             </div>
+          </div>
+        )}
+        {/* Tele PD call ceremony floats ABOVE the (low-sitting) Tele PD node. */}
+        {telePdOpen && (
+          <div
+            className="pointer-events-none absolute z-30 flex -translate-x-1/2 -translate-y-full flex-col items-center"
+            style={{ left: `${(telePdNode.x / W) * 100}%`, top: `${((telePdNode.y - 30) / H) * 100}%` }}
+          >
+            <div className="pointer-events-auto animate-fade-up">
+              <TelePdCallout progress={telePdProgress} />
+            </div>
+            <span className="-mt-px h-3 w-3 rotate-45 border-b border-r border-slate-200 bg-surface" />
           </div>
         )}
         </div>

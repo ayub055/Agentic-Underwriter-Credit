@@ -460,6 +460,53 @@ export default function CamReport({ onClose }) {
                 <Row label="Affluence Segment" value={m.pd_sheet?.affluence_segment ?? emDash} k="pd_sheet.affluence_segment" model={m} />
                 <Row label="Affluence Value" value={formatINR(m.pd_sheet?.affluence_value)} k="pd_sheet.affluence_value" model={m} />
                 <Row label="PD Provenance" value={m.pd_sheet?.pd_provenance ?? emDash} model={m} />
+
+                {m.pd_sheet?.tele_pd?.questions?.length > 0 && (
+                  <div className="mt-4 border-t border-slate-200 pt-3">
+                    <div className="mb-2 flex flex-wrap items-center gap-2 text-xs font-bold uppercase tracking-wide text-slate-500">
+                      Tele PD
+                      <Chip k="pd_sheet.tele_pd" model={m} />
+                      <span className="font-medium normal-case tracking-normal text-slate-400">
+                        {m.pd_sheet.tele_pd.officer ?? emDash}
+                        {m.pd_sheet.tele_pd.conducted_at ? ` · ${m.pd_sheet.tele_pd.conducted_at}` : ""}
+                        {m.pd_sheet.tele_pd.ctc_document ? ` · CTC document: ${m.pd_sheet.tele_pd.ctc_document}` : ""}
+                      </span>
+                    </div>
+                    <table className="w-full text-xs">
+                      <thead>
+                        <tr className="text-[10px] uppercase tracking-wide text-slate-500">
+                          <th className="w-[44%] py-2 text-left">Question</th>
+                          <th className="text-left">Answer</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {m.pd_sheet.tele_pd.questions.map((q, i) => (
+                          <tr key={q.id ?? i} className="border-t border-slate-100 align-top">
+                            <td className="py-2 pr-3 text-left text-slate-500">
+                              {q.q ?? emDash}
+                              {q.note && <span className="italic text-slate-400"> · {q.note}</span>}
+                            </td>
+                            <td className="py-2 text-left font-medium text-ink">{q.answer ?? emDash}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                    {m.pd_sheet.tele_pd.deviation_reasons?.length > 0 && (
+                      <div className="mt-3 rounded-lg border border-caution-200/70 bg-caution-50/40 p-3">
+                        <div className="mb-1 text-[10px] font-bold uppercase tracking-wide text-caution-700">
+                          Reasons for deviations · folded into Decision
+                        </div>
+                        <ul className="space-y-1">
+                          {m.pd_sheet.tele_pd.deviation_reasons.map((d, i) => (
+                            <li key={i} className="flex items-start gap-1.5 text-xs text-slate-700">
+                              <span className="mt-1.5 h-1 w-1 flex-shrink-0 rounded-full bg-caution-500" /> {d}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </div>
+                )}
               </Card>
             )}
           </div>

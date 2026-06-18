@@ -405,6 +405,31 @@ tfoot td{font-weight:800;border-top:2px solid var(--line)}
       {% for k, v in m.pd_sheet.policy_features.items() %}{{ k }}={{ v }}{% if not loop.last %} · {% endif %}{% endfor %}
     </div>
     {% endif %}
+
+    {% if m.pd_sheet.tele_pd.questions %}
+    <div class="s-head" style="margin-top:14px">
+      <div class="s-title" style="font-size:.82rem">Tele PD <span class="chip p-placeholder">placeholder</span></div>
+      <span class="s-note">{{ m.pd_sheet.tele_pd.officer or '—' }}{% if m.pd_sheet.tele_pd.conducted_at %} · {{ m.pd_sheet.tele_pd.conducted_at }}{% endif %}{% if m.pd_sheet.tele_pd.ctc_document %} · CTC document: {{ m.pd_sheet.tele_pd.ctc_document }}{% endif %}</span>
+    </div>
+    <table>
+      <thead><tr><th style="width:44%">Question</th><th>Answer</th></tr></thead>
+      <tbody>
+      {% for q in m.pd_sheet.tele_pd.questions %}
+        <tr>
+          <td style="text-align:left">{{ q.q or '—' }}{% if q.note %} <span style="color:var(--muted);font-style:italic">· {{ q.note }}</span>{% endif %}</td>
+          <td style="text-align:left">{{ q.answer or '—' }}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    {% if m.pd_sheet.tele_pd.deviation_reasons %}
+    <div class="note" style="margin-top:8px"><strong>Reasons for deviations (folded into Decision):</strong>
+      <ul class="warnlist">
+        {% for d in m.pd_sheet.tele_pd.deviation_reasons %}<li>{{ d }}</li>{% endfor %}
+      </ul>
+    </div>
+    {% endif %}
+    {% endif %}
   </section>
 
   <!-- LEGEND -->

@@ -1181,12 +1181,13 @@ def _build_transactions(report: CustomerReport, cust_df: Optional[pd.DataFrame])
             axis=1,
         )
         df_asc["_running"] = df_asc["_signed"].cumsum()
-    df = df_asc.sort_values("tran_date", ascending=False).head(500)
+    df = df_asc.sort_values("tran_date", ascending=False)
     rows = []
     bounce_re = re.compile(r"BOUNCE|RTN|RETURN", re.IGNORECASE)
     for _, r in df.iterrows():
         narr = str(r.get("tran_partclr", "") or "")
-        cls = _classify_txn(narr, str(r.get("category_of_txn", "") or ""))
+        cls = _classify_txn(narr, str(r.get("category_of_txn_l2", "") or ""))
+        mode = _txn_mode(narr, str(r.get("tran_type", "") or ""))
         is_dr = r.get("dr_cr_indctor") == "D"
         amt = float(r.get("tran_amt_in_ac", 0) or 0)
         cat_l1 = (str(r.get("category_of_txn", "") or "").strip() or "—")[:24]
@@ -1201,6 +1202,7 @@ def _build_transactions(report: CustomerReport, cust_df: Optional[pd.DataFrame])
             "narration": narr[:80],
             "narration_full": narr,
             "cls": cls,
+            "mode": mode,
             "category": cat_l1,
             "category_l2": cat_l2,
             "debit": round(amt, 0) if is_dr else None,
@@ -1209,10 +1211,12 @@ def _build_transactions(report: CustomerReport, cust_df: Optional[pd.DataFrame])
             "flag": "bounce" if bounce_re.search(narr) else "",
         })
     from tools.category.registry import L2_TO_L1
+    categories = sorted({r["category"] for r in rows if r["category"] and r["category"] != "—"})
     return {
         "rows": rows,
         "total": int(report.meta.transaction_count or len(rows)),
         "showing": len(rows),
+        "categories": categories,
         "l2_options": sorted(L2_TO_L1.keys()),
         "l2_to_l1": dict(L2_TO_L1),
     }
@@ -1375,16 +1379,45 @@ def _extract_lender(description: str) -> str:
     return "Lender"
 
 
-def _classify_txn(narration: str, category: str) -> str:
+def _txn_mode(narration: str, tran_type: str) -> str:
+    """Payment rail for the 'Mode' column (UPI/NEFT/IMPS/NACH/...).
+
+    Prefers the structured tran_type; falls back to the narration prefix so
+    NEFT/IMPS/REV rows (blank tran_type in the rgs vocabulary) still show a mode.
+    """
+    t = (tran_type or "").strip().upper()
+    if t and t not in {"NAN", "NULL", "NONE"}:
+        return t
+    up = (narration or "").upper().lstrip()
+    if up.startswith("REV"):
+        return "REV"
+    if up.startswith("MB:") or up.startswith("MB "):
+        return "MB"
+    for m in ("UPI", "NEFT", "IMPS", "RTGS", "NACH", "ACH", "ATM", "POS"):
+        if up.startswith(m):
+            return "NACH" if m == "ACH" else m
+    return "—"
+
+
+def _classify_txn(narration: str, l2: str) -> str:
+    """Bucket a row for the transaction-filter chips.
+
+    Keyed off the canonical L2 category (the single source of truth) so EMI /
+    Investment / Gaming filters match real rows; falls back to narration
+    keywords for the payment-mode (UPI) chip.
+    """
     from tools.rules import is_salary_credit, is_emi_debit
+    from tools.category.registry import l1_of, l2_canonical
     upper = (narration or "").upper()
-    if is_salary_credit(category, narration):
+    canon = l2_canonical(l2)
+    l1 = l1_of(canon) if canon else ""
+    if is_salary_credit(l2, narration):
         return "salary"
-    if is_emi_debit(category, narration):
+    if is_emi_debit(l2, narration):
         return "emi"
-    if "DREAM11" in upper or "MPL" in upper or "BETTING" in upper or "GAMING" in upper:
+    if canon == "Digital_Betting_Gaming" or any(k in upper for k in ("DREAM11", "MPL", "BETTING", "GAMING")):
         return "fraud"
-    if "MF" in upper or "SIP" in upper or "DIVIDEND" in upper or "ZERODHA" in upper:
+    if l1 == "Investment_Insurance" or any(k in upper for k in ("MF", "SIP", "DIVIDEND", "ZERODHA")):
         return "inv"
     if "UPI" in upper or "IMPS" in upper or "NEFT" in upper:
         return "upi"

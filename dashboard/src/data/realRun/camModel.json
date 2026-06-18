@@ -4,12 +4,12 @@
     "run_id": "483b354f000f4dd5afddbda8bd205bec",
     "customer_id": 698167220,
     "outcome": "DECLINED",
-    "generated_at": "2026-06-17T12:25:46",
+    "generated_at": "2026-06-18T13:20:30",
     "channel": "Digital · self-serve"
   },
   "application": {
     "application_no": "PL-2026-8bd9c6",
-    "date": "2026-06-17T12:25:46",
+    "date": "2026-06-18T13:20:30",
     "channel": "Digital · self-serve",
     "location": "Bengaluru",
     "pincode": "560103",
@@ -752,7 +752,7 @@
     "final_amount": null,
     "final_tenor": null,
     "rejection_reason": "SERVICEABILITY (FOIR_CAP)",
-    "reject_datetime": "2026-06-17T12:25:46"
+    "reject_datetime": "2026-06-18T13:20:30"
   },
   "credit_manager": {
     "decisioned_by": "Agentic Underwriting Engine",
@@ -767,7 +767,7 @@
     "reviewed_by": null,
     "approved_by": null,
     "remarks": null,
-    "decision_date": "2026-06-17T12:25:46"
+    "decision_date": "2026-06-18T13:20:30"
   },
   "pd_sheet": {
     "pd_score": 0.0728,
@@ -779,7 +779,56 @@
       "address_pd_adjustment": -0.02,
       "address_band": "HIGH"
     },
-    "remarks": "PD 7.28% · risk band 2/5 · mass affluent"
+    "remarks": "PD 7.28% · risk band 2/5 · mass affluent",
+    "tele_pd": {
+      "status": "completed",
+      "officer": "Credit Ops · Tele Verification",
+      "conducted_at": "2026-06-18",
+      "ctc_document": "offered",
+      "questions": [
+        {
+          "id": "income",
+          "q": "Income & designation (fixed / net / take-home)",
+          "answer": "Fixed ₹60,000 · Net ₹54,000 · Take-home ₹51,000 · Sr. Software Engineer",
+          "note": "CTC document offered"
+        },
+        {
+          "id": "dependents",
+          "q": "Number of dependents",
+          "answer": "2 (spouse, 1 child)",
+          "note": null
+        },
+        {
+          "id": "residence",
+          "q": "Residence — owned / rented",
+          "answer": "Owned · 6 yrs at address",
+          "note": null
+        },
+        {
+          "id": "earners",
+          "q": "Other earning members",
+          "answer": "1 (spouse · ₹35,000 / mo)",
+          "note": null
+        },
+        {
+          "id": "purpose",
+          "q": "Purpose of loan",
+          "answer": "Home renovation",
+          "note": null
+        },
+        {
+          "id": "vehicle",
+          "q": "Owns car / bike",
+          "answer": "Bike (owned) · no car",
+          "note": null
+        }
+      ],
+      "deviation_reasons": [
+        "Declared income ₹60,000 vs banking-detected ₹51,020 — variable allowances credited quarterly",
+        "Proposed EMI ₹44,774 breaches FOIR cap (119% vs 50%) — customer requests longer tenure",
+        "Spouse income ₹35,000 / mo not on application — can be added as co-applicant"
+      ]
+    }
   },
   "provenance": {
     "intake.kyc_verified": "mock",
@@ -856,6 +905,7 @@
     "credit_manager.remarks": "placeholder",
     "pd_sheet.affluence_value": "derived",
     "pd_sheet.affluence_segment": "derived",
-    "pd_sheet.remarks": "derived"
+    "pd_sheet.remarks": "derived",
+    "pd_sheet.tele_pd": "placeholder"
   }
 }
