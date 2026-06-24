@@ -6,8 +6,8 @@ import ScalePanel from "./ScalePanel.jsx";
 import HintOverlay from "../components/HintOverlay.jsx";
 import JourneySpine from "../components/JourneySpine.jsx";
 
-// Backend phase index → shared journey-spine stage. Tele PD (human-in-the-loop)
-// shares the policy stage; finalize+notify share "outcome".
+// Backend phase index → shared journey-spine stage. Voice PD Agent (agentic voice
+// agent) shares the policy stage; finalize+notify share "outcome".
 const SPINE_BY_PHASE = [0, 1, 2, 3, 4, 4, 5, 6, 6];
 import { usePlayback } from "./usePlayback.js";
 import JourneyControls from "./JourneyControls.jsx";

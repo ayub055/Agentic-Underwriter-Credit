@@ -3,6 +3,7 @@ import { Check, Loader2, Cpu, ExternalLink, Sparkles } from "lucide-react";
 import { dataTone, provPill } from "../lib/tones.js";
 import { useTypewriter } from "../lib/motion.js";
 import { glossaryFor } from "../lib/glossary.js";
+import ExportExcelButton from "../components/ExportExcelButton.jsx";
 
 export function StatusPill({ status }) {
   if (status === "done")
@@ -178,7 +179,12 @@ export function BranchCard({ branch, status = "done" }) {
           </span>
           <span className="text-sm font-semibold text-ink">{branch.title}</span>
         </div>
-        <StatusPill status={status} />
+        <div className="flex items-center gap-2">
+          <StatusPill status={status} />
+          {(branch.id === "banking" || branch.id === "bureau") && (
+            <ExportExcelButton branchId={branch.id} />
+          )}
+        </div>
       </div>
       <ModelTags tags={branch.modelTags} />
       <div className="mt-3 space-y-1">

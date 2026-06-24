@@ -10,6 +10,7 @@ import {
   Wallet,
 } from "lucide-react";
 import caseState from "../data/realRun/caseState.json";
+import { frostShell } from "../flow/NodeLiveCard.jsx";
 
 // Compact Tele PD call callout, anchored below the floating Tele PD node. One
 // question is spotlighted (being asked) at a time; as each is answered it drops
@@ -28,7 +29,7 @@ const QUESTIONS = (caseState.tele_pd?.questions ?? []).map((q) => ({
   icon: ICONS[q.id] ?? Phone,
 }));
 
-export default function TelePdCallout({ progress = 0 }) {
+export default function TelePdCallout({ progress = 0, frost = false }) {
   const total = QUESTIONS.length;
   const done = Math.min(Math.floor(Math.max(progress, 0) * total), total);
   const current = done < total ? QUESTIONS[done] : null;
@@ -36,10 +37,10 @@ export default function TelePdCallout({ progress = 0 }) {
   const answered = QUESTIONS.slice(0, done);
 
   return (
-    <div className="w-80 rounded-xl border border-slate-200 bg-surface p-3 shadow-xl">
+    <div className={frost ? `w-[24rem] ${frostShell(true)} p-4` : "w-80 rounded-xl border border-slate-200 bg-surface p-3 shadow-xl"}>
       <div className="mb-2 flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-slate-500">
-        <Phone className="h-3 w-3 text-progress-600" strokeWidth={2.5} />
-        Tele PD · asking
+        <Phone className="h-3 w-3 text-agent-600" strokeWidth={2.5} />
+        Voice PD Agent · asking
         <span className="ml-auto tabular-nums text-slate-400">
           {done}/{total}
         </span>

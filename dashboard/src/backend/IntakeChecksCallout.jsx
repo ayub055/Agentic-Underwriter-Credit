@@ -13,6 +13,7 @@ import {
   ShieldCheck,
   Smartphone,
 } from "lucide-react";
+import { frostShell } from "../flow/NodeLiveCard.jsx";
 
 // Compact intake-verification callout, anchored above the Intake node. One check
 // is spotlighted (verifying) at a time; as each completes it drops into the list
@@ -30,7 +31,7 @@ const CHECKS = [
   { id: "address", label: "Address", icon: MapPinned },
 ];
 
-export default function IntakeChecksCallout({ progress = 0 }) {
+export default function IntakeChecksCallout({ progress = 0, frost = false }) {
   const total = CHECKS.length;
   const done = Math.min(Math.floor(Math.max(progress, 0) * total), total);
   const current = done < total ? CHECKS[done] : null;
@@ -38,7 +39,7 @@ export default function IntakeChecksCallout({ progress = 0 }) {
   const completed = CHECKS.slice(0, done);
 
   return (
-    <div className="w-72 rounded-xl border border-slate-200 bg-surface p-3 shadow-xl">
+    <div className={frost ? `w-[23rem] ${frostShell(false)} p-4` : "w-72 rounded-xl border border-slate-200 bg-surface p-3 shadow-xl"}>
       <div className="mb-2 flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-slate-500">
         <span className="relative flex h-1.5 w-1.5">
           <span className="absolute h-full w-full rounded-full bg-agent-500 motion-safe:animate-ping" />

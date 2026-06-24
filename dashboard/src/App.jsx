@@ -1,7 +1,9 @@
 import { useState } from "react";
-import { Workflow, UserRound } from "lucide-react";
+import { Workflow, UserRound, MonitorPlay, Share2 } from "lucide-react";
 import BackendJourney from "./backend/BackendJourney.jsx";
 import CustomerView from "./CustomerView.jsx";
+import Cockpit from "./Cockpit.jsx";
+import FlowDemo from "./FlowDemo.jsx";
 import { ThemeProvider } from "./lib/theme.jsx";
 import BrandMark from "./components/BrandMark.jsx";
 import ThemeSwitch from "./components/ThemeSwitch.jsx";
@@ -9,10 +11,21 @@ import ThemeSwitch from "./components/ThemeSwitch.jsx";
 const VIEWS = [
   { key: "backend", label: "Backend · Agentic Journey", icon: Workflow },
   { key: "customer", label: "Customer · Journey", icon: UserRound },
+  { key: "cockpit", label: "Single-page Demo", icon: MonitorPlay },
+  { key: "flow", label: "Flow Demo", icon: Share2 },
 ];
 
+// Initial tab from the URL hash so the demo views are deep-linkable:
+//   #at=<n> → Flow Demo, #ch=<n> → Single-page cockpit.
+function initialView() {
+  const h = typeof window !== "undefined" ? window.location.hash : "";
+  if (/(\bflow\b|at=)/.test(h)) return "flow";
+  if (/(\bcockpit\b|ch=)/.test(h)) return "cockpit";
+  return "backend";
+}
+
 export default function App() {
-  const [appView, setAppView] = useState("backend");
+  const [appView, setAppView] = useState(initialView);
   const [scenario, setScenario] = useState("captured");
 
   // Backend completion CTA: jump to the customer lens of the same captured case.
@@ -20,6 +33,24 @@ export default function App() {
     setScenario("captured");
     setAppView("customer");
   };
+
+  // The single-page cockpit owns the full screen (its own top bar) — render it
+  // standalone, with a way back to the classic tabbed views.
+  if (appView === "cockpit") {
+    return (
+      <ThemeProvider>
+        <Cockpit onExit={() => setAppView("backend")} />
+      </ThemeProvider>
+    );
+  }
+
+  if (appView === "flow") {
+    return (
+      <ThemeProvider>
+        <FlowDemo onExit={() => setAppView("backend")} />
+      </ThemeProvider>
+    );
+  }
 
   return (
     <ThemeProvider>

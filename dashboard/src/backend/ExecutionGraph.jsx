@@ -40,9 +40,9 @@ const NODES = [
   { id: "gate", phase: 2, x: 462, y: 126, icon: GitMerge, tag: "Σ", label: "Fold · Gate", labelPos: "below", small: true },
   { id: "ml", phase: 3, x: 584, y: 126, icon: Cpu, tag: "P3", label: "ML Scorecard", labelPos: "below" },
   { id: "policy", phase: 4, x: 700, y: 126, icon: Scale, tag: "P4", label: "Policy L1–L6", labelPos: "above" },
-  // Human-in-the-loop node, dropped BELOW the spine between Policy and Decision,
+  // Agentic voice-agent node, dropped BELOW the spine between Policy and Decision,
   // wired by the two arcs below (pulls from Policy, feeds Decision).
-  { id: "telePd", phase: 5, x: 753, y: 200, icon: Phone, tag: "PD", label: "Tele PD", labelPos: "below", human: true },
+  { id: "telePd", phase: 5, x: 753, y: 200, icon: Phone, tag: "PD", label: "Voice PD Agent", labelPos: "below", voice: true },
   { id: "decision", phase: 6, x: 806, y: 126, icon: Calculator, tag: "P5", label: "Decision", labelPos: "above" },
   { id: "finalize", phase: 7, x: 894, y: 126, icon: Stamp, tag: "P6", label: "Finalize", labelPos: "below" },
   { id: "notify", phase: 8, x: 966, y: 126, icon: BellRing, tag: "P7", label: "Notify", labelPos: "below", small: true },
@@ -62,9 +62,9 @@ const EDGES = [
   { id: "e-fn", phase: 8, d: "M 921 126 L 944 126" },
 ];
 
-// The two Tele PD arcs dip BELOW the spine: an "in" arc dropping from Policy
-// into the Tele PD node and an "out" arc rising back into Decision. Drawn dashed
-// in the human (violet) tone to read as a person stepping into the pipeline.
+// The two Voice PD arcs dip BELOW the spine: an "in" arc dropping from Policy
+// into the Voice PD Agent node and an "out" arc rising back into Decision. Drawn
+// dashed in the agent (violet) tone to read as the voice agent joining the pipeline.
 const PD_EDGES = [
   // Policy (700,126) ↘ Tele PD (753,200) — lights while the call runs.
   { id: "e-ptd", phase: 5, dir: "in", d: "M 702 142 C 718 184, 730 194, 742 194" },
@@ -149,6 +149,11 @@ function Node({ node, status, selected, onSelect }) {
         {node.human && (
           <span className="absolute -bottom-1.5 -right-3 rounded border border-progress-200 bg-progress-50 px-1 text-[8px] font-bold tracking-wide text-progress-600">
             HUMAN
+          </span>
+        )}
+        {node.voice && (
+          <span className="absolute -bottom-1.5 -right-4 rounded border border-agent-200 bg-agent-50 px-1 text-[8px] font-bold tracking-wide text-agent-700">
+            AI VOICE
           </span>
         )}
       </span>
@@ -293,9 +298,9 @@ function StackedGraph({ statuses, selected, onSelect }) {
       {row("gate")}
       {row("ml")}
       {row("policy")}
-      <li className="rounded-xl border border-progress-200/70 bg-progress-50/30 p-2">
-        <div className="mb-1.5 px-1 text-micro font-bold uppercase tracking-widest text-progress-600">
-          ◷ Human-in-the-loop · pulls policy deviations → feeds decision
+      <li className="rounded-xl border border-agent-200/70 bg-agent-50/30 p-2">
+        <div className="mb-1.5 px-1 text-micro font-bold uppercase tracking-widest text-agent-600">
+          ◷ Agentic voice agent · pulls policy deviations → feeds decision
         </div>
         {row("telePd")}
       </li>
@@ -306,9 +311,37 @@ function StackedGraph({ statuses, selected, onSelect }) {
   );
 }
 
-export default function ExecutionGraph({ statuses, selected, onSelect, footer, intakeOpen, intakeProgress, telePdOpen, telePdProgress }) {
+// Which node a phase's live card anchors to (the parallel phase anchors to the
+// fold/gate node, dead-center between the two branches).
+const CARD_ANCHOR = { 2: "gate" };
+
+export default function ExecutionGraph({
+  statuses,
+  selected,
+  onSelect,
+  footer,
+  intakeOpen,
+  intakeProgress,
+  telePdOpen,
+  telePdProgress,
+  activePhase = null,
+  activeCard = null,
+}) {
   const intakeNode = NODES.find((n) => n.id === "intake");
   const telePdNode = NODES.find((n) => n.id === "telePd");
+  const cardNode =
+    activePhase != null && activeCard
+      ? NODES.find((n) => n.id === CARD_ANCHOR[activePhase]) ||
+        NODES.find((n) => n.phase === activePhase)
+      : null;
+  // Top-sitting nodes drop their card below; everything else floats above.
+  const cardBelow = cardNode ? cardNode.y < H * 0.42 : false;
+  // Pull the card toward screen-center (it keeps leaning toward its node, but
+  // never chases all the way to the edge) and run a leader line back to the node.
+  const nodePct = cardNode ? (cardNode.x / W) * 100 : 50;
+  const cardPct = Math.max(23, Math.min(77, 50 + (nodePct - 50) * 0.5));
+  const cardEdgeX = (cardPct / 100) * W;
+  const cardEdgeY = cardNode ? cardNode.y + (cardBelow ? 40 : -40) : 0;
   return (
     <div className="rounded-2xl border border-slate-200 bg-surface p-2 shadow-sm">
       <div className="px-1 py-1 lg:hidden">
@@ -319,7 +352,7 @@ export default function ExecutionGraph({ statuses, selected, onSelect, footer, i
             the card (and the presentation wall) while keeping the aspect ratio. */}
         <div className="relative mx-auto w-full" style={{ aspectRatio: `${W} / ${H}` }}>
         <svg viewBox={`0 0 ${W} ${H}`} className="absolute inset-0 h-full w-full" aria-hidden="true">
-          {/* Tele PD arcs (absolute space): a person reaching across the pipeline. */}
+          {/* Voice PD arcs (absolute space): the voice agent joining the pipeline. */}
           {PD_EDGES.map((e) => {
             const st = statuses[e.phase] ?? "waiting";
             const live = st === "running";
@@ -412,6 +445,45 @@ export default function ExecutionGraph({ statuses, selected, onSelect, footer, i
             </div>
             <span className="-mt-px h-3 w-3 rotate-45 border-b border-r border-slate-200 bg-surface" />
           </div>
+        )}
+        {/* Flow-demo: a single live card anchored over the active node, clamped
+            horizontally so it never runs off-screen; position + contents animate
+            as the cursor walks node to node. */}
+        {cardNode && (
+          <>
+            {/* leader line from the active node up to the card edge */}
+            <svg
+              viewBox={`0 0 ${W} ${H}`}
+              className="pointer-events-none absolute inset-0 z-30 h-full w-full overflow-visible transition-all duration-500"
+              aria-hidden="true"
+            >
+              <line
+                x1={cardNode.x}
+                y1={cardNode.y}
+                x2={cardEdgeX}
+                y2={cardEdgeY}
+                className="stroke-agent-400"
+                strokeWidth="1.5"
+                strokeDasharray="3 4"
+                strokeLinecap="round"
+              />
+              <circle cx={cardNode.x} cy={cardNode.y} r="3.5" className="fill-agent-500" />
+              <circle cx={cardEdgeX} cy={cardEdgeY} r="2.5" className="fill-agent-400" />
+            </svg>
+            <div
+              className={`pointer-events-none absolute z-40 -translate-x-1/2 transition-all duration-500 ease-out ${
+                cardBelow ? "" : "-translate-y-full"
+              }`}
+              style={{
+                left: `${cardPct}%`,
+                top: `${((cardNode.y + (cardBelow ? 40 : -40)) / H) * 100}%`,
+              }}
+            >
+              <div key={activePhase} className="pointer-events-auto animate-fade-up">
+                {activeCard}
+              </div>
+            </div>
+          </>
         )}
         </div>
       </div>

@@ -35,8 +35,8 @@ const tpq = Object.fromEntries((tp.questions ?? []).map((q) => [q.id, q.answer])
 function line(key, value, tone, provKey) {
   return { key, value, tone, prov: provKey ? prov[provKey] : undefined };
 }
-// Tele PD facts have no pipeline provenance — they're captured on a human call,
-// so they carry a placeholder pill explicitly.
+// Voice PD facts have no pipeline provenance — they're captured on the voice-agent
+// call, so they carry a placeholder pill explicitly.
 const pline = (key, value, tone) => ({ key, value, tone, prov: "placeholder" });
 
 export const PHASES = [
@@ -220,17 +220,17 @@ export const PHASES = [
 
   {
     id: "telePd",
-    phase: "Tele PD",
-    title: "Tele PD",
-    subtitle: "Human-in-the-loop · officer call · structured questions",
-    kind: "human",
+    phase: "Voice PD Agent",
+    title: "Voice PD Agent",
+    subtitle: "Agentic voice agent · autonomous call · structured questions",
+    kind: "agent",
     floating: true,
-    modelTags: ["human-in-the-loop", "structured Q&A · placeholder"],
+    modelTags: ["agentic voice agent", "structured Q&A · placeholder"],
     agents: [
-      { actor: tp.officer ?? "credit_ops", action: "dial_customer", detail: `pulls policy deviations · structured Tele PD on ${ik.address?.city ?? "applicant"}`, tone: "info" },
-      ...(tp.questions ?? []).map((q) => ({ actor: "officer", action: "ask", detail: `${q.q} → ${q.answer}`, tone: q.tone ?? "info" })),
-      ...(tp.deviation_reasons ?? []).map((d) => ({ actor: "officer ·", action: "deviation", detail: d, tone: "caution" })),
-      { actor: "officer", action: "capture", detail: `${(tp.questions ?? []).length} answers · ${(tp.deviation_reasons ?? []).length} deviation reasons → folded into Decision`, tone: "ok" },
+      { actor: tp.officer ?? "voice_agent", action: "dial_customer", detail: `pulls policy deviations · structured Voice PD on ${ik.address?.city ?? "applicant"}`, tone: "info" },
+      ...(tp.questions ?? []).map((q) => ({ actor: "voice_agent", action: "ask", detail: `${q.q} → ${q.answer}`, tone: q.tone ?? "info" })),
+      ...(tp.deviation_reasons ?? []).map((d) => ({ actor: "voice_agent ·", action: "deviation", detail: d, tone: "caution" })),
+      { actor: "voice_agent", action: "capture", detail: `${(tp.questions ?? []).length} answers · ${(tp.deviation_reasons ?? []).length} deviation reasons → folded into Decision`, tone: "ok" },
     ],
     data: [
       pline("income_taken", tpq.income ?? emDash, "caution"),
@@ -329,7 +329,7 @@ const PRESENTER_NOTES = {
   layer2: `Two LLM agents run in parallel in isolated subprocesses — ${Math.round(((cs.branches?.bureau?.elapsed_s ?? 0) + (cs.branches?.banking?.elapsed_s ?? 0)) * 10) / 10}s of analysis in ${layer2Elapsed ?? "—"}s wall-clock.`,
   ml: "Deterministic scorecard — PD, affluence and FOIR — reproducible and fully auditable.",
   policy: "Six policy layers evaluated in milliseconds — this profile cleared every one on credit quality.",
-  telePd: "A human steps in — the credit officer calls the customer, validates income and residence, and captures the reasons behind every deviation before the decision is taken.",
+  telePd: "An agentic voice agent calls the customer, validates income and residence, and captures the reasons behind every deviation before the decision is taken.",
   decision: "The serviceability gate catches an EMI the customer can't afford — FOIR 119% vs the 50% cap.",
   finalize: "Decision stamped with an audit pack, a field-by-field provenance map and pinned model versions.",
   notify: "Customer notified instantly — switch to the customer view to see exactly what they experienced.",

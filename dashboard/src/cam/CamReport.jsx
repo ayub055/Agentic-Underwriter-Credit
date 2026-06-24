@@ -91,7 +91,7 @@ const SECTIONS = [
   { id: "pd", n: 12, label: "PD Sheet Remarks" },
 ];
 
-export default function CamReport({ onClose }) {
+export default function CamReport({ onClose, inline = false }) {
   const m = camModel;
   const [active, setActive] = useState("general");
   const t = m.obligations?.totals ?? {};
@@ -121,9 +121,16 @@ export default function CamReport({ onClose }) {
   const cur = SECTIONS.find((s) => s.id === active);
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col bg-night/60 backdrop-blur-sm" onClick={onClose}>
+    <div
+      className={inline ? "contents" : "fixed inset-0 z-50 flex flex-col bg-night/60 backdrop-blur-sm"}
+      onClick={inline ? undefined : onClose}
+    >
       <div
-        className="mx-auto mt-6 flex h-[calc(100vh-3rem)] w-full max-w-6xl flex-col overflow-hidden rounded-t-2xl border border-slate-200 bg-canvas shadow-2xl animate-fade-up"
+        className={
+          inline
+            ? "flex h-full w-full flex-col overflow-hidden rounded-2xl border border-slate-200 bg-surface shadow-sm"
+            : "mx-auto mt-6 flex h-[calc(100vh-3rem)] w-full max-w-6xl flex-col overflow-hidden rounded-t-2xl border border-slate-200 bg-canvas shadow-2xl animate-fade-up"
+        }
         onClick={(e) => e.stopPropagation()}
       >
         {/* header */}
@@ -149,9 +156,11 @@ export default function CamReport({ onClose }) {
             <button onClick={() => openCam(false)} className="flex items-center gap-1.5 rounded-lg border border-slate-300 bg-surface px-3 py-1.5 text-xs font-medium text-slate-600 transition hover:bg-slate-50">
               <ExternalLink className="h-3.5 w-3.5" /> Tab
             </button>
-            <button onClick={onClose} className="rounded-lg border border-slate-300 bg-surface p-1.5 text-slate-500 transition hover:bg-slate-50">
-              <X className="h-4 w-4" />
-            </button>
+            {!inline && (
+              <button onClick={onClose} className="rounded-lg border border-slate-300 bg-surface p-1.5 text-slate-500 transition hover:bg-slate-50">
+                <X className="h-4 w-4" />
+              </button>
+            )}
           </div>
         </div>
 

@@ -51,7 +51,7 @@ function TelePdQA({ phase }) {
 
       <div className="flex flex-wrap items-center gap-3 text-[11px] text-slate-500">
         <span className="inline-flex items-center gap-1">
-          <Phone className="h-3 w-3 text-progress-600" /> Structured Tele PD · human-in-the-loop
+          <Phone className="h-3 w-3 text-agent-600" /> Structured Voice PD · agentic voice agent
         </span>
         {phase.ctcDocument && (
           <span className="inline-flex items-center gap-1">
