@@ -134,10 +134,14 @@ tfoot td{font-weight:800;border-top:2px solid var(--line)}
       {{ kv('City / Location', (m.application.location or '—') ~ (' · ' ~ m.application.pincode if m.application.pincode else '')) }}
       {{ kv('Sub-Source', m.application.sub_source or '—', 'application.sub_source') }}
       {{ kv('Product', m.application.product or '—') }}
+      {{ kv('Type of Loan', m.application.loan_type or '—', 'application.loan_type') }}
       {{ kv('Loan Amount Applied', m.application.loan_amount_req|inr, 'intake.loan_amount_req') }}
       {{ kv('Existing Kotak Customer', m.application.existing_kotak_customer|yn, 'application.existing_kotak_customer') }}
       {{ kv('Tenure Applied', (m.application.tenure_req|num) ~ ' months') }}
       {{ kv('Purpose of Loan', m.application.purpose_of_loan or '—', 'application.purpose_of_loan') }}
+      {{ kv('Scheme', m.application.scheme or '—', 'application.scheme') }}
+      {{ kv('Sub-Scheme', m.application.sub_scheme or '—', 'application.sub_scheme') }}
+      {{ kv('Application Date', m.application.date or '—') }}
       {{ kv('DMA Name', m.application.dma_name or '—', 'application.dma_name') }}
     </div>
   </section>
@@ -148,6 +152,10 @@ tfoot td{font-weight:800;border-top:2px solid var(--line)}
     <div class="note" style="font-weight:700;color:var(--ink);margin-top:0">2.1 · Applicant Detail</div>
     <div class="kv">
       {{ kv('Name', m.applicant.name or '—', 'applicant.name') }}
+      {{ kv('Gender', m.applicant.gender or '—', 'applicant.gender') }}
+      {{ kv('PAN', m.applicant.pan or '—', 'applicant.pan') }}
+      {{ kv('Kotak CRN', m.applicant.crn or '—', 'applicant.crn') }}
+      {{ kv('Salary A/c No.', m.applicant.salary_account_no or '—', 'applicant.salary_account_no') }}
       {{ kv('Age', m.applicant.age|num, 'applicant.dob') }}
       {{ kv('Marital Status', m.applicant.marital_status or '—', 'applicant.marital_status') }}
       {{ kv('Residence Type', m.applicant.residence_type or '—', 'applicant.residence_type') }}
@@ -203,7 +211,27 @@ tfoot td{font-weight:800;border-top:2px solid var(--line)}
 
   <!-- 5. OBLIGATIONS -->
   <section>
-    <div class="s-head"><div class="s-num">5</div><div class="s-title">Obligation — Live Bureau Tradelines</div>{{ chip('obligations') }}</div>
+    <div class="s-head"><div class="s-num">5</div><div class="s-title">Obligation</div>{{ chip('obligations') }}</div>
+    {% if m.existing_loans %}
+    <div class="note" style="font-weight:700;color:var(--ink);margin-top:0">Application-declared loans {{ chip('existing_loans') }}</div>
+    <table>
+      <thead><tr><th>Lender</th><th>Type</th><th>Sanctioned</th><th>Outstanding</th><th>EMI</th><th>Status</th></tr></thead>
+      <tbody>
+      {% for l in m.existing_loans %}
+        <tr>
+          <td>{{ l.lender or '—' }}</td>
+          <td style="text-align:left">{{ l.loan_type or '—' }}</td>
+          <td>{{ l.sanctioned|inr }}</td>
+          <td>{{ l.outstanding|inr }}</td>
+          <td>{{ l.emi|inr }}</td>
+          <td style="text-align:left"><span class="tag {{ 'uns' if l.bt_flag else 'sec' }}">{{ l.status or ('Consider BT' if l.bt_flag else 'Considered') }}</span></td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    <div class="note">Balance-transferred EMIs are netted out of proposed FOIR — the BT clears those loans at disbursal.</div>
+    <div class="note" style="font-weight:700;color:var(--ink);margin-top:12px">Live bureau tradelines</div>
+    {% endif %}
     {% set obs = m.obligations.obligations %}
     {% if obs %}
     <table>

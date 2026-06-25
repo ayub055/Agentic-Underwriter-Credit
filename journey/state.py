@@ -58,6 +58,22 @@ class IntakeBlock(BaseModel):
     address_verified: bool = True
     address_zone_score: Optional[float] = None
     address: dict = Field(default_factory=dict)   # raw applicant address (scored in S1.5)
+    # ---- Application-form fields (sourcing / loan / employer / existing debt) ----
+    employer_category: Optional[str] = None       # e.g. "Public Ltd · IT"
+    loan_type: Optional[str] = None               # Fresh | Balance Transfer
+    purpose_of_loan: Optional[str] = None
+    scheme: Optional[str] = None                  # e.g. "Normal Program"
+    sub_scheme: Optional[str] = None              # e.g. "Corp Sal DMA"
+    existing_kotak_customer: Optional[bool] = None  # ETB flag
+    crn: Optional[str] = None                     # Kotak customer reference no.
+    salary_account_no: Optional[str] = None
+    salary_disb_same: Optional[bool] = None       # salary == disbursement account
+    lead_reference: Optional[str] = None
+    sub_source: Optional[str] = None
+    dma_name: Optional[str] = None
+    application_date: Optional[str] = None
+    # Applicant-declared live loans (per-lender; BT marks the loan being cleared).
+    existing_loans: list[dict] = Field(default_factory=list)
 
 
 class AddressBlock(BaseModel):

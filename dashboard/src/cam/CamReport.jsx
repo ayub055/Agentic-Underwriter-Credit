@@ -219,10 +219,14 @@ export default function CamReport({ onClose, inline = false }) {
                 <Row label="City / Location" value={[m.application?.location, m.application?.pincode].filter(Boolean).join(" · ") || emDash} model={m} />
                 <Row label="Sub-Source" value={m.application?.sub_source ?? emDash} k="application.sub_source" model={m} />
                 <Row label="Product" value={m.application?.product ?? emDash} model={m} />
+                <Row label="Type of Loan" value={m.application?.loan_type ?? emDash} k="application.loan_type" model={m} />
                 <Row label="Loan Amount Applied" value={formatINR(m.application?.loan_amount_req)} k="intake.loan_amount_req" model={m} />
                 <Row label="Existing Kotak Customer" value={yn(m.application?.existing_kotak_customer)} k="application.existing_kotak_customer" model={m} />
                 <Row label="Tenure Applied" value={`${num(m.application?.tenure_req)} months`} model={m} />
                 <Row label="Purpose of Loan" value={m.application?.purpose_of_loan ?? emDash} k="application.purpose_of_loan" model={m} />
+                <Row label="Scheme" value={m.application?.scheme ?? emDash} k="application.scheme" model={m} />
+                <Row label="Sub-Scheme" value={m.application?.sub_scheme ?? emDash} k="application.sub_scheme" model={m} />
+                <Row label="Application Date" value={m.application?.date ?? emDash} model={m} />
                 <Row label="DMA Name" value={m.application?.dma_name ?? emDash} k="application.dma_name" model={m} />
               </Card>
             )}
@@ -231,6 +235,10 @@ export default function CamReport({ onClose, inline = false }) {
               <div className="space-y-4">
                 <Card title="2.1 · Applicant Detail" model={m}>
                   <Row label="Name" value={m.applicant?.name ?? emDash} k="applicant.name" model={m} />
+                  <Row label="Gender" value={m.applicant?.gender ?? emDash} k="applicant.gender" model={m} />
+                  <Row label="PAN" value={m.applicant?.pan ?? emDash} k="applicant.pan" model={m} />
+                  <Row label="Kotak CRN" value={m.applicant?.crn ?? emDash} k="applicant.crn" model={m} />
+                  <Row label="Salary A/c No." value={m.applicant?.salary_account_no ?? emDash} k="applicant.salary_account_no" model={m} />
                   <Row label="Age" value={num(m.applicant?.age)} k="applicant.dob" model={m} />
                   <Row label="Marital Status" value={m.applicant?.marital_status ?? emDash} k="applicant.marital_status" model={m} />
                   <Row label="Residence Type" value={m.applicant?.residence_type ?? emDash} k="applicant.residence_type" model={m} />
@@ -282,9 +290,50 @@ export default function CamReport({ onClose, inline = false }) {
             )}
 
             {active === "obligation" && (
-              <Card title="Obligation — Live Bureau Tradelines" chipKey="obligations" model={m}>
+              <Card title="Obligation" chipKey="obligations" model={m}>
+                {m.existing_loans?.length > 0 && (
+                  <div className="mb-4">
+                    <div className="mb-2 flex items-center text-xs font-bold uppercase tracking-wide text-slate-500">
+                      Application-declared loans
+                      <Chip k="existing_loans" model={m} />
+                    </div>
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-xs">
+                        <thead>
+                          <tr className="text-[10px] uppercase tracking-wide text-slate-500">
+                            <th className="py-2 text-left">Lender</th><th className="text-left">Type</th>
+                            <th className="text-right">Sanctioned</th><th className="text-right">Outstanding</th>
+                            <th className="text-right">EMI</th><th className="text-right">Status</th>
+                          </tr>
+                        </thead>
+                        <tbody className="tabular-nums">
+                          {m.existing_loans.map((l, i) => (
+                            <tr key={i} className="border-t border-slate-100">
+                              <td className="py-2 text-left font-medium">{l.lender ?? emDash}</td>
+                              <td className="text-left">{l.loan_type ?? emDash}</td>
+                              <td className="text-right">{formatINR(l.sanctioned)}</td>
+                              <td className="text-right">{formatINR(l.outstanding)}</td>
+                              <td className="text-right">{formatINR(l.emi)}</td>
+                              <td className="text-right">
+                                <span className={`rounded px-1.5 py-px text-[10px] ${l.bt_flag ? "bg-caution-50 text-caution-700" : "bg-success-50 text-success-700"}`}>
+                                  {l.status ?? (l.bt_flag ? "Consider BT" : "Considered")}
+                                </span>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                    <div className="mt-2 text-xs text-slate-500">
+                      Balance-transferred EMIs are netted out of proposed FOIR — the BT clears those loans at disbursal.
+                    </div>
+                  </div>
+                )}
                 {obs.length ? (
                   <div className="overflow-x-auto">
+                    {m.existing_loans?.length > 0 && (
+                      <div className="mb-2 text-xs font-bold uppercase tracking-wide text-slate-500">Live bureau tradelines</div>
+                    )}
                     <table className="w-full text-xs">
                       <thead>
                         <tr className="text-[10px] uppercase tracking-wide text-slate-500">

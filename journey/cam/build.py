@@ -22,6 +22,7 @@ from cam.model import (
     DeviationRow,
     DeviationsSection,
     EmploymentSection,
+    ExistingLoanRow,
     FinancialSection,
     LoanAmountSection,
     LoanColumn,
@@ -58,27 +59,38 @@ def _months_to_experience(months: Optional[int]) -> Optional[str]:
 
 
 # CAM-specific provenance, layered on top of the journey's own provenance_map.
-# Identity/employment fields are mock or absent today (no Karza/EPFO/sal-slip
-# wiring); the rich bureau/banking slices are real analyser output.
+# Application-form fields (identity, loan, employer, declared debt) are real
+# applicant input; the rich bureau/banking slices are real analyser output. What
+# stays mock/placeholder is what no source feeds yet (mock address pool, EPFO
+# tenure, color band, sourcing refs).
 _CAM_PROV = {
-    "applicant.name": Provenance.mock,
-    "applicant.dob": Provenance.mock,
-    "applicant.qualification": Provenance.mock,
+    "applicant.name": Provenance.real,
+    "applicant.gender": Provenance.real,
+    "applicant.pan": Provenance.real,
+    "applicant.crn": Provenance.real,
+    "applicant.salary_account_no": Provenance.real,
+    "applicant.dob": Provenance.real,
+    "applicant.qualification": Provenance.real,
     "applicant.residence_type": Provenance.mock,
     "applicant.address_line": Provenance.mock,
-    "applicant.marital_status": Provenance.mock,
+    "applicant.marital_status": Provenance.real,
     "applicant.color_band": Provenance.mock,
     "applicant.salary_account_flag": Provenance.derived,
-    "applicant.salary_disb_same": Provenance.placeholder,
+    "applicant.salary_disb_same": Provenance.real,
+    "application.loan_type": Provenance.real,
+    "application.scheme": Provenance.real,
+    "application.sub_scheme": Provenance.real,
     "application.lead_reference": Provenance.placeholder,
     "application.sub_source": Provenance.placeholder,
-    "application.existing_kotak_customer": Provenance.placeholder,
-    "application.purpose_of_loan": Provenance.placeholder,
+    "application.existing_kotak_customer": Provenance.real,
+    "application.purpose_of_loan": Provenance.real,
     "application.dma_name": Provenance.mock,
-    "employment.employer": Provenance.mock,
+    "existing_loans": Provenance.real,
+    "employment.employer": Provenance.real,
     "employment.stability_months": Provenance.mock,
-    "employment.designation": Provenance.mock,
-    "employment.category": Provenance.mock,
+    "employment.designation": Provenance.real,
+    "employment.category": Provenance.real,
+    "employment.total_experience": Provenance.real,
     "employment.years_in_current_company": Provenance.mock,
     "employment.income_band": Provenance.mock,
     "loan.offer_amount": Provenance.derived,
@@ -148,12 +160,15 @@ def build_cam_model(
 
     application = ApplicationSection(
         application_no=cs.get("case_id"),
-        date=meta.generated_at,
+        date=intake.get("application_date") or meta.generated_at,
         channel=meta.channel,
         location=addr.get("city"),
         pincode=addr.get("pincode"),
         loan_amount_req=intake.get("loan_amount_req"),
         tenure_req=intake.get("tenure_req"),
+        loan_type=intake.get("loan_type"),
+        scheme=intake.get("scheme"),
+        sub_scheme=intake.get("sub_scheme"),
         # Sourcing / lead fields are not wired into the pipeline yet (honest None).
         lead_reference=intake.get("lead_reference"),
         sub_source=intake.get("sub_source"),
@@ -169,6 +184,10 @@ def build_cam_model(
     dob = sal_slip.get("dob")
     applicant = ApplicantSection(
         name=sal_slip.get("name"),
+        gender=sal_slip.get("gender"),
+        pan=sal_slip.get("pan"),
+        crn=intake.get("crn"),
+        salary_account_no=intake.get("salary_account_no"),
         dob=dob,
         age=_age_from_dob(dob),
         qualification=sal_slip.get("qualification"),
@@ -187,13 +206,16 @@ def build_cam_model(
         salary_disb_same=intake.get("salary_disb_same"),
     )
 
+    # Total experience is applicant-declared; EPFO tenure (years in current
+    # company) is a separate signal not wired yet — kept distinct, honest blank.
     employment = EmploymentSection(
         employer=intake.get("employer"),
         category=intake.get("employer_category"),
         designation=sal_slip.get("designation"),
         employment_verified=intake.get("employment_verified"),
         stability_months=sal_slip.get("epfo_months"),
-        total_experience=_months_to_experience(sal_slip.get("epfo_months")),
+        total_experience=_months_to_experience(
+            sal_slip.get("total_experience_months") or sal_slip.get("epfo_months")),
         years_in_current_company=_months_to_experience(sal_slip.get("epfo_months")),
         income_band=ml.get("income_band"),
     )
@@ -251,6 +273,14 @@ def build_cam_model(
         fcu_trigger=summary.get("fcu_trigger"),
         max_serviceable_emi=decision.get("max_serviceable_emi"),
     )
+
+    # ---- Section 5: applicant-declared existing loans (BT view) ----
+    existing_loans = [
+        ExistingLoanRow(**{k: l.get(k) for k in (
+            "lender", "loan_type", "sanctioned", "outstanding", "emi",
+            "bt_flag", "status") if l.get(k) is not None})
+        for l in (intake.get("existing_loans") or [])
+    ]
 
     # ---- Section 6: banking feature x month matrix ----
     banking_matrix = _banking_matrix(banking_detail)
@@ -378,6 +408,7 @@ def build_cam_model(
         employment=employment,
         loan=loan,
         financial=financial,
+        existing_loans=existing_loans,
         obligations=bureau_detail,
         banking=banking_detail,
         banking_matrix=banking_matrix,

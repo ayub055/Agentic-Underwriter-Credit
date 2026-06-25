@@ -34,6 +34,9 @@ class ApplicationSection(BaseModel):
     loan_amount_req: Optional[float] = None
     tenure_req: Optional[int] = None
     product: str = "Personal Loan"
+    loan_type: Optional[str] = None         # Fresh | Balance Transfer
+    scheme: Optional[str] = None            # e.g. "Normal Program"
+    sub_scheme: Optional[str] = None        # e.g. "Corp Sal DMA"
     lead_reference: Optional[str] = None
     sub_source: Optional[str] = None
     existing_kotak_customer: Optional[bool] = None
@@ -44,6 +47,10 @@ class ApplicationSection(BaseModel):
 class ApplicantSection(BaseModel):
     # Section 2.1 — Applicant Detail
     name: Optional[str] = None
+    gender: Optional[str] = None
+    pan: Optional[str] = None
+    crn: Optional[str] = None                 # Kotak customer reference no. (ETB)
+    salary_account_no: Optional[str] = None
     dob: Optional[str] = None
     age: Optional[int] = None
     qualification: Optional[str] = None
@@ -72,6 +79,18 @@ class EmploymentSection(BaseModel):
     total_experience: Optional[str] = None
     years_in_current_company: Optional[str] = None
     income_band: Optional[str] = None
+
+
+class ExistingLoanRow(BaseModel):
+    """One applicant-declared live loan (Section 5). bt_flag marks the loan a
+    Balance Transfer is clearing — netted out of proposed FOIR at decision time."""
+    lender: Optional[str] = None
+    loan_type: str = "Personal Loan"
+    sanctioned: Optional[float] = None
+    outstanding: Optional[float] = None
+    emi: Optional[float] = None
+    bt_flag: bool = False
+    status: Optional[str] = None             # "Consider BT" | "Considered"
 
 
 class LoanColumn(BaseModel):
@@ -214,6 +233,8 @@ class CamModel(BaseModel):
     employment: EmploymentSection = Field(default_factory=EmploymentSection)
     loan: LoanSection = Field(default_factory=LoanSection)
     financial: FinancialSection = Field(default_factory=FinancialSection)
+    # Applicant-declared existing loans (Section 5 — BT view, from the form).
+    existing_loans: list[ExistingLoanRow] = Field(default_factory=list)
     # Rich pass-through slices (from cam_data.json); shapes from _cam_detail.py.
     obligations: dict[str, Any] = Field(default_factory=dict)
     banking: dict[str, Any] = Field(default_factory=dict)

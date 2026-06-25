@@ -3,10 +3,20 @@
   "case_id": "PL-2026-8bd9c6",
   "run_id": "483b354f000f4dd5afddbda8bd205bec",
   "intake": {
-    "loan_amount_req": 500000.0,
-    "tenure_req": 12,
-    "declared_income": 60000.0,
-    "employer": "Mock Employer Pvt Ltd",
+    "loan_amount_req": 2500000.0,
+    "tenure_req": 60,
+    "declared_income": 129876.0,
+    "employer": "HCL Technologies Limited",
+    "employer_category": "Public Ltd · IT",
+    "loan_type": "Balance Transfer",
+    "purpose_of_loan": "Other",
+    "scheme": "Normal Program",
+    "sub_scheme": "Corp Sal DMA",
+    "existing_kotak_customer": true,
+    "crn": "273622114",
+    "salary_account_no": "50100127075731",
+    "salary_disb_same": false,
+    "application_date": "2025-05-31",
     "kyc_verified": true,
     "employment_verified": true,
     "consent_captured": true,
@@ -23,7 +33,27 @@
       "ownership": "owned",
       "kyc_address_match": true,
       "digital_footprint": true
-    }
+    },
+    "existing_loans": [
+      {
+        "lender": "HDFC Bank",
+        "loan_type": "Personal Loan",
+        "sanctioned": 2978043.0,
+        "outstanding": 793375.0,
+        "emi": 48214.0,
+        "bt_flag": true,
+        "status": "Consider BT"
+      },
+      {
+        "lender": "Aditya Birla Capital",
+        "loan_type": "Personal Loan",
+        "sanctioned": 500000.0,
+        "outstanding": 243790.0,
+        "emi": 11762.0,
+        "bt_flag": false,
+        "status": "Considered"
+      }
+    ]
   },
   "address": {
     "score": 83.4,
@@ -69,8 +99,8 @@
       "branch": "banking",
       "status": "ok",
       "summary": {
-        "salary_income_detected": 51020.333333333336,
-        "existing_emi_debits": 26434.0,
+        "salary_income_detected": 110347.0,
+        "existing_emi_debits": 59976.0,
         "cashflow_consistency": null,
         "negative_flags": null,
         "affluence_band": "primary",
@@ -460,8 +490,8 @@
     "enq_count": 0,
     "total_exposure": 822679.0,
     "bureau_persona": null,
-    "salary_income_detected": 51020.333333333336,
-    "existing_emi_debits": 26434.0,
+    "salary_income_detected": 110347.0,
+    "existing_emi_debits": 59976.0,
     "bounce_count": 0,
     "affluence_band": "primary",
     "cashflow_consistency": null,
@@ -472,11 +502,11 @@
     "pd_score": 0.0728,
     "pd_provenance": "placeholder",
     "risk_band": 2,
-    "affluence_value": 60000.0,
-    "affluence_segment": "mass_affluent",
-    "income_used": 60000.0,
+    "affluence_value": 129876.0,
+    "affluence_segment": "affluent",
+    "income_used": 129876.0,
     "income_source": "declared",
-    "foir_existing": 0.4406,
+    "foir_existing": 0.4618,
     "policy_features": {
       "address_pd_adjustment": -0.02,
       "address_band": "HIGH"
@@ -484,7 +514,7 @@
   },
   "policy": {
     "result": "APPROVED",
-    "approved_segment": "mass_affluent",
+    "approved_segment": "affluent",
     "decline_layer": null,
     "review_reason": null,
     "layers": [
@@ -528,24 +558,24 @@
         "layer": "L6_EXPOSURE",
         "passed": true,
         "reason_code": "EXPOSURE_HIGH",
-        "detail": "exposure/income=13.711316666666667"
+        "detail": "exposure/income=6.3343"
       }
     ],
     "ai_assisted_flag": false
   },
   "decision": {
     "selected": true,
-    "serviceable": false,
+    "serviceable": true,
     "contactible": true,
-    "foir_proposed": 1.1868,
-    "offer_amount": 500000.0,
-    "offer_tenure": 12,
+    "foir_proposed": 0.3563,
+    "offer_amount": 1500000.0,
+    "offer_tenure": 60,
     "offer_irr": 0.1349,
-    "offer_emi": 44773.66,
-    "processing_fee": 7500.0
+    "offer_emi": 34507.04,
+    "processing_fee": 22500.0
   },
   "finalize": {
-    "decision": "DECLINED",
+    "decision": "APPROVED",
     "audit_pack_path": "/Users/ayyoob/Desktop/Projects/Credit_Journey/journey/output/PL-2026-8bd9c6",
     "push_sent": true,
     "model_versions": {
@@ -560,8 +590,9 @@
       "intake.employment_verified": "mock",
       "intake.consent_captured": "mock",
       "intake.address_verified": "mock",
-      "intake.declared_income": "mock",
-      "intake.loan_amount_req": "mock",
+      "intake.declared_income": "real",
+      "intake.loan_amount_req": "real",
+      "intake.existing_loans": "real",
       "summary.cibil_score": "real",
       "summary.npa_flag": "real",
       "summary.total_exposure": "real",
@@ -589,29 +620,29 @@
   "tele_pd": {
     "status": "completed",
     "officer": "Credit Ops · Tele Verification",
-    "conducted_at": "2026-06-18",
+    "conducted_at": "2025-06-02",
     "ctc_document": "offered",
     "questions": [
       {
         "id": "income",
         "q": "Income & designation (fixed / net / take-home)",
-        "answer": "Fixed ₹60,000 · Net ₹54,000 · Take-home ₹51,000 · Sr. Software Engineer",
+        "answer": "Considered ₹1,29,876 (user entry) · salary credited to HDFC salary a/c · Manager, HCL Technologies",
         "note": "CTC document offered",
-        "tone": "caution"
+        "tone": "ok"
       },
-      { "id": "dependents", "q": "Number of dependents", "answer": "2 (spouse, 1 child)", "tone": "info" },
+      { "id": "dependents", "q": "Number of dependents", "answer": "Married · spouse + 1 dependent", "tone": "info" },
       { "id": "residence", "q": "Residence — owned / rented", "answer": "Owned · 6 yrs at address", "tone": "ok" },
-      { "id": "earners", "q": "Other earning members", "answer": "1 (spouse · ₹35,000 / mo)", "tone": "ok" },
-      { "id": "purpose", "q": "Purpose of loan", "answer": "Home renovation", "tone": "info" },
-      { "id": "vehicle", "q": "Owns car / bike", "answer": "Bike (owned) · no car", "tone": "info" }
+      { "id": "purpose", "q": "Purpose of loan", "answer": "Balance transfer of HDFC PL + top-up (Other)", "tone": "info" },
+      { "id": "bt_confirm", "q": "Confirm loan being transferred", "answer": "HDFC Bank PL · O/s ₹7,93,375 · EMI ₹48,214 — to be closed from disbursal", "tone": "ok" },
+      { "id": "vehicle", "q": "Owns car / bike", "answer": "Not declared", "tone": "info" }
     ],
     "deviation_reasons": [
-      "Declared income ₹60,000 vs banking-detected ₹51,020 — variable allowances credited quarterly",
-      "Proposed EMI ₹44,774 breaches FOIR cap (119% vs 50%) — customer requests longer tenure",
-      "Spouse income ₹35,000 / mo not on application — can be added as co-applicant"
+      "Requested ₹25,00,000 exceeds band-2 system cap ₹15,00,000 — offer capped at ₹15,00,000",
+      "BT clears HDFC PL EMI ₹48,214; proposed FOIR 35.6% within 50% cap after netting",
+      "Perfios credits volatile (₹73,059 → ₹1,59,587) — considered income is user-entry ₹1,29,876, not banking-derived"
     ]
   },
-  "outcome": "DECLINED",
+  "outcome": "APPROVED",
   "stage_status": {
     "intake": "done",
     "layer2": "done",
@@ -628,8 +659,8 @@
     "layer2: bureau.bureau_risk_grade -> None (field absent in report)",
     "layer2: banking.cashflow_consistency -> None (field absent in report)",
     "layer2: banking.negative_flags -> None (field absent in report)",
-    "orchestrator: APPROVED but not serviceable -> DECLINED",
-    "finalize: [mock-push] case PL-2026-8bd9c6 -> DECLINED"
+    "decision: BT nets out ₹48,214 existing EMI (obligation 59,976 -> 11,762)",
+    "finalize: [mock-push] case PL-2026-8bd9c6 -> APPROVED"
   ],
   "hard_fail": null,
   "audit_trace_path": "/Users/ayyoob/Desktop/Projects/Credit_Journey/journey/logs/PL-2026-8bd9c6.jsonl"

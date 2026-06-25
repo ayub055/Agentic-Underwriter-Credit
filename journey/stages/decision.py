@@ -37,8 +37,19 @@ class DecisionStage(Stage):
 
         income = case.ml.income_used
         existing = case.summary.existing_emi_debits or 0.0
+        # Balance Transfer: a loan being transferred is closed out of disbursal,
+        # so its EMI must not co-exist with the new EMI in proposed FOIR. Net out
+        # the EMIs of every applicant-declared loan flagged for BT.
+        bt_offset = sum((l.get("emi") or 0.0)
+                        for l in (case.intake.existing_loans or [])
+                        if l.get("bt_flag"))
+        existing_net = max(existing - bt_offset, 0.0)
+        if bt_offset:
+            case.warnings.append(
+                f"decision: BT nets out ₹{bt_offset:,.0f} existing EMI "
+                f"(obligation {existing:,.0f} -> {existing_net:,.0f})")
         if income and income > 0:
-            d.foir_proposed = round((existing + d.offer_emi) / income, 4)
+            d.foir_proposed = round((existing_net + d.offer_emi) / income, 4)
             d.serviceable = d.foir_proposed <= config.FOIR_CAP
         else:
             d.serviceable = False
