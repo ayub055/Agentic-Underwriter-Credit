@@ -1,7 +1,13 @@
 // Client-side .xlsx export for the Banking and Bureau analysers. Builds a real
 // multi-sheet workbook with SheetJS, one tab per report section, from the data
-// bundled with the captured run. No backend — XLSX.writeFile triggers the
-// browser's save prompt directly.
+// bundled with the captured run. No backend.
+//
+// Two stages, deliberately split so the UI can show a preview before saving:
+//   buildBankingSheets() / buildBureauSheets()  →  { filename, sheets:[{name,aoa}] }
+//   downloadSheets(sheets, filename)            →  XLSX.writeFile save prompt
+// The modal renders the same `sheets` on screen; its Download button calls
+// downloadSheets(). The legacy exportBanking/exportBureau/exportBranch helpers
+// build-and-download in one call for any caller that wants the old behaviour.
 
 import * as XLSX from "xlsx";
 import bankingReport from "../data/realRun/bankingReport.json";
@@ -28,8 +34,8 @@ function autoCols(aoa) {
   return w.map((wch) => ({ wch }));
 }
 
-// sheets = [{ name, aoa }]
-function download(sheets, filename) {
+// sheets = [{ name, aoa }] — assemble the workbook and trigger the save prompt.
+export function downloadSheets(sheets, filename) {
   const wb = XLSX.utils.book_new();
   sheets.forEach(({ name, aoa }) => {
     const ws = XLSX.utils.aoa_to_sheet(aoa);
@@ -42,7 +48,7 @@ function download(sheets, filename) {
 const caseId = caseState.case_id || "case";
 
 // ── Banking: the 9 top-nav sections of the banking report as sheets ──────────
-export function exportBanking() {
+export function buildBankingSheets() {
   const b = bankingReport;
   const m = b.meta || {};
   const sal = b.salary || {};
@@ -167,8 +173,9 @@ export function exportBanking() {
     ...txRows,
   ];
 
-  download(
-    [
+  return {
+    filename: `banking_report_${caseId}.xlsx`,
+    sheets: [
       { name: "Overview", aoa: overview },
       { name: "Risk Checks", aoa: riskChecks },
       { name: "Summary", aoa: summary },
@@ -179,12 +186,11 @@ export function exportBanking() {
       { name: "Top Remitters", aoa: remitters },
       { name: "Transactions", aoa: transactions },
     ],
-    `banking_report_${caseId}.xlsx`
-  );
+  };
 }
 
 // ── Bureau: built from bundled data (CAM obligations + bureau summary) ────────
-export function exportBureau() {
+export function buildBureauSheets() {
   const o = camModel.obligations || {};
   const bs = caseState.branches?.bureau?.summary || {};
 
@@ -235,18 +241,35 @@ export function exportBureau() {
   const narr = (o.narrative || "").match(/.{1,90}(\s|$)/g) || [];
   const narrative = [["Bureau — Narrative"], [], ...narr.map((line) => [line.trim()])];
 
-  download(
-    [
+  return {
+    filename: `bureau_report_${caseId}.xlsx`,
+    sheets: [
       { name: "Summary", aoa: summary },
       { name: "Obligations", aoa: obligations },
       { name: "Totals", aoa: totals },
       { name: "Monthly Exposure", aoa: monthlyExp },
       { name: "Narrative", aoa: narrative },
     ],
-    `bureau_report_${caseId}.xlsx`
-  );
+  };
+}
+
+// Build only — returns { filename, sheets } for the on-screen preview modal.
+export function buildBranchExcel(branchId) {
+  return branchId === "banking" ? buildBankingSheets() : buildBureauSheets();
+}
+
+// Build + download in one call (legacy direct-save behaviour).
+export function exportBanking() {
+  const { sheets, filename } = buildBankingSheets();
+  downloadSheets(sheets, filename);
+}
+
+export function exportBureau() {
+  const { sheets, filename } = buildBureauSheets();
+  downloadSheets(sheets, filename);
 }
 
 export function exportBranch(branchId) {
-  return branchId === "banking" ? exportBanking() : exportBureau();
+  const { sheets, filename } = buildBranchExcel(branchId);
+  downloadSheets(sheets, filename);
 }

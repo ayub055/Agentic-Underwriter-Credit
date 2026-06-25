@@ -17,6 +17,7 @@ import BackendConsole from "./BackendConsole.jsx";
 import ResultsStrip from "./ResultsStrip.jsx";
 import CamReport from "../cam/CamReport.jsx";
 import CamReadyToast from "../cam/CamReadyToast.jsx";
+import ExportCenter from "../components/ExportCenter.jsx";
 
 function clock(i) {
   const total = Math.round(i * 0.4);
@@ -232,6 +233,7 @@ export default function BackendJourney({ onSeeCustomer }) {
           <ResultsStrip meta={META} progress={timeline.length ? cursor / timeline.length : 0} complete={complete} />
 
           {complete && <VerdictCard onSeeCustomer={onSeeCustomer} onOpenCam={() => setCamOpen(true)} />}
+          {complete && <ExportCenter id="export-center" onOpenCam={() => setCamOpen(true)} />}
           {complete && <ScalePanel />}
 
           <div className="grid grid-cols-1 gap-5 lg:grid-cols-5">
@@ -250,7 +252,13 @@ export default function BackendJourney({ onSeeCustomer }) {
       <HintOverlay open={hints && !presenting} onClose={closeHints} />
 
       {complete && !presenting && !camOpen && (
-        <CamReadyToast caseId={META.caseId} onPreview={() => setCamOpen(true)} />
+        <CamReadyToast
+          caseId={META.caseId}
+          onViewExports={() =>
+            document.getElementById("export-center")?.scrollIntoView({ behavior: "smooth", block: "start" })
+          }
+          onPreview={() => setCamOpen(true)}
+        />
       )}
       {camOpen && <CamReport onClose={() => setCamOpen(false)} />}
 
