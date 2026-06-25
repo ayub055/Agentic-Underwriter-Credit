@@ -7,11 +7,15 @@ import { formatINR, formatEMI, formatPct, emDash } from "../lib/format.js";
 import caseState from "../data/realRun/caseState.json";
 import trace from "../data/realRun/trace.json";
 import { AGENT_NARRATIVES } from "../data/realRun/agentNarratives.js";
+import { BANKING_REPORT as BKR, BUREAU_REPORT as BUR } from "../lib/reportExtract.js";
 
 const cs = caseState;
 const prov = cs.finalize?.provenance_map ?? {};
 const num = (v) => (v === null || v === undefined ? emDash : v);
 const bool = (v) => (v === null || v === undefined ? emDash : v ? "TRUE" : "FALSE");
+// Extracted-from-report value (keeps the report's own grouping) → "₹110,346",
+// or null so callers fall back to the captured caseState value.
+const inrStr = (s) => (s ? `₹${s}` : null);
 
 function elapsed(branch) {
   const rec = trace.find((t) => t.kind === "branch" && t.branch === branch);
@@ -129,12 +133,14 @@ export const PHASES = [
           { actor: "agent:bureau_analyzer", action: "generate_combined_report_pdf", detail: "BureauReport + PDF · Ollama narrative", tone: "agent" },
         ],
         narrative: AGENT_NARRATIVES.bureau,
+        // Values prefer the live figure parsed from bureau_agent_report.html,
+        // falling back to the captured caseState summary when absent.
         data: [
-          line("cibil_score", num(rs.cibil_score), "ok", "summary.cibil_score"),
+          line("cibil_score", BUR.cibil ?? num(rs.cibil_score), "ok", "summary.cibil_score"),
           line("npa_flag", bool(rs.npa_flag), "ok", "summary.npa_flag"),
-          line("total_exposure", formatINR(rs.total_exposure), "caution", "summary.total_exposure"),
+          line("total_exposure", inrStr(BUR.totalOutstanding) ?? formatINR(rs.total_exposure), "caution", "summary.total_exposure"),
           line("max_dpd_overall", num(rs.max_dpd_overall), "ok", "summary.max_dpd_overall"),
-          line("enq_count", num(rs.enq_count), "ok", "summary.enq_count"),
+          line("enq_count", BUR.enquiries12m ?? num(rs.enq_count), "ok", "summary.enq_count"),
         ],
       },
       {
@@ -150,9 +156,11 @@ export const PHASES = [
           { actor: "agent:banking_analyzer", action: "generate_bank_report", detail: "CustomerReport + HTML · Ollama narrative", tone: "agent" },
         ],
         narrative: AGENT_NARRATIVES.banking,
+        // Salary / EMI prefer the live figure parsed from banking_agent_report.html
+        // (same numbers the Agent narrative cites), falling back to caseState.
         data: [
-          line("salary_income_detected", `${formatINR(bs.salary_income_detected)} / mo`, "ok", "summary.salary_income_detected"),
-          line("existing_emi_debits", `${formatINR(bs.existing_emi_debits)} / mo`, "caution", "summary.existing_emi_debits"),
+          line("salary_income_detected", `${inrStr(BKR.salaryPerMonth) ?? formatINR(bs.salary_income_detected)} / mo`, "ok", "summary.salary_income_detected"),
+          line("existing_emi_debits", `${inrStr(BKR.emiPerPayment) ?? formatINR(bs.existing_emi_debits)} / mo`, "caution", "summary.existing_emi_debits"),
           line("affluence_band", `"${bs.affluence_band ?? emDash}"`, "ok", "summary.affluence_band"),
           line("spend_category", `"${bs.spend_category ?? emDash}"`, "info"),
           line("bounce_count", num(bs.bounce_count), "ok", "summary.bounce_count"),
