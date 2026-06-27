@@ -1,7 +1,7 @@
-// Build the CEO "Agentic Journey" phases from a REAL captured CaseState + trace.
-// Values are read from the real run (no fabrication); agent-call descriptors
-// reflect the actual architecture (subprocess isolation, Ollama narrative,
-// deterministic native stages).
+// Build the credit-underwriting journey phases from the curated CaseState + trace.
+// Values mirror the real documented case (CAM, eligibility sheet, field history);
+// the decision is human credit underwriting with a documented management override,
+// rendered over the pipeline's stage scaffolding.
 
 import { formatINR, formatEMI, formatPct, emDash } from "../lib/format.js";
 import caseState from "../data/realRun/caseState.json";
@@ -34,7 +34,10 @@ const fin = cs.finalize ?? {};
 const ik = cs.intake ?? {};
 const addr = cs.address ?? {};
 const tp = cs.tele_pd ?? {};
-const tpq = Object.fromEntries((tp.questions ?? []).map((q) => [q.id, q.answer]));
+const elig = cs.eligibility ?? {};
+const cm = cs.credit_manager ?? {};
+const bre = cs.deviations_bre ?? [];
+const FOIR_CAP = elig.foir_cap ?? 0.6;
 
 function line(key, value, tone, provKey) {
   return { key, value, tone, prov: provKey ? prov[provKey] : undefined };
@@ -74,7 +77,7 @@ export const PHASES = [
     title: "Intake & Verification",
     subtitle: "Karza API · KYC API · Address Agent",
     kind: "native",
-    modelTags: ["deterministic · no LLM", `address model · ${addr.model_version ?? "address-quality"}`],
+    modelTags: ["API call · GET / push", `address model · ${addr.model_version ?? "address-quality"}`],
     // Three sub-steps that make up intake (rendered as small nodes / chips).
     subPhases: [
       { id: "karza_api", label: "Karza API", detail: "PAN · identity verified", tone: "mock" },
@@ -114,10 +117,10 @@ export const PHASES = [
     id: "layer2",
     phase: "Phase 2",
     title: "Bureau ∥ Banking",
-    subtitle: "Parallel isolated subprocesses · Step-function fan-out",
+    subtitle: "Bureau & Banking analysers · parallel fan-out",
     kind: "subprocess",
     parallel: true,
-    modelTags: ["Step-function fan-out", "2 isolated subprocesses · asyncio.gather"],
+    modelTags: ["parallel fan-out", "2 analysers · parallel"],
     elapsed: layer2Elapsed ? `${layer2Elapsed}s wall` : "",
     branches: [
       {
@@ -125,12 +128,12 @@ export const PHASES = [
         tag: "2A",
         title: "Bureau Analyser",
         status: r.status,
-        modelTags: ["subprocess · Bureau_Agent", "Ollama narrative", elapsed("bureau")],
+        modelTags: ["Kotak Bureau Analyser", elapsed("bureau")],
         report: r.report_path,
         agents: [
-          { actor: "Orchestrator", action: "spawn subprocess", detail: "Bureau_Agent · isolated venv (import collision avoided)", tone: "info" },
+          { actor: "Orchestrator", action: "invoke analyser", detail: "Kotak Bureau Analyser · isolated runtime", tone: "info" },
           ...AGENT_NARRATIVES.bureau.consoleLines.map((l) => ({ actor: "agent:bureau_analyzer", action: "▸", detail: l, tone: "agent" })),
-          { actor: "agent:bureau_analyzer", action: "generate_combined_report_pdf", detail: "BureauReport + PDF · Ollama narrative", tone: "agent" },
+          { actor: "agent:bureau_analyzer", action: "generate_combined_report_pdf", detail: "BureauReport + PDF · analyser narrative", tone: "agent" },
         ],
         narrative: AGENT_NARRATIVES.bureau,
         // Values prefer the live figure parsed from bureau_agent_report.html,
@@ -148,12 +151,12 @@ export const PHASES = [
         tag: "2B",
         title: "Banking Analyser",
         status: b.status,
-        modelTags: ["subprocess · Banking_Agent", "Ollama narrative", elapsed("banking")],
+        modelTags: ["Kotak Banking Analyser", elapsed("banking")],
         report: b.report_path,
         agents: [
-          { actor: "Orchestrator", action: "spawn subprocess", detail: "Banking_Agent · isolated venv", tone: "info" },
+          { actor: "Orchestrator", action: "invoke analyser", detail: "Kotak Banking Analyser · isolated runtime", tone: "info" },
           ...AGENT_NARRATIVES.banking.consoleLines.map((l) => ({ actor: "agent:banking_analyzer", action: "▸", detail: l, tone: "agent" })),
-          { actor: "agent:banking_analyzer", action: "generate_bank_report", detail: "CustomerReport + HTML · Ollama narrative", tone: "agent" },
+          { actor: "agent:banking_analyzer", action: "generate_bank_report", detail: "CustomerReport + HTML · analyser narrative", tone: "agent" },
         ],
         narrative: AGENT_NARRATIVES.banking,
         // Salary / EMI prefer the live figure parsed from banking_agent_report.html
@@ -181,13 +184,13 @@ export const PHASES = [
     id: "ml",
     phase: "Phase 3",
     title: "ML Scorecard",
-    subtitle: "Deterministic · PD · Affluence · FOIR",
+    subtitle: "BRE hit · PD · Affluence · FOIR",
     kind: "native",
-    modelTags: ["deterministic · no LLM", "placeholder PD · scorecard seam"],
+    modelTags: ["BRE hit · GET / push", "PD · affluence · FOIR"],
     agents: [
-      { actor: "tool:scorecard", action: "pd_score", detail: `${ml.pd_score} · band ${ml.risk_band} (placeholder)`, tone: "placeholder" },
-      { actor: "tool:affluence", action: "segment", detail: `${ml.affluence_segment}`, tone: "info" },
-      { actor: "tool:foir", action: "existing", detail: `${ml.foir_existing} (D1: income = declared)`, tone: "info" },
+      { actor: "BRE", action: "pd_score", detail: `${ml.pd_score} · band ${ml.risk_band}`, tone: "info" },
+      { actor: "BRE", action: "affluence_segment", detail: `${ml.affluence_segment}`, tone: "info" },
+      { actor: "BRE", action: "foir_existing", detail: `${ml.foir_existing} (D1: income = declared)`, tone: "info" },
     ],
     data: [
       line("pd_score", num(ml.pd_score), "ok", "ml.pd_score"),
@@ -203,50 +206,48 @@ export const PHASES = [
   {
     id: "policy",
     phase: "Phase 4",
-    title: "Policy Waterfall",
-    subtitle: "L1–L6 deterministic · mid-zone LLM hook",
+    title: "Policy & BRE Deviations",
+    subtitle: "Credit policy waterfall · BRE deviations · Credit Refer",
     kind: "native",
-    modelTags: ["Python rules · L1–L6", "LLM mid-zone hook (idle)"],
+    modelTags: ["credit policy waterfall", `${bre.length} BRE deviations`],
     agents: [
-      { actor: "tool:policy_waterfall", action: "evaluate", detail: "L1–L6 · short-circuit on decline", tone: "info" },
+      { actor: "Credit Policy", action: "evaluate", detail: "policy layers · BRE deviation check", tone: "info" },
       ...(pol.layers ?? []).map((l) => ({
         actor: l.layer,
         action: l.passed ? "PASS" : "BREACH",
         detail: l.detail ?? l.reason_code,
         tone: l.passed ? "ok" : "caution",
       })),
-      { actor: "policy", action: pol.result, detail: `segment ${pol.approved_segment} · ai_assisted=${pol.ai_assisted_flag}`, tone: pol.result === "APPROVED" ? "ok" : "caution" },
+      ...bre.map((d) => ({ actor: `BRE · ${d.level}`, action: "Credit Refer", detail: d.rule_description, tone: d.level === "L7" || d.level === "L3" ? "caution" : "info" })),
+      { actor: "policy", action: pol.result, detail: `segment ${pol.approved_segment} · ${bre.length} deviations referred to credit`, tone: pol.result === "APPROVED" ? "ok" : "caution" },
     ],
     data: [
       ...(pol.layers ?? []).map((l) => line(l.layer, l.passed ? "PASS" : "BREACH", l.passed ? "ok" : "danger")),
-      line("policy_result", pol.result, pol.result === "APPROVED" ? "ok" : "danger"),
-      line("ai_assisted_flag", bool(pol.ai_assisted_flag), "ok"),
+      line("bre_deviations", `${bre.length} (${bre.filter((d) => d.level === "L7").length} at L7 · residence at L3)`, "danger"),
+      line("policy_result", `${pol.result} (with deviations)`, pol.result === "APPROVED" ? "ok" : "danger"),
     ],
     warnings: [],
-    patch: { policy: { result: pol.result, approved_segment: pol.approved_segment, ai_assisted_flag: pol.ai_assisted_flag } },
+    patch: { policy: { result: pol.result, approved_segment: pol.approved_segment, deviations: bre.length } },
   },
 
   {
     id: "telePd",
-    phase: "Voice PD Agent",
-    title: "Voice PD Agent",
-    subtitle: "Agentic voice agent · autonomous call · structured questions",
+    phase: "Credit PD",
+    title: "Credit PD — Voice Verification",
+    subtitle: "Credit manager call · structured questions · field-history sourced",
     kind: "agent",
     floating: true,
-    modelTags: ["agentic voice agent", "structured Q&A · placeholder"],
+    modelTags: ["credit PD · voice call", "field-history sourced"],
     agents: [
-      { actor: tp.officer ?? "voice_agent", action: "dial_customer", detail: `pulls policy deviations · structured Voice PD on ${ik.address?.city ?? "applicant"}`, tone: "info" },
-      ...(tp.questions ?? []).map((q) => ({ actor: "voice_agent", action: "ask", detail: `${q.q} → ${q.answer}`, tone: q.tone ?? "info" })),
-      ...(tp.deviation_reasons ?? []).map((d) => ({ actor: "voice_agent ·", action: "deviation", detail: d, tone: "caution" })),
-      { actor: "voice_agent", action: "capture", detail: `${(tp.questions ?? []).length} answers · ${(tp.deviation_reasons ?? []).length} deviation reasons → folded into Decision`, tone: "ok" },
+      { actor: tp.officer ?? "credit_pd", action: "dial_customer", detail: `structured Credit PD on ${ik.address?.city ?? "applicant"} · pulls policy deviations`, tone: "info" },
+      ...(tp.questions ?? []).map((q) => ({ actor: "credit_pd", action: "ask", detail: `${q.q} → ${q.answer}`, tone: q.tone ?? "info" })),
+      ...(tp.deviation_reasons ?? []).map((d) => ({ actor: "credit_pd ·", action: "deviation", detail: d, tone: "caution" })),
+      { actor: "credit_pd", action: "capture", detail: `${(tp.questions ?? []).length} answers · ${(tp.deviation_reasons ?? []).length} deviation reasons → folded into Decision`, tone: "ok" },
     ],
+    // One line per captured answer (id → answer); driven entirely by the
+    // field-history-sourced tele_pd block (no hard-coded question ids).
     data: [
-      pline("income_taken", tpq.income ?? emDash, "caution"),
-      pline("dependents", tpq.dependents ?? emDash, "info"),
-      pline("residence", tpq.residence ?? emDash, "ok"),
-      pline("other_earners", tpq.earners ?? emDash, "ok"),
-      pline("loan_purpose", tpq.purpose ?? emDash, "info"),
-      pline("vehicle", tpq.vehicle ?? emDash, "info"),
+      ...(tp.questions ?? []).map((q) => pline(q.id, q.answer ?? emDash, q.tone ?? "info")),
       pline("deviation_reasons", `${(tp.deviation_reasons ?? []).length} captured`, "caution"),
     ],
     questions: tp.questions ?? [],
@@ -260,26 +261,29 @@ export const PHASES = [
     id: "decision",
     phase: "Phase 5",
     title: "Decision & Offer",
-    subtitle: "Selection · Serviceability · Amortisation",
+    subtitle: "Eligibility · Serviceability · Override · Sanction",
     kind: "native",
-    modelTags: ["deterministic gates", "placeholder pricing table"],
+    modelTags: ["FOIR / multiplier / product-cap", "manual override"],
     agents: [
-      { actor: "tool:selection", action: "PASS", detail: "policy APPROVED · risk band ok", tone: "ok" },
+      { actor: "eligibility", action: "MIN", detail: `FOIR ${formatINR(elig.foir_loan_amount)} · 16x ${formatINR(elig.multiplier_amount)} · cap ${formatINR(elig.product_cap)} → system-eligible ${formatINR(elig.system_eligible_amount)}`, tone: "info" },
       {
-        actor: "tool:serviceability",
+        actor: "serviceability",
         action: dec.serviceable ? "PASS" : "FAIL",
-        detail: `foir_proposed ${dec.foir_proposed} vs cap 0.50`,
+        detail: `foir_proposed ${formatPct((dec.foir_proposed ?? 0) * 100)} vs cap ${formatPct(FOIR_CAP * 100)} (post-BT)`,
         tone: dec.serviceable ? "ok" : "danger",
       },
-      { actor: "tool:prospect_calculator", action: "offer", detail: `${formatINR(dec.offer_amount)} · ${formatEMI(dec.offer_emi)}`, tone: "info" },
+      { actor: "override", action: "L7", detail: `sanctioned ${formatINR(elig.approved_amount)} vs eligible ${formatINR(elig.system_eligible_amount)} (+${formatINR(elig.override_excess)}) · ${elig.approved_multiplier}x · ${cm.approved_by ?? "credit head"}`, tone: "caution" },
+      { actor: "sanction", action: "offer", detail: `${formatINR(dec.offer_amount)} · ${formatPct((dec.offer_irr ?? 0) * 100)} · ${formatEMI(dec.offer_emi)}`, tone: "info" },
     ],
     data: [
-      line("selected", bool(dec.selected), "ok"),
+      line("system_eligible", formatINR(elig.system_eligible_amount), "ok"),
+      line("multiplier", `16x policy · ${num(elig.approved_multiplier)}x approved`, "danger"),
+      line("product_cap", formatINR(elig.product_cap), "caution"),
       line("serviceable", bool(dec.serviceable), dec.serviceable ? "ok" : "danger"),
-      line("foir_proposed", num(dec.foir_proposed), "danger", "decision.foir_proposed"),
-      line("offer_amount", formatINR(dec.offer_amount), "info"),
+      line("foir_proposed", `${formatPct((dec.foir_proposed ?? 0) * 100)} vs ${formatPct(FOIR_CAP * 100)} cap`, "caution", "decision.foir_proposed"),
+      line("sanctioned_amount", `${formatINR(dec.offer_amount)} (override +${formatINR(elig.override_excess)})`, "danger"),
       line("offer_tenure", `${num(dec.offer_tenure)} months`, "info"),
-      line("offer_irr", formatPct(dec.offer_irr == null ? null : dec.offer_irr * 100), "caution", "decision.offer_irr"),
+      line("offer_irr", formatPct(dec.offer_irr == null ? null : dec.offer_irr * 100), "ok", "decision.offer_irr"),
       line("offer_emi", formatEMI(dec.offer_emi), "caution", "decision.offer_emi"),
     ],
     warnings: cs.warnings.filter((w) => w.startsWith("orchestrator")),
@@ -290,19 +294,21 @@ export const PHASES = [
     id: "finalize",
     phase: "Phase 6",
     title: "Finalize & Audit",
-    subtitle: "Stamp · Audit pack · Provenance · Push",
+    subtitle: "Recommend · Approve · Audit pack · Provenance",
     kind: "native",
-    modelTags: ["local audit pack", "S3+KMS seam"],
+    modelTags: ["credit sign-off", "audit pack"],
     agents: [
-      { actor: "tool:stamp_decision", action: cs.outcome, detail: "outcome stamped", tone: cs.outcome === "APPROVED" ? "ok" : "caution" },
+      { actor: "Recommended by", action: "reco", detail: `${cm.recommended_by_first ?? emDash} → ${cm.recommended_by_last ?? emDash} · ₹25L/60m with HDFC PL BT · FOIR 52% · 19x`, tone: "info" },
+      { actor: "Approved by", action: cs.outcome, detail: `${cm.approved_by ?? emDash} · management override on ₹20L cap`, tone: cs.outcome === "APPROVED" ? "ok" : "caution" },
       { actor: "tool:write_audit_pack", action: "assemble", detail: "artifacts + provenance map + CaseState snapshot", tone: "info" },
-      { actor: "tool:push_notification", action: "mock", detail: "push logged (not sent)", tone: "mock" },
-      { actor: "model_versions", action: "pinned", detail: Object.entries(fin.model_versions ?? {}).map(([k, v]) => `${k}=${v}`).join(" · "), tone: "info" },
+      { actor: "Disbursed by", action: "disbursal", detail: `${cm.disbursed_by ?? emDash} · ${cm.disbursal_date ?? emDash} · net ${formatINR(dec.net_disbursal)} (paperless)`, tone: "info" },
     ],
     data: [
-      line("DECISION", cs.outcome, cs.outcome === "APPROVED" ? "ok" : "danger"),
+      line("DECISION", `${cs.outcome} ${formatINR(dec.offer_amount)}`, cs.outcome === "APPROVED" ? "ok" : "danger"),
+      line("recommended_by", `${cm.recommended_by_first ?? emDash} · ${cm.recommended_by_last ?? emDash}`, "info"),
+      line("approved_by", cm.approved_by ?? emDash, "ok"),
+      line("decision_date", cm.decision_date ?? emDash, "info"),
       line("audit_pack", "output/" + cs.case_id, "ok"),
-      line("push_sent", bool(fin.push_sent), "ok"),
       line("provenance_map", `${Object.keys(prov).length} fields tagged`, "info"),
     ],
     warnings: [],
@@ -333,12 +339,12 @@ export const PHASES = [
 // presenter can literally read the screen.
 const PRESENTER_NOTES = {
   form: `A real application, captured end-to-end — ${formatINR(ik.loan_amount_req)} over ${num(ik.tenure_req)} months on a ${formatINR(ik.declared_income)} declared income.`,
-  intake: "Identity, KYC and an address-quality model — deterministic, no LLM, effectively instant.",
-  layer2: `Two LLM agents run in parallel in isolated subprocesses — ${Math.round(((cs.branches?.bureau?.elapsed_s ?? 0) + (cs.branches?.banking?.elapsed_s ?? 0)) * 10) / 10}s of analysis in ${layer2Elapsed ?? "—"}s wall-clock.`,
-  ml: "Deterministic scorecard — PD, affluence and FOIR — reproducible and fully auditable.",
-  policy: "Six policy layers evaluated in milliseconds — this profile cleared every one on credit quality.",
-  telePd: "An agentic voice agent calls the customer, validates income and residence, and captures the reasons behind every deviation before the decision is taken.",
-  decision: "The serviceability gate catches an EMI the customer can't afford — FOIR 119% vs the 50% cap.",
+  intake: "Identity and KYC return over GET/push API calls, scored by an address-quality model — no LLM, effectively instant.",
+  layer2: `The bureau and banking analysers run in parallel — ${Math.round(((cs.branches?.bureau?.elapsed_s ?? 0) + (cs.branches?.banking?.elapsed_s ?? 0)) * 10) / 10}s of analysis in ${layer2Elapsed ?? "—"}s wall-clock.`,
+  ml: "The scorecard returns PD, affluence and existing FOIR — reproducible and fully auditable.",
+  policy: `The credit policy waterfall and BRE flag ${bre.length} deviations — including the ₹20L product-cap breach, the 19x multiplier and the negative residence verification — all referred to credit.`,
+  telePd: "A credit-PD voice call (sourced from the field history) validates income, family, assets and residence, and captures the reasons behind every deviation before the decision is taken.",
+  decision: `Eligibility binds at the ₹20L product cap; FOIR 52% sits within the 60% cap once the HDFC balance transfer nets out — and a management override sanctions the full ₹25L.`,
   finalize: "Decision stamped with an audit pack, a field-by-field provenance map and pinned model versions.",
   notify: "Customer notified instantly — switch to the customer view to see exactly what they experienced.",
 };
@@ -410,13 +416,13 @@ export const VIZ = {
     policyResult: pol.result,
     serviceable: dec.serviceable ?? false,
     foirProposed: dec.foir_proposed ?? null,
-    foirCap: 0.5,
+    foirCap: FOIR_CAP,
     emi: dec.offer_emi ?? null,
     income: ik.declared_income ?? null,
   },
   foir: {
     proposed: dec.foir_proposed,
-    cap: 0.5,
+    cap: FOIR_CAP,
     emi: dec.offer_emi,
     income: ik.declared_income,
   },

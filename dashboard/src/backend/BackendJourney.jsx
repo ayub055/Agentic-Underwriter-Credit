@@ -178,7 +178,7 @@ export default function BackendJourney({ onSeeCustomer }) {
                 <span className="absolute h-full w-full rounded-full bg-primary-500 motion-safe:animate-ping" />
                 <span className="relative h-2.5 w-2.5 rounded-full bg-primary-600" />
               </span>
-              Agentic Underwriting · Live Journey
+              Credit Underwriting · Live Journey
             </h1>
             <p className="text-sm text-slate-500">
               Real pipeline run · case <span className="font-medium tabular-nums text-ink">{META.caseId}</span> ·

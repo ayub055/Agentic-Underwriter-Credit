@@ -9,7 +9,7 @@ import BrandMark from "./components/BrandMark.jsx";
 import ThemeSwitch from "./components/ThemeSwitch.jsx";
 
 const VIEWS = [
-  { key: "backend", label: "Backend · Agentic Journey", icon: Workflow },
+  { key: "backend", label: "Backend · Credit Journey", icon: Workflow },
   { key: "customer", label: "Customer · Journey", icon: UserRound },
   { key: "cockpit", label: "Single-page Demo", icon: MonitorPlay },
   { key: "flow", label: "Flow Demo", icon: Share2 },

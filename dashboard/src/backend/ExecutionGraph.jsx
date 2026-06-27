@@ -34,15 +34,15 @@ const sec = (s) => (s == null ? "" : `${Math.round(s * 10) / 10}s`);
 // phase: index into PHASES/statuses that drives this node's state.
 const NODES = [
   { id: "form", phase: 0, x: 40, y: 110, icon: FileText, tag: "P0", label: "Application", labelPos: "below" },
-  { id: "intake", phase: 1, x: 148, y: 110, icon: Inbox, tag: "P1", label: "Intake & Verification", labelPos: "above" },
-  { id: "bureau", phase: 2, x: 308, y: 56, icon: BarChart3, tag: "2A", label: "Bureau Agent", sub: sec(VIZ.branches[0].elapsed), llm: true, labelPos: "above" },
-  { id: "banking", phase: 2, x: 308, y: 196, icon: Wallet, tag: "2B", label: "Banking Agent", sub: sec(VIZ.branches[1].elapsed), llm: true, labelPos: "below" },
+  { id: "intake", phase: 1, x: 148, y: 110, icon: Inbox, tag: "P1", typeTag: "API · GET/PUSH", label: "Intake & Verification", labelPos: "above" },
+  { id: "bureau", phase: 2, x: 308, y: 56, icon: BarChart3, tag: "2A", typeTag: "KOTAK LLM", label: "Bureau Agent", sub: sec(VIZ.branches[0].elapsed), llm: true, labelPos: "above" },
+  { id: "banking", phase: 2, x: 308, y: 196, icon: Wallet, tag: "2B", typeTag: "KOTAK LLM", label: "Banking Agent", sub: sec(VIZ.branches[1].elapsed), llm: true, labelPos: "below" },
   { id: "gate", phase: 2, x: 462, y: 126, icon: GitMerge, tag: "Σ", label: "Fold · Gate", labelPos: "below", small: true },
-  { id: "ml", phase: 3, x: 584, y: 126, icon: Cpu, tag: "P3", label: "ML Scorecard", labelPos: "below" },
-  { id: "policy", phase: 4, x: 700, y: 126, icon: Scale, tag: "P4", label: "Policy L1–L6", labelPos: "above" },
+  { id: "ml", phase: 3, x: 584, y: 126, icon: Cpu, tag: "P3", typeTag: "BRE · GET/PUSH", label: "ML Scorecard", labelPos: "below" },
+  { id: "policy", phase: 4, x: 700, y: 126, icon: Scale, tag: "P4", typeTag: "KOTAK POLICY", label: "Policy L1–L6", labelPos: "above" },
   // Agentic voice-agent node, dropped BELOW the spine between Policy and Decision,
   // wired by the two arcs below (pulls from Policy, feeds Decision).
-  { id: "telePd", phase: 5, x: 753, y: 200, icon: Phone, tag: "PD", label: "Voice PD Agent", labelPos: "below", voice: true },
+  { id: "telePd", phase: 5, x: 753, y: 200, icon: Phone, tag: "PD", typeTag: "KOTAK VOICE LLM", label: "Voice PD Agent", labelPos: "below", voice: true },
   { id: "decision", phase: 6, x: 806, y: 126, icon: Calculator, tag: "P5", label: "Decision", labelPos: "above" },
   { id: "finalize", phase: 7, x: 894, y: 126, icon: Stamp, tag: "P6", label: "Finalize", labelPos: "below" },
   { id: "notify", phase: 8, x: 966, y: 126, icon: BellRing, tag: "P7", label: "Notify", labelPos: "below", small: true },
@@ -153,7 +153,7 @@ function Node({ node, status, selected, onSelect }) {
         )}
         {node.voice && (
           <span className="absolute -bottom-1.5 -right-4 rounded border border-agent-200 bg-agent-50 px-1 text-[8px] font-bold tracking-wide text-agent-700">
-            AI VOICE
+            CREDIT PD
           </span>
         )}
       </span>
@@ -165,6 +165,11 @@ function Node({ node, status, selected, onSelect }) {
         <span className="block text-[9px] font-bold uppercase tracking-widest text-slate-400">
           {node.tag}
         </span>
+        {node.typeTag && (
+          <span className="block text-[8px] font-bold uppercase leading-tight tracking-wide text-primary-600">
+            {node.typeTag}
+          </span>
+        )}
         <span
           className={`block text-[11px] font-medium ${
             selected ? "font-semibold text-ink" : done || running ? "text-ink" : "text-slate-400"
@@ -253,6 +258,9 @@ function StackNode({ node, status, selected, onSelect }) {
             <span className="rounded border border-agent-200 bg-agent-50 px-1 text-[9px] font-bold tracking-wide text-agent-700">LLM</span>
           )}
         </span>
+        {node.typeTag && (
+          <span className="block text-[10px] font-bold uppercase tracking-wide text-primary-600">{node.typeTag}</span>
+        )}
         <span className={`block text-title-sm ${done || running || selected ? "text-ink" : "text-slate-500"}`}>{node.label}</span>
         {node.sub && <span className="block text-micro tabular-nums text-slate-400">{node.sub}</span>}
         {node.subPhases && (
@@ -288,7 +296,7 @@ function StackedGraph({ statuses, selected, onSelect }) {
       {row("intake")}
       <li className="rounded-xl border border-caution-200/70 bg-caution-50/30 p-2">
         <div className="mb-1.5 px-1 text-micro font-bold uppercase tracking-widest text-caution-700">
-          ∥ Parallel · isolated subprocesses
+          ∥ Parallel · Bureau & Banking Analysers
         </div>
         <div className="grid gap-2 sm:grid-cols-2">
           {row("bureau")}
@@ -300,7 +308,7 @@ function StackedGraph({ statuses, selected, onSelect }) {
       {row("policy")}
       <li className="rounded-xl border border-agent-200/70 bg-agent-50/30 p-2">
         <div className="mb-1.5 px-1 text-micro font-bold uppercase tracking-widest text-agent-600">
-          ◷ Agentic voice agent · pulls policy deviations → feeds decision
+          ◷ Credit PD voice call · pulls policy deviations → feeds decision
         </div>
         {row("telePd")}
       </li>

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { AlertTriangle, Boxes, FileText, Phone } from "lucide-react";
+import { AlertTriangle, Boxes, Cpu, FileText, Phone } from "lucide-react";
 import { StatusPill, ModelTags, DataLine, BranchCard } from "./parts.jsx";
 import { agentTone } from "../lib/tones.js";
 import PhaseViz from "./PhaseViz.jsx";
@@ -51,7 +51,7 @@ function TelePdQA({ phase }) {
 
       <div className="flex flex-wrap items-center gap-3 text-[11px] text-slate-500">
         <span className="inline-flex items-center gap-1">
-          <Phone className="h-3 w-3 text-agent-600" /> Structured Voice PD · agentic voice agent
+          <Phone className="h-3 w-3 text-agent-600" /> Structured Voice PD · Kotak Internal Agentic LLM
         </span>
         {phase.ctcDocument && (
           <span className="inline-flex items-center gap-1">
@@ -123,10 +123,14 @@ export default function PhaseDetail({ phase, status }) {
             {phase.kind === "subprocess" ? <Boxes className="h-5 w-5" /> : phase.phase.split(" ")[1]}
           </div>
           <div>
-            <div className="flex items-center gap-2">
-              <span className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">
-                {phase.phase}
-              </span>
+            {phase.modelTags?.[0] && (
+              <div className="mb-0.5 inline-flex items-center gap-1 text-[11px] font-bold uppercase tracking-wide text-primary-700">
+                <Cpu className="h-3.5 w-3.5" /> {phase.modelTags[0]}
+              </div>
+            )}
+            <div className="text-base font-semibold text-ink">{phase.title}</div>
+            <div className="mt-0.5 flex flex-wrap items-center gap-2 text-xs text-slate-500">
+              <span className="font-semibold uppercase tracking-wide text-slate-400">{phase.phase}</span>
               {phase.parallel && (
                 <span className="rounded border border-caution-200 bg-caution-50 px-1.5 py-px text-[10px] font-semibold text-caution-700">
                   ∥ PARALLEL
@@ -135,9 +139,8 @@ export default function PhaseDetail({ phase, status }) {
               <span className="rounded border border-slate-200 px-1.5 py-px text-[10px] font-medium text-slate-500">
                 {phase.kind}
               </span>
+              <span>· {phase.subtitle}</span>
             </div>
-            <div className="text-base font-semibold text-ink">{phase.title}</div>
-            <div className="text-xs text-slate-500">{phase.subtitle}</div>
           </div>
         </div>
         <div className="flex flex-col items-end gap-1">
@@ -147,7 +150,7 @@ export default function PhaseDetail({ phase, status }) {
       </div>
 
       <div className="mt-4 space-y-4">
-        <ModelTags tags={phase.modelTags} />
+        <ModelTags tags={phase.modelTags?.slice(1)} />
 
         <PhaseViz phaseId={phase.id} status={status} />
 

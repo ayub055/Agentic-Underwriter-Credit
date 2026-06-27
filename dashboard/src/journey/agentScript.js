@@ -118,7 +118,7 @@ export function buildScript(view) {
         [
           "Affordability (FOIR)",
           view.affordability?.foirProposed != null
-            ? `${Math.round(view.affordability.foirProposed * 100)}% of income vs 50% cap`
+            ? `${Math.round(view.affordability.foirProposed * 100)}% of income vs 60% cap`
             : null,
         ],
         ["Proposed EMI", view.offer?.emi != null ? `${formatINR(Math.round(view.offer.emi))} / mo` : null],
@@ -134,7 +134,7 @@ export function buildScript(view) {
 
   return {
     moments,
-    greeting: `Hi — I'm your Kotak AI underwriting agent. I've finished working on your ${amountTxt} application${tenureTxt}. Let me walk you through what I did.`,
+    greeting: `Hi — I'm from the Kotak credit underwriting desk. I've finished working on your ${amountTxt} application${tenureTxt}. Let me walk you through what I did.`,
     reveal: REVEAL[view.status](view),
   };
 }

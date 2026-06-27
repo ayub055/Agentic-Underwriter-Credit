@@ -26,7 +26,7 @@ export default function Narrator({ text, thinking = false, nextAction = null }) 
       <AgentAvatar thinking={thinking} />
       <div className="min-w-0 flex-1 pt-0.5">
         <div className="text-micro font-semibold uppercase tracking-widest text-agent-600">
-          Kotak AI · Underwriting Agent
+          Kotak Credit · Underwriting Desk
         </div>
         <p aria-live="polite" className="mt-1.5 text-[15px] leading-relaxed text-ink sm:text-base">
           {typed.text}

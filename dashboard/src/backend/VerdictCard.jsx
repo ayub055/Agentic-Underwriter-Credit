@@ -25,8 +25,8 @@ function Side({ pass, title, headline, detail }) {
 }
 
 // The decision as a balance: credit quality vs affordability. The beam settles
-// toward the side that failed — the run's whole tension (clean credit, failed
-// FOIR) read in one glance. Balanced when both pass.
+// toward the side that failed; balanced when both pass — as in this case, where
+// the file clears on both, with the residence breach carried as a deviation.
 function VerdictScale({ creditPass, affordPass }) {
   const reduce = prefersReducedMotion();
   const [grown, setGrown] = useState(reduce);
@@ -68,7 +68,8 @@ function VerdictScale({ creditPass, affordPass }) {
 }
 
 // The run's verdict, split into its two truths: credit quality vs affordability.
-// For the captured run that tension IS the story — clean credit, unaffordable EMI.
+// This case clears both — ₹25L approved at FOIR 52% (post-BT) under a documented
+// management override — with the negative residence verification flagged as a deviation.
 export default function VerdictCard({ onSeeCustomer, onOpenCam }) {
   const v = VIZ.verdict;
   const creditPass = v.policyResult === "APPROVED";

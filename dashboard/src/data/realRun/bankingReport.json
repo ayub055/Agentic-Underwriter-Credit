@@ -1,846 +1,212 @@
 {
   "account_quality": {
-    "account_type": "primary",
-    "atm_debit_pct": 0.0,
-    "avg_monthly_debits": 8.8,
+    "account_type": "salary",
+    "confidence": "high",
+    "primary_score": 88,
     "conduit_events": [],
     "conduit_months": 0,
-    "confidence": "medium",
+    "salary_outflow_pct_3d": 0.0,
+    "atm_debit_pct": 0.0,
+    "avg_monthly_debits": 12.0,
     "has_emi_debits": true,
+    "has_utility_debits": true,
     "has_rent_visible": false,
-    "has_small_ticket_txns": false,
-    "has_utility_debits": false,
+    "has_small_ticket_txns": true,
+    "average_quarterly_balance": 53036.22,
+    "aob_emi_ratio": 1.09,
+    "inward_bounces": 0,
+    "outward_bounces": 0,
     "observations": [
-      "Account appears primary: EMI payments visible with avg 9 debit transactions/month."
-    ],
-    "primary_score": 65,
-    "salary_outflow_pct_3d": 0.0
+      "HDFC salary account (a/c 50100127075731) — salary ≈ ₹1,29,876 credited monthly.",
+      "Average quarterly balance ₹53,036 · AOB/EMI 1.09 · zero inward & outward bounces."
+    ]
   },
   "bills": null,
   "category_overview": {
-    "Finance": 44284.0,
-    "P2P": 545.0,
-    "Self_Transfer": 420345.0
+    "EMI / Loan servicing": 59976.0,
+    "Household & utilities": 38500.0
   },
   "checklist": {
     "banking": [
       {
-        "checked": false,
-        "detail": null,
-        "label": "ATM withdrawals elevated",
-        "severity": "neutral"
-      },
-      {
-        "checked": false,
-        "detail": null,
-        "label": "Big debits after salary credit (\u226540% within 3d)",
-        "severity": "neutral"
-      },
-      {
-        "checked": false,
-        "detail": null,
-        "label": "Circular entry (mirror credit/debit)",
-        "severity": "positive"
-      },
-      {
-        "checked": false,
-        "detail": null,
-        "label": "Credit card bill payments",
-        "severity": "neutral"
-      },
-      {
-        "checked": false,
-        "detail": null,
         "label": "ECS / NACH bounces",
-        "severity": "neutral"
-      },
-      {
         "checked": false,
-        "detail": null,
-        "label": "Land purchase payments",
-        "severity": "neutral"
+        "severity": "positive",
+        "detail": "0 inward · 0 outward bounces"
       },
       {
-        "checked": false,
-        "detail": null,
-        "label": "Loan disbursement detected",
-        "severity": "neutral"
-      },
-      {
-        "checked": false,
-        "detail": null,
-        "label": "Payment mode distribution shift",
-        "severity": "neutral"
-      },
-      {
-        "checked": false,
-        "detail": null,
-        "label": "Post-disbursement fund diversion",
-        "severity": "neutral"
-      },
-      {
-        "checked": false,
-        "detail": null,
-        "label": "Rent payments present",
-        "severity": "neutral"
-      },
-      {
-        "checked": true,
-        "detail": "2 counterparties on both sides \u2014 top: EMI EV (\u20b95,000 in / \u20b95,000 out)",
-        "label": "Counterparties on both credit & debit",
-        "severity": "medium"
-      },
-      {
-        "checked": true,
-        "detail": "4 new: REKHA KANSAL, SALIM AMIN ATTA, Arti Dipak Salu",
-        "label": "Emerging merchants detected",
-        "severity": "medium"
-      },
-      {
-        "checked": true,
-        "detail": "8 total (8 debits, 0 credits)",
-        "label": "Automated (NACH/mandate) transactions",
-        "severity": "neutral"
-      },
-      {
-        "checked": true,
-        "detail": "Ongoing (6 months): NACH mandate / SPLN EMI debit \u2014 avg \u20b95,536/month (NACH-10-DR-PLA5150547202-3BPAN9NJ1HT2QB)",
-        "label": "NACH mandate EMI detected",
-        "severity": "medium"
-      },
-      {
-        "checked": true,
-        "detail": "Salary Feb 2026: \u20b952,161 (credit); PATELKISHANKUMA: \u20b950,000 (debit); PATELKISHANKUMA: \u20b950,000 (debit); PATELKISHANKUMA: \u20b938,000 (debit)",
-        "label": "Transactions above 95th percentile",
-        "severity": "medium"
-      },
-      {
-        "checked": true,
-        "detail": "\u20b926,434 total across 5 lender(s)",
-        "label": "EMI obligations present",
-        "severity": "medium"
-      },
-      {
-        "checked": true,
-        "detail": "\u20b951,020 avg (6 transactions)",
         "label": "Salary detected in banking",
-        "severity": "positive"
+        "checked": true,
+        "severity": "positive",
+        "detail": "₹1,29,876 avg · HCL Technologies (4 credits, Feb–May 2025)"
+      },
+      {
+        "label": "Salary account confirmed",
+        "checked": true,
+        "severity": "positive",
+        "detail": "HDFC a/c 50100127075731 · salary == disbursement account: No"
+      },
+      {
+        "label": "Average quarterly balance",
+        "checked": true,
+        "severity": "positive",
+        "detail": "₹53,036 · AOB/EMI ratio 1.09"
+      },
+      {
+        "label": "EMI obligations present",
+        "checked": true,
+        "severity": "medium",
+        "detail": "₹59,976/mo across 2 lenders (HDFC PL ₹48,214 → BT · Aditya Birla ₹11,762)"
+      },
+      {
+        "label": "Loan being balance-transferred",
+        "checked": true,
+        "severity": "medium",
+        "detail": "HDFC PL O/s ₹7,93,375 · EMI ₹48,214 closed from disbursal"
+      },
+      {
+        "label": "Post-disbursement fund diversion",
+        "checked": false,
+        "severity": "neutral",
+        "detail": null
+      },
+      {
+        "label": "Rent payments present",
+        "checked": false,
+        "severity": "neutral",
+        "detail": "Residence rented (with family)"
       }
     ]
   },
   "emis": [
     {
-      "amount": 1500.0,
+      "name": "HDFC Bank PL (BT)",
+      "amount": 48214.0,
+      "frequency": 4,
       "dates": [
-        "2025-10-30"
+        "2025-02-05",
+        "2025-05-05"
       ],
-      "frequency": 1,
-      "name": "PATELKISHANKUMA",
       "sample_transaction": {
-        "amount": 1500.0,
-        "date": "2025-10-30",
+        "date": "2025-05-05",
+        "amount": 48214.0,
         "direction": "D",
-        "name": "PATELKISHANKUMA",
-        "narration": "UPI/PATELKISHANKUMA/530377550886/EMI for persona"
+        "name": "HDFC Bank PL",
+        "narration": "ACH/HDFC PL EMI (BT)"
       }
     },
     {
-      "amount": 15080.0,
+      "name": "Aditya Birla PL",
+      "amount": 11762.0,
+      "frequency": 4,
       "dates": [
-        "2025-09-05",
-        "2025-10-05"
+        "2025-02-07",
+        "2025-05-07"
       ],
-      "frequency": 2,
-      "name": "LM00849846",
       "sample_transaction": {
-        "amount": 15833.0,
-        "date": "2025-09-05",
+        "date": "2025-05-07",
+        "amount": 11762.0,
         "direction": "D",
-        "name": "LM00849846",
-        "narration": "NACH-10-DR-LM00849846-RGN92PN3QPHDJB"
-      }
-    },
-    {
-      "amount": 2354.0,
-      "dates": [
-        "2025-09-05",
-        "2025-10-05",
-        "2025-11-05",
-        "2025-12-05",
-        "2026-01-05",
-        "2026-02-05"
-      ],
-      "frequency": 6,
-      "name": "PLA5150547202",
-      "sample_transaction": {
-        "amount": 2354.0,
-        "date": "2025-09-05",
-        "direction": "D",
-        "name": "PLA5150547202",
-        "narration": "NACH-10-DR-PLA5150547202-1HZ2Q8GDUVFKNE"
-      }
-    },
-    {
-      "amount": 2500.0,
-      "dates": [
-        "2026-02-01"
-      ],
-      "frequency": 1,
-      "name": "EMI VEHICLE",
-      "sample_transaction": {
-        "amount": 2500.0,
-        "date": "2026-02-01",
-        "direction": "D",
-        "name": "EMI VEHICLE",
-        "narration": "MB:SENT MONEY TO OWN 2411726562/EMI VEHICLE"
-      }
-    },
-    {
-      "amount": 5000.0,
-      "dates": [
-        "2025-10-31"
-      ],
-      "frequency": 1,
-      "name": "EMI EV",
-      "sample_transaction": {
-        "amount": 5000.0,
-        "date": "2025-10-31",
-        "direction": "D",
-        "name": "EMI EV",
-        "narration": "MB:SENT MONEY TO OWN 2411726562/EMI EV"
+        "name": "Aditya Birla Capital",
+        "narration": "NACH/ABFL PL EMI"
       }
     }
   ],
   "events": [
     {
-      "amount": 3000.0,
-      "date": "2025-10-30",
-      "description": "Ongoing (2 months): EMI payment debit \u2014 avg \u20b93,000/month (MB:SENT MONEY TO OWN 2411726562/EMI VEHICLE)",
-      "month_label": "Ongoing (2 months)",
-      "significance": "medium",
-      "type": "emi_debit"
+      "date": "2025-03-31",
+      "amount": 200000.0,
+      "description": "Salary credit (variable) ₹2,00,000 — credits volatile month to month"
     },
     {
-      "amount": 51111.0,
-      "date": "2026-01-30",
-      "description": "Jan 2026: \u20b951,111 received (salary/employer credit) \u2014 \u20b962,545 (122%) spent within 3 days (5 debits: \u20b962,545 self-transfer)",
-      "month_label": "Jan 2026",
-      "significance": "high",
-      "type": "credit_spend_dependency"
-    },
-    {
-      "amount": 52161.0,
-      "date": "2026-02-27",
-      "description": "Feb 2026: \u20b952,161 received (salary/employer credit) \u2014 \u20b939,500 (76%) spent within 3 days (2 debits: \u20b939,500 self-transfer)",
-      "month_label": "Feb 2026",
-      "significance": "medium",
-      "type": "credit_spend_dependency"
-    },
-    {
-      "amount": 5535.5,
-      "date": "2025-09-05",
-      "description": "Ongoing (6 months): NACH mandate / SPLN EMI debit \u2014 avg \u20b95,536/month (NACH-10-DR-PLA5150547202-3BPAN9NJ1HT2QB)",
-      "month_label": "Ongoing (6 months)",
-      "significance": "medium",
-      "type": "mandate_emi"
+      "date": "2025-05-31",
+      "amount": 159587.0,
+      "description": "Salary credit (variable) ₹1,59,587"
     }
   ],
-  "merchant_features": {
-    "amount_stats": [
-      {
-        "avg_amount": 150.0,
-        "direction": "D",
-        "max_amount": 150.0,
-        "median_amount": 150.0,
-        "merchant": "REKHA KANSAL",
-        "total_amount": 150.0
-      },
-      {
-        "avg_amount": 15080.0,
-        "direction": "D",
-        "max_amount": 15833.0,
-        "median_amount": 15080.0,
-        "merchant": "LM00849846",
-        "total_amount": 30160.0
-      },
-      {
-        "avg_amount": 2354.0,
-        "direction": "D",
-        "max_amount": 2354.0,
-        "median_amount": 2354.0,
-        "merchant": "PLA5150547202",
-        "total_amount": 14124.0
-      },
-      {
-        "avg_amount": 25.0,
-        "direction": "D",
-        "max_amount": 25.0,
-        "median_amount": 25.0,
-        "merchant": "ANIL BABAN SALU",
-        "total_amount": 25.0
-      },
-      {
-        "avg_amount": 25.0,
-        "direction": "D",
-        "max_amount": 25.0,
-        "median_amount": 25.0,
-        "merchant": "RIYAZ SALIM PAT",
-        "total_amount": 25.0
-      },
-      {
-        "avg_amount": 45.0,
-        "direction": "D",
-        "max_amount": 45.0,
-        "median_amount": 45.0,
-        "merchant": "Arti Dipak Salu",
-        "total_amount": 45.0
-      },
-      {
-        "avg_amount": 50.0,
-        "direction": "D",
-        "max_amount": 50.0,
-        "median_amount": 50.0,
-        "merchant": "BHOSALE RAJU TA",
-        "total_amount": 200.0
-      },
-      {
-        "avg_amount": 50.0,
-        "direction": "D",
-        "max_amount": 50.0,
-        "median_amount": 50.0,
-        "merchant": "SALIM AMIN ATTA",
-        "total_amount": 100.0
-      },
-      {
-        "avg_amount": 50792.2,
-        "direction": "C",
-        "max_amount": 51111.0,
-        "median_amount": 51111.0,
-        "merchant": "Salary Oct 2025",
-        "total_amount": 253961.0
-      }
-    ],
-    "amount_trends": [
-      {
-        "direction": "C",
-        "first_half_avg": 50314.0,
-        "merchant": "Salary Oct 2025",
-        "second_half_avg": 51111.0,
-        "trend": "stable"
-      },
-      {
-        "direction": "D",
-        "first_half_avg": 15833.0,
-        "merchant": "LM00849846",
-        "second_half_avg": 14327.0,
-        "trend": "stable"
-      },
-      {
-        "direction": "D",
-        "first_half_avg": 2354.0,
-        "merchant": "PLA5150547202",
-        "second_half_avg": 2354.0,
-        "trend": "stable"
-      },
-      {
-        "direction": "D",
-        "first_half_avg": 50.0,
-        "merchant": "BHOSALE RAJU TA",
-        "second_half_avg": 50.0,
-        "trend": "stable"
-      }
-    ],
-    "anomaly_merchants": [],
-    "bidirectional_merchants": [],
-    "concentration": {
-      "hhi": 5519.3,
-      "top_1_pct": 67.3,
-      "top_3_pct": 99.2,
-      "total_merchants": 8
-    },
-    "distinct_months": [
-      {
-        "direction": "C",
-        "distinct_months": 5,
-        "merchant": "Salary Oct 2025",
-        "months": [
-          "2025-09",
-          "2025-10",
-          "2025-11",
-          "2025-12",
-          "2026-01"
-        ]
-      },
-      {
-        "direction": "D",
-        "distinct_months": 1,
-        "merchant": "ANIL BABAN SALU",
-        "months": [
-          "2025-09"
-        ]
-      },
-      {
-        "direction": "D",
-        "distinct_months": 1,
-        "merchant": "Arti Dipak Salu",
-        "months": [
-          "2025-12"
-        ]
-      },
-      {
-        "direction": "D",
-        "distinct_months": 1,
-        "merchant": "REKHA KANSAL",
-        "months": [
-          "2025-12"
-        ]
-      },
-      {
-        "direction": "D",
-        "distinct_months": 1,
-        "merchant": "RIYAZ SALIM PAT",
-        "months": [
-          "2025-12"
-        ]
-      },
-      {
-        "direction": "D",
-        "distinct_months": 1,
-        "merchant": "SALIM AMIN ATTA",
-        "months": [
-          "2026-02"
-        ]
-      },
-      {
-        "direction": "D",
-        "distinct_months": 2,
-        "merchant": "LM00849846",
-        "months": [
-          "2025-09",
-          "2025-10"
-        ]
-      },
-      {
-        "direction": "D",
-        "distinct_months": 4,
-        "merchant": "BHOSALE RAJU TA",
-        "months": [
-          "2025-09",
-          "2025-10",
-          "2025-11",
-          "2025-12"
-        ]
-      },
-      {
-        "direction": "D",
-        "distinct_months": 6,
-        "merchant": "PLA5150547202",
-        "months": [
-          "2025-09",
-          "2025-10",
-          "2025-11",
-          "2025-12",
-          "2026-01",
-          "2026-02"
-        ]
-      }
-    ],
-    "emerging_merchants": {
-      "emerging_merchants": [
-        {
-          "count": 1,
-          "name": "Arti Dipak Salu",
-          "total_amount": 45.0
-        },
-        {
-          "count": 1,
-          "name": "REKHA KANSAL",
-          "total_amount": 150.0
-        },
-        {
-          "count": 1,
-          "name": "RIYAZ SALIM PAT",
-          "total_amount": 25.0
-        },
-        {
-          "count": 2,
-          "name": "SALIM AMIN ATTA",
-          "total_amount": 100.0
-        }
-      ],
-      "prior_window": "2025-09 to 2025-11",
-      "recent_window": "2025-12 to 2026-02"
-    },
-    "favourite_merchants_ipt": {
-      "credit": [
-        {
-          "avg_ipt_days": 30.5,
-          "count": 5,
-          "max_ipt_days": 33,
-          "merchant": "Salary Oct 2025",
-          "min_ipt_days": 28,
-          "total_amount": 253961.0
-        }
-      ],
-      "debit": [
-        {
-          "avg_ipt_days": 30.0,
-          "count": 2,
-          "max_ipt_days": 30,
-          "merchant": "LM00849846",
-          "min_ipt_days": 30,
-          "total_amount": 30160.0
-        },
-        {
-          "avg_ipt_days": 30.6,
-          "count": 6,
-          "max_ipt_days": 31,
-          "merchant": "PLA5150547202",
-          "min_ipt_days": 30,
-          "total_amount": 14124.0
-        }
-      ]
-    },
-    "monthly_counts": [
-      {
-        "direction": "C",
-        "merchant": "Salary Oct 2025",
-        "monthly_counts": {
-          "2025-09": 1,
-          "2025-10": 1,
-          "2025-11": 1,
-          "2025-12": 1,
-          "2026-01": 1
-        },
-        "total_count": 5
-      },
-      {
-        "direction": "D",
-        "merchant": "ANIL BABAN SALU",
-        "monthly_counts": {
-          "2025-09": 1
-        },
-        "total_count": 1
-      },
-      {
-        "direction": "D",
-        "merchant": "Arti Dipak Salu",
-        "monthly_counts": {
-          "2025-12": 1
-        },
-        "total_count": 1
-      },
-      {
-        "direction": "D",
-        "merchant": "BHOSALE RAJU TA",
-        "monthly_counts": {
-          "2025-09": 1,
-          "2025-10": 1,
-          "2025-11": 1,
-          "2025-12": 1
-        },
-        "total_count": 4
-      },
-      {
-        "direction": "D",
-        "merchant": "LM00849846",
-        "monthly_counts": {
-          "2025-09": 1,
-          "2025-10": 1
-        },
-        "total_count": 2
-      },
-      {
-        "direction": "D",
-        "merchant": "PLA5150547202",
-        "monthly_counts": {
-          "2025-09": 1,
-          "2025-10": 1,
-          "2025-11": 1,
-          "2025-12": 1,
-          "2026-01": 1,
-          "2026-02": 1
-        },
-        "total_count": 6
-      },
-      {
-        "direction": "D",
-        "merchant": "REKHA KANSAL",
-        "monthly_counts": {
-          "2025-12": 1
-        },
-        "total_count": 1
-      },
-      {
-        "direction": "D",
-        "merchant": "RIYAZ SALIM PAT",
-        "monthly_counts": {
-          "2025-12": 1
-        },
-        "total_count": 1
-      },
-      {
-        "direction": "D",
-        "merchant": "SALIM AMIN ATTA",
-        "monthly_counts": {
-          "2026-02": 2
-        },
-        "total_count": 2
-      }
-    ],
-    "new_merchant_ratio": {
-      "new_merchant_count": 1,
-      "new_merchants": [
-        {
-          "amount": 100.0,
-          "name": "SALIM AMIN ATTA"
-        }
-      ],
-      "ratio": 0.12,
-      "total_merchant_count": 8
-    },
-    "regular_merchants": [
-      {
-        "avg_amount": 15080.0,
-        "direction": "D",
-        "distinct_months": 2,
-        "is_regular": true,
-        "merchant": "LM00849846"
-      },
-      {
-        "avg_amount": 2354.0,
-        "direction": "D",
-        "distinct_months": 6,
-        "is_regular": true,
-        "merchant": "PLA5150547202"
-      },
-      {
-        "avg_amount": 50.0,
-        "direction": "D",
-        "distinct_months": 4,
-        "is_regular": true,
-        "merchant": "BHOSALE RAJU TA"
-      },
-      {
-        "avg_amount": 50792.2,
-        "direction": "C",
-        "distinct_months": 5,
-        "is_regular": true,
-        "merchant": "Salary Oct 2025"
-      }
-    ],
-    "round_amount_merchants": [],
-    "significant_merchants": [
-      {
-        "credit_amount": 0,
-        "credit_pct": 0.0,
-        "debit_amount": 14124.0,
-        "debit_pct": 0.3151,
-        "merchant": "PLA5150547202"
-      },
-      {
-        "credit_amount": 0,
-        "credit_pct": 0.0,
-        "debit_amount": 30160.0,
-        "debit_pct": 0.6728,
-        "merchant": "LM00849846"
-      },
-      {
-        "credit_amount": 253961.0,
-        "credit_pct": 1.0,
-        "debit_amount": 0,
-        "debit_pct": 0.0,
-        "merchant": "Salary Oct 2025"
-      }
-    ]
-  },
+  "merchant_features": null,
   "meta": {
-    "analysis_period": "Last 6 months",
+    "analysis_period": "Feb–May 2025",
     "currency": "INR",
     "customer_id": 698167220,
-    "prty_name": "ASHISH JANKIRAM PATIL",
-    "transaction_count": 61
+    "prty_name": "SOFI MOHD",
+    "transaction_count": 124
   },
   "monthly_cashflow": [
     {
-      "inflow": 50314.0,
-      "month": "2025-09",
-      "net": 22052.0,
-      "outflow": 28262.0
+      "month": "2025-02",
+      "inflow": 132018.0,
+      "outflow": 118044.0,
+      "net": 13974.0
     },
     {
-      "inflow": 51111.0,
-      "month": "2025-11",
-      "net": -39993.0,
-      "outflow": 91104.0
+      "month": "2025-03",
+      "inflow": 130410.0,
+      "outflow": 121043.0,
+      "net": 9367.0
     },
     {
-      "inflow": 51111.0,
-      "month": "2025-12",
-      "net": -23513.0,
-      "outflow": 74624.0
+      "month": "2025-04",
+      "inflow": 158220.0,
+      "outflow": 119400.0,
+      "net": 38820.0
     },
     {
-      "inflow": 51111.0,
-      "month": "2026-01",
-      "net": -51588.0,
-      "outflow": 102699.0
-    },
-    {
-      "inflow": 54661.0,
-      "month": "2026-02",
-      "net": -60593.0,
-      "outflow": 115254.0
-    },
-    {
-      "inflow": 55314.0,
-      "month": "2025-10",
-      "net": 2083.0,
-      "outflow": 53231.0
+      "month": "2025-05",
+      "inflow": 131500.0,
+      "outflow": 124350.0,
+      "net": 7150.0
     }
   ],
   "rent": null,
   "risk_indicators": null,
   "salary": {
-    "avg_amount": 51020.333333333336,
+    "avg_amount": 129876.0,
+    "frequency": 4,
+    "narration": "Salary HCL Technologies",
     "dates": [
-      "2025-09-30",
-      "2025-10-31",
-      "2025-11-28",
-      "2025-12-31",
-      "2026-01-30",
-      "2026-02-27"
+      "2025-02-28",
+      "2025-03-31",
+      "2025-04-30",
+      "2025-05-31"
     ],
-    "frequency": 6,
     "latest_transaction": {
-      "amount": 52161.0,
-      "date": "2026-02-27",
-      "narration": "Salary Feb 2026"
+      "date": "2025-05-31",
+      "amount": 129876.0,
+      "narration": "Salary May 2025 · HCL Technologies"
     },
-    "narration": "Salary Oct 2025",
     "sample_transaction": {
-      "amount": 51020.333333333336,
-      "total": 306122.0
+      "date": "2025-05-31",
+      "amount": 129876.0,
+      "direction": "C",
+      "narration": "NEFT HCL TECHNOLOGIES SALARY"
     }
   },
   "savings": null,
   "top_merchants": [
     {
-      "avg": 12900.0,
-      "count": 32,
-      "name": "PATELKISHANKUMA",
-      "score": 31.767426873007533,
-      "similar_narrations": [
-        "UPI/PATELKISHANKUMA/016790818521/Payment to 1832",
-        "UPI/PATELKISHANKUMA/075772316807/Payment to 9160",
-        "UPI/PATELKISHANKUMA/133933075271/Payment to 9160",
-        "UPI/PATELKISHANKUMA/142578716217/Payment to 1832",
-        "UPI/PATELKISHANKUMA/151160398856/Payment to 0314",
-        "UPI/PATELKISHANKUMA/187641828228/Payment to 9160",
-        "UPI/PATELKISHANKUMA/326222279307/Payment to 0314",
-        "UPI/PATELKISHANKUMA/348410951234/Payment to 9160",
-        "UPI/PATELKISHANKUMA/371766555096/Payment to 9160",
-        "UPI/PATELKISHANKUMA/395477175998/Payment to 0314",
-        "UPI/PATELKISHANKUMA/399104698091/Payment to 9160",
-        "UPI/PATELKISHANKUMA/415932697382/Payment to 1832",
-        "UPI/PATELKISHANKUMA/504626392313/Payment to 9160",
-        "UPI/PATELKISHANKUMA/524520164265/Payment to 9160",
-        "UPI/PATELKISHANKUMA/528246946073/Payment to 9160",
-        "UPI/PATELKISHANKUMA/529895608613/Payment to 9160",
-        "UPI/PATELKISHANKUMA/530377550886/EMI for persona",
-        "UPI/PATELKISHANKUMA/530504058032/Payment to 5010",
-        "UPI/PATELKISHANKUMA/530504227932/Payment to 1832",
-        "UPI/PATELKISHANKUMA/562423096667/Payment to 9160",
-        "UPI/PATELKISHANKUMA/642400268940/Payment to 1832",
-        "UPI/PATELKISHANKUMA/646726101319/Payment to 9160",
-        "UPI/PATELKISHANKUMA/670597730799/Payment to 5010",
-        "UPI/PATELKISHANKUMA/739258977202/Payment to 9160",
-        "UPI/PATELKISHANKUMA/743870319627/Payment to 0314",
-        "UPI/PATELKISHANKUMA/787717436978/Payment to 1832",
-        "UPI/PATELKISHANKUMA/791632810632/Payment to 9160",
-        "UPI/PATELKISHANKUMA/802435756957/Payment to 1832",
-        "UPI/PATELKISHANKUMA/839389888373/Payment to 9160",
-        "UPI/PATELKISHANKUMA/875061462972/Payment to 0314",
-        "UPI/PATELKISHANKUMA/949932209203/Payment to 1832",
-        "UPI/PATELKISHANKUMA/997062735830/Payment to 9160"
-      ],
-      "total": 412800.0,
-      "type": "D"
-    },
-    {
-      "avg": 15080.0,
-      "count": 2,
-      "name": "LM00849846",
-      "score": 6.334892912675484,
-      "similar_narrations": [
-        "NACH-10-DR-LM00849846-BZ2NSYCKLJ6SKA",
-        "NACH-10-DR-LM00849846-RGN92PN3QPHDJB"
-      ],
-      "total": 30160.0,
-      "type": "D"
-    },
-    {
-      "avg": 2354.0,
-      "count": 6,
-      "name": "PLA5150547202",
-      "score": 10.165354156844463,
-      "similar_narrations": [
-        "NACH-10-DR-PLA5150547202-1HZ2Q8GDUVFKNE",
-        "NACH-10-DR-PLA5150547202-3BPAN9NJ1HT2QB",
-        "NACH-10-DR-PLA5150547202-AFEQBL7COCSCYE",
-        "NACH-10-DR-PLA5150547202-J1I7MU1T37BW7S",
-        "NACH-10-DR-PLA5150547202-KFAF1X77QL69T5",
-        "NACH-10-DR-PLA5150547202-NHKM451WHD88IX"
-      ],
-      "total": 14124.0,
-      "type": "D"
-    },
-    {
-      "avg": 2500.0,
-      "count": 1,
-      "name": "EMI VEHICLE",
-      "score": 3.3981136917305026,
-      "similar_narrations": [
-        "MB:RECEIVED MONEY FROM OWN 2411690870/EMI VEHICLE"
-      ],
-      "total": 2500.0,
-      "type": "C"
-    },
-    {
-      "avg": 50.0,
+      "name": "HCL Technologies (salary)",
+      "type": "credit",
       "count": 4,
-      "name": "BHOSALE RAJU TA",
-      "score": 4.606392114840978,
-      "similar_narrations": [
-        "UPI/BHOSALE RAJU TA/389987579150/Sent using Payt",
-        "UPI/BHOSALE RAJU TA/529061057068/Sent using Payt",
-        "UPI/BHOSALE RAJU TA/531032301026/Sent using Payt",
-        "UPI/BHOSALE RAJU TA/535117442379/Sent using Payt"
-      ],
-      "total": 200.0,
-      "type": "D"
+      "total": 519504.0,
+      "avg": 129876.0,
+      "score": 1.0
     },
     {
-      "avg": 5000.0,
-      "count": 1,
-      "name": "EMI EV",
-      "score": 3.699056854547668,
-      "similar_narrations": [
-        "MB:RECEIVED MONEY FROM OWN 2411690870/EMI EV"
-      ],
-      "total": 5000.0,
-      "type": "C"
+      "name": "HDFC Bank PL EMI",
+      "type": "debit",
+      "count": 4,
+      "total": 192856.0,
+      "avg": 48214.0,
+      "score": 0.9
     },
     {
-      "avg": 5000.0,
-      "count": 1,
-      "name": "EMI EV",
-      "score": 3.699056854547668,
-      "similar_narrations": [
-        "MB:SENT MONEY TO OWN 2411726562/EMI EV"
-      ],
-      "total": 5000.0,
-      "type": "D"
+      "name": "Aditya Birla PL EMI",
+      "type": "debit",
+      "count": 4,
+      "total": 47048.0,
+      "avg": 11762.0,
+      "score": 0.8
     }
   ]
 }

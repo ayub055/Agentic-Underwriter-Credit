@@ -3,12 +3,12 @@
   "name": "SOFI MOHD",
   "gender": "Male",
   "pan": "CWCPS5955G",
-  "dob": "1990-11-03",
+  "dob": "1990-01-15",
   "marital_status": "Married",
   "qualification": "Graduate",
   "designation": "Manager",
   "total_experience_months": 120,
-  "epfo_months": null,
+  "epfo_months": 12,
   "sal_gross": null,
   "sal_net": null
 }

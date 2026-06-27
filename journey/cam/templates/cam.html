@@ -348,11 +348,12 @@ tfoot td{font-weight:800;border-top:2px solid var(--line)}
   <section>
     <div class="s-head"><div class="s-num">8</div><div class="s-title">Deviation</div>
       <span class="s-note">Policy: {{ m.deviations.policy_result or '—' }} · Serviceable: {{ m.deviations.serviceable|yn }}</span></div>
-    {% if m.deviations.rows %}
+    {% set _devs = m.deviations.bre if m.deviations.bre else m.deviations.rows %}
+    {% if _devs %}
     <table>
       <thead><tr><th>Deviation Type</th><th>Applicant Type</th><th>Rule Description</th><th>Credit Approval Level</th><th>System Decision</th></tr></thead>
       <tbody>
-      {% for d in m.deviations.rows %}
+      {% for d in _devs %}
         <tr>
           <td>{{ d.deviation_type or '—' }}</td>
           <td style="text-align:left">{{ d.applicant_type or '—' }}</td>
@@ -395,6 +396,15 @@ tfoot td{font-weight:800;border-top:2px solid var(--line)}
       {{ kv('Rejection Reason', m.loan_amount.rejection_reason or '—', 'loan_amount.rejection_reason') }}
       {{ kv('Reject Date & Time', m.loan_amount.reject_datetime or '—') }}
     </div>
+    {% if m.eligibility %}
+    <div class="kv" style="margin-top:8px">
+      {{ kv('System-eligible (MIN)', m.eligibility.system_eligible_amount|inr) }}
+      {{ kv('Multiplier', '16x policy · ' ~ (m.eligibility.approved_multiplier|num) ~ 'x approved') }}
+      {{ kv('Product Cap', m.eligibility.product_cap|inr) }}
+      {{ kv('Sanctioned (override)', (m.eligibility.approved_amount|inr) ~ ' (+' ~ (m.eligibility.override_excess|inr) ~ ')') }}
+    </div>
+    {% if m.eligibility.override_reason %}<div class="note">{{ m.eligibility.override_reason }}</div>{% endif %}
+    {% endif %}
   </section>
 
   <!-- 11. CREDIT MANAGER -->
@@ -402,8 +412,10 @@ tfoot td{font-weight:800;border-top:2px solid var(--line)}
     <div class="s-head"><div class="s-num">11</div><div class="s-title">Credit Manager Details</div></div>
     <div class="kv">
       {{ kv('Decisioned by', m.credit_manager.decisioned_by) }}
-      {{ kv('AI assisted', m.credit_manager.ai_assisted|yn) }}
+      {{ kv('Recommended by (1st → last)', (m.credit_manager.recommended_by_first or '—') ~ ' → ' ~ (m.credit_manager.recommended_by_last or '—')) }}
+      {{ kv('Approved by', m.credit_manager.approved_by or '—', 'credit_manager.approved_by') }}
       {{ kv('Decision date', m.credit_manager.decision_date or '—', 'credit_manager.decision_date') }}
+      {{ kv('Disbursed by', (m.credit_manager.disbursed_by or '—') ~ (' · ' ~ m.credit_manager.disbursal_date if m.credit_manager.disbursal_date else '')) }}
       {{ kv('Remarks', m.credit_manager.remarks or '—', 'credit_manager.remarks') }}
     </div>
     {% if m.credit_manager.model_versions %}

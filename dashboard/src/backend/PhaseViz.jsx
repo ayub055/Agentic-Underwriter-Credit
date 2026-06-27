@@ -113,7 +113,7 @@ function ParallelBars() {
         ))}
       </div>
       <p className="mt-2 text-[11px] leading-relaxed text-slate-500">
-        Both agents ran simultaneously in isolated subprocesses —{" "}
+        Both analysers ran simultaneously in parallel —{" "}
         <span className="font-semibold text-primary-700">~{Math.round((sum - wall) * 10) / 10}s saved</span>{" "}
         versus running them one after another.
       </p>

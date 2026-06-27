@@ -172,12 +172,19 @@ export function BranchCard({ branch, status = "done" }) {
   const done = status === "done";
   return (
     <div className="rounded-xl border border-slate-200 bg-slate-50/50 p-4">
-      <div className="mb-2 flex items-center justify-between">
+      <div className="mb-2 flex items-start justify-between">
         <div className="flex items-center gap-2">
-          <span className="flex h-6 w-6 items-center justify-center rounded-md bg-night text-[11px] font-bold text-white">
+          <span className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-md bg-night text-[11px] font-bold text-white">
             {branch.tag}
           </span>
-          <span className="text-sm font-semibold text-ink">{branch.title}</span>
+          <div>
+            {branch.modelTags?.[0] && (
+              <div className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wide text-primary-700">
+                <Cpu className="h-3 w-3" /> {branch.modelTags[0]}
+              </div>
+            )}
+            <span className="block text-sm font-semibold text-ink">{branch.title}</span>
+          </div>
         </div>
         <div className="flex items-center gap-2">
           <StatusPill status={status} />
@@ -186,7 +193,7 @@ export function BranchCard({ branch, status = "done" }) {
           )}
         </div>
       </div>
-      <ModelTags tags={branch.modelTags} />
+      <ModelTags tags={branch.modelTags?.slice(1)} />
       <div className="mt-3 space-y-1">
         {/* values populate only once the branch is done; otherwise shimmer */}
         {branch.data.map((d, i) =>

@@ -420,7 +420,7 @@ export default function CamReport({ onClose, inline = false }) {
 
             {active === "deviation" && (
               <Card title="Deviation" note={`Policy: ${m.deviations?.policy_result ?? emDash} · Serviceable: ${yn(m.deviations?.serviceable)}`} model={m}>
-                {m.deviations?.rows?.length ? (
+                {(m.deviations?.bre?.length ? m.deviations.bre : m.deviations?.rows)?.length ? (
                   <table className="w-full text-xs">
                     <thead>
                       <tr className="text-[10px] uppercase tracking-wide text-slate-500">
@@ -432,7 +432,7 @@ export default function CamReport({ onClose, inline = false }) {
                       </tr>
                     </thead>
                     <tbody>
-                      {m.deviations.rows.map((d, i) => (
+                      {(m.deviations?.bre?.length ? m.deviations.bre : m.deviations.rows).map((d, i) => (
                         <tr key={i} className="border-t border-slate-100 align-top">
                           <td className="py-2 text-left font-medium">{d.deviation_type ?? emDash}</td>
                           <td className="text-left">{d.applicant_type ?? emDash}</td>
@@ -483,11 +483,18 @@ export default function CamReport({ onClose, inline = false }) {
             )}
 
             {active === "loan_amount" && (
-              <Card title="Loan Amount" model={m}>
+              <Card title="Loan Amount" note={m.eligibility?.override_reason} model={m}>
                 <Row label="Final Loan Amt Approved" value={formatINR(m.loan_amount?.final_amount)} k="loan_amount.final_amount" model={m} />
                 <Row label="Final Tenor Approved" value={m.loan_amount?.final_tenor ? `${num(m.loan_amount.final_tenor)} months` : emDash} model={m} />
+                {m.eligibility?.system_eligible_amount != null && (
+                  <>
+                    <Row label="System-eligible (MIN of FOIR · 16x · cap)" value={formatINR(m.eligibility.system_eligible_amount)} model={m} />
+                    <Row label="Multiplier" value={`16x policy · ${num(m.eligibility.approved_multiplier)}x approved`} model={m} />
+                    <Row label="Product Cap" value={formatINR(m.eligibility.product_cap)} model={m} />
+                    <Row label="Sanctioned (override)" value={`${formatINR(m.eligibility.approved_amount)} (+${formatINR(m.eligibility.override_excess)})`} model={m} />
+                  </>
+                )}
                 <Row label="Rejection Reason" value={m.loan_amount?.rejection_reason ?? emDash} k="loan_amount.rejection_reason" model={m} />
-                <Row label="Reject Date & Time" value={m.loan_amount?.reject_datetime ?? emDash} model={m} />
               </Card>
             )}
 
@@ -498,10 +505,11 @@ export default function CamReport({ onClose, inline = false }) {
                   : undefined
               } model={m}>
                 <Row label="Decisioned By" value={m.credit_manager?.decisioned_by ?? emDash} model={m} />
-                <Row label="AI Assisted" value={yn(m.credit_manager?.ai_assisted)} model={m} />
+                <Row label="Recommended By (1st → last)" value={`${m.credit_manager?.recommended_by_first ?? emDash} → ${m.credit_manager?.recommended_by_last ?? emDash}`} model={m} />
                 <Row label="Decision Date" value={m.credit_manager?.decision_date ?? emDash} k="credit_manager.decision_date" model={m} />
                 <Row label="Reviewed By" value={m.credit_manager?.reviewed_by ?? emDash} k="credit_manager.reviewed_by" model={m} />
                 <Row label="Approved By" value={m.credit_manager?.approved_by ?? emDash} k="credit_manager.approved_by" model={m} />
+                <Row label="Disbursed By" value={m.credit_manager?.disbursed_by ? `${m.credit_manager.disbursed_by}${m.credit_manager.disbursal_date ? ` · ${m.credit_manager.disbursal_date}` : ""}` : emDash} model={m} />
                 <Row label="Remarks" value={m.credit_manager?.remarks ?? emDash} k="credit_manager.remarks" model={m} />
               </Card>
             )}

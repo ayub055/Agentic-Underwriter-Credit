@@ -39,7 +39,9 @@ BRANCHES = {
 # ---- Placeholder decision tables (D2/D5 — not real credit policy) ----
 INCOME_PRECEDENCE = ("declared", "banking_detected")   # D1: declared canonical, bank fallback
 
-FOIR_CAP = 0.50                    # serviceability ceiling
+FOIR_CAP = 0.60                    # serviceability ceiling (Normal Journey policy)
+MULTIPLIER_NORMAL = 16             # max loan = 16x monthly income (Normal Journey)
+PRODUCT_CAP = 2000000             # absolute Personal Loan ceiling (₹20L)
 ENQ_SPIKE_THRESHOLD = 6            # L5 unsecured enquiries (12m) review trigger
 
 # ---- Address-quality model (S1.5) ----

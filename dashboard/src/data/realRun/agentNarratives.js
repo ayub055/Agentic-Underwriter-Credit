@@ -20,14 +20,14 @@ const compact = (arr) => arr.filter(Boolean);
 // ── static fallbacks (only used if a report is absent/unparseable) ───────────
 const STATIC_BANKING = {
   excerpt:
-    "The customer's banking profile indicates a stretched obligation-to-income ratio, with EMI commitments and recurring spends consuming most of the monthly salary inflow.",
-  findings: ["Salary credits detected", "Existing EMI debits across active loans", "Banking FOIR — stretched"],
+    "The customer's banking profile shows salary credits of about ₹1,29,876 landing consistently on an HDFC salary account, with EMIs serviced and a comfortable obligation-to-income ratio once the HDFC PL balance transfer nets out.",
+  findings: ["Salary credits detected", "Existing EMI debits across active loans", "Banking FOIR — within policy"],
   consoleLines: ["banking summary generated", "salary + EMI detected", "FOIR computed"],
 };
 const STATIC_BUREAU = {
   excerpt:
-    "Probable profile of customer is Entry Salaried. Overall Risk: CAUTION. Clean repayment record with concentrated unsecured exposure.",
-  findings: ["CIBIL · Excellent", "Low enquiries · clean 18M track", "Tradelines reviewed · low CC utilisation"],
+    "Probable profile of customer is Salaried · HCL Technologies. Overall Risk: CAUTION. Clean repayment record with concentrated unsecured exposure.",
+  findings: ["CIBIL 739 · Good", "Low enquiries · clean 18M track", "Tradelines reviewed · CC utilisation reviewed"],
   consoleLines: ["probable profile derived", "overall risk assessed", "CIBIL · enquiries · DPD summarised"],
 };
 
@@ -46,7 +46,7 @@ const bankingNarrative = {
           `Salary ${inr(bk.salaryPerMonth)}/mo via NEFT${bk.salaryCredits ? ` · ${bk.salaryCredits} credits` : ""}`,
         bk.emiPerPayment &&
           `EMI ${inr(bk.emiPerPayment)}/payment${bk.emiPctOfSalary ? ` · ${bk.emiPctOfSalary}% of salary` : ""}${bk.activeLoans ? ` · ${bk.activeLoans} active loans` : ""}`,
-        bk.foirPct && `Banking FOIR ${bk.foirPct}% — stretched obligation-to-income`,
+        bk.foirPct && `Banking FOIR ${bk.foirPct}% — within the 60% policy cap`,
         bk.netInflow &&
           bk.outflow &&
           `Net inflow ${inr(bk.netInflow)} vs outflow ${inr(bk.outflow)}${bk.monthlyCashflow ? ` · cash flow ${inr(bk.monthlyCashflow)}` : ""}`,
@@ -57,7 +57,7 @@ const bankingNarrative = {
         bk.monthlyCashflow && `banking summary · monthly cash flow ${inr(bk.monthlyCashflow)}`,
         bk.salaryPerMonth &&
           `salary ${inr(bk.salaryPerMonth)}/mo (NEFT)${bk.emiPerPayment ? ` · EMI ${inr(bk.emiPerPayment)}/payment` : ""}`,
-        bk.foirPct && `FOIR ${bk.foirPct}%${bk.activeLoans ? ` · ${bk.activeLoans} active loans` : ""} — stretched`,
+        bk.foirPct && `FOIR ${bk.foirPct}%${bk.activeLoans ? ` · ${bk.activeLoans} active loans` : ""} — within policy`,
       ])
     : STATIC_BANKING.consoleLines,
 };
@@ -81,7 +81,7 @@ const bureauNarrative = {
   ),
   findings: br.ok
     ? compact([
-        br.cibil && `CIBIL ${br.cibil} · Excellent`,
+        br.cibil && `CIBIL ${br.cibil} · Good`,
         (br.enquiries12m != null || br.missed18mPct != null) &&
           `${br.enquiries12m ?? "—"} enquiries in 12M · ${br.missed18mPct ?? "—"}% missed payments in 18M`,
         (br.tradelines || br.utilizationPct) &&

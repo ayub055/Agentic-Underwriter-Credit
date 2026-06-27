@@ -221,17 +221,32 @@ def build_cam_model(
     )
 
     # ---- Section 3: three-column loan view ----
+    # Prefer the documented columns (Applied | System Approval | Sanctioned) when the
+    # curated eligibility block carries them; else derive from the decision output.
+    elig = cs.get("eligibility") or {}
+    cols = elig.get("columns") or {}
     income_used = ml.get("income_used")
     offer_amount = decision.get("offer_amount")
     multiplier = (round(offer_amount / income_used, 2)
                   if offer_amount and income_used else None)
+
+    def _col(name: str, fallback: LoanColumn) -> LoanColumn:
+        c = cols.get(name)
+        return LoanColumn(**c) if c else fallback
+
+    applied_col = _col("applied", LoanColumn(
+        amount=intake.get("loan_amount_req"), tenure=intake.get("tenure_req")))
+    system_col = _col("system_approval", LoanColumn(
+        amount=offer_amount, tenure=decision.get("offer_tenure"),
+        irr=decision.get("offer_irr"), emi=decision.get("offer_emi"),
+        foir=decision.get("foir_proposed"),
+        unsecured_foir=ml.get("foir_unsecured_proposed"), multiplier=multiplier))
     sanctioned_col = LoanColumn()
     if cs.get("outcome") == "APPROVED":
-        sanctioned_col = LoanColumn(
+        sanctioned_col = _col("sanctioned", LoanColumn(
             amount=offer_amount, tenure=decision.get("offer_tenure"),
             irr=decision.get("offer_irr"), emi=decision.get("offer_emi"),
-            foir=decision.get("foir_proposed"), multiplier=multiplier,
-        )
+            foir=decision.get("foir_proposed"), multiplier=multiplier))
     loan = LoanSection(
         offer_amount=offer_amount,
         offer_tenure=decision.get("offer_tenure"),
@@ -240,22 +255,18 @@ def build_cam_model(
         processing_fee=decision.get("processing_fee"),
         foir_proposed=decision.get("foir_proposed"),
         approved_segment=policy.get("approved_segment"),
-        system_approval=LoanColumn(
-            amount=offer_amount, tenure=decision.get("offer_tenure"),
-            irr=decision.get("offer_irr"), emi=decision.get("offer_emi"),
-            foir=decision.get("foir_proposed"),
-            unsecured_foir=ml.get("foir_unsecured_proposed"),
-            multiplier=multiplier,
-        ),
-        applied=LoanColumn(
-            amount=intake.get("loan_amount_req"), tenure=intake.get("tenure_req"),
-        ),
+        system_approval=system_col,
+        applied=applied_col,
         sanctioned=sanctioned_col,
     )
 
     # ---- Section 4: financial summary ----
     net_salary = summary.get("salary_income_detected")
-    existing_obl = summary.get("existing_emi_debits")
+    existing_obl = summary.get("existing_emi_debits")              # pre-BT total debits
+    # Current fixed obligation is the retained EMI after the BT clears the HDFC PL.
+    current_fixed = summary.get("existing_emi_post_bt")
+    if current_fixed is None:
+        current_fixed = existing_obl
     cashflow = (banking_detail.get("monthly_cashflow") if banking_detail else None) or []
     obl_months = [c.get("month") for c in cashflow[-4:]]
     financial = FinancialSection(
@@ -267,11 +278,11 @@ def build_cam_model(
         total_obligation=existing_obl,
         total_exposure=summary.get("total_exposure"),
         net_salary=net_salary,
-        current_fixed_obligation=existing_obl,
+        current_fixed_obligation=current_fixed,
         monthly_obligation=[None] * len(obl_months),   # per-month split not produced yet
         obligation_months=obl_months,
         fcu_trigger=summary.get("fcu_trigger"),
-        max_serviceable_emi=decision.get("max_serviceable_emi"),
+        max_serviceable_emi=elig.get("max_serviceable_emi") or decision.get("max_serviceable_emi"),
     )
 
     # ---- Section 5: applicant-declared existing loans (BT view) ----
@@ -308,6 +319,12 @@ def build_cam_model(
                          prov_key="intake.employment_verified"),
         VerificationItem(label="Address", status=intake.get("address_verified"),
                          detail=addr_detail, prov_key="intake.address_verified"),
+        VerificationItem(label="Residence Verification",
+                         status=intake.get("address_verified"),
+                         detail="NEGATIVE" if intake.get("address_verified") is False else None,
+                         prov_key="intake.address_verified"),
+        VerificationItem(label="RCU", status=None, detail="Review",
+                         prov_key="intake.address_verified"),
     ]
 
     layers = policy.get("layers") or []
@@ -329,6 +346,17 @@ def build_cam_model(
         )
         for b in breaches
     ]
+    # Documented BRE deviations (CAM §7) — Credit Refer at named escalation levels.
+    bre_rows = [
+        DeviationRow(
+            deviation_type=d.get("deviation_type"),
+            applicant_type=d.get("applicant_type") or "Primary",
+            rule_description=d.get("rule_description"),
+            credit_approval_level=d.get("level"),
+            system_decision=d.get("system_decision"),
+        )
+        for d in (cs.get("deviations_bre") or [])
+    ]
     deviations = DeviationsSection(
         policy_result=policy.get("result"),
         serviceable=decision.get("serviceable"),
@@ -336,6 +364,7 @@ def build_cam_model(
         breaches=breaches,
         warnings=cs.get("warnings") or [],
         rows=deviation_rows,
+        bre=bre_rows,
     )
 
     # ---- Section 9: credit conditions (not produced by the engine yet) ----
@@ -358,11 +387,23 @@ def build_cam_model(
         reject_datetime=meta.generated_at if is_declined else None,
     )
 
+    # Real credit managers (CAM §9) when the curated case carries them; else the
+    # engine attribution with a generated decision date.
+    cm = cs.get("credit_manager") or {}
     credit_manager = CreditManagerSection(
-        ai_assisted=policy.get("ai_assisted_flag"),
+        decisioned_by=cm.get("decisioned_by") or "Kotak Credit — Manual Underwriting",
+        ai_assisted=cm.get("ai_assisted") if cm else policy.get("ai_assisted_flag"),
         model_versions=fin.get("model_versions") or {},
-        decision_date=meta.generated_at,
-        remarks=cs.get("credit_manager_remarks"),
+        reviewed_by=cm.get("reviewed_by"),
+        approved_by=cm.get("approved_by"),
+        recommended_by_first=cm.get("recommended_by_first"),
+        recommended_by_last=cm.get("recommended_by_last"),
+        approved_by_first=cm.get("approved_by_first"),
+        approved_by_last=cm.get("approved_by_last"),
+        disbursed_by=cm.get("disbursed_by"),
+        disbursal_date=cm.get("disbursal_date"),
+        decision_date=cm.get("decision_date") or meta.generated_at,
+        remarks=cm.get("remarks") or cs.get("credit_manager_remarks"),
     )
 
     # ---- Section 12: PD sheet remarks (derived one-liner from the PD outputs) ----
@@ -418,6 +459,8 @@ def build_cam_model(
         loan_amount=loan_amount,
         credit_manager=credit_manager,
         pd_sheet=pd_sheet,
+        eligibility=elig,
+        assets=cs.get("assets") or {},
         provenance=prov,
     )
 
@@ -434,18 +477,27 @@ def _banking_matrix(banking_detail: Optional[dict]) -> BankingMatrix:
     if n == 0:
         return BankingMatrix()
     blank = [None] * n
+    # EOD balances come from the real bank statement when present (eod_matrix);
+    # otherwise honest blanks (the analyser doesn't always produce them).
+    eod = banking_detail.get("eod_matrix") or {}
+
+    def _eod(day: str):
+        v = eod.get(day)
+        return list(v[:n]) if v else list(blank)
+
+    eod_prov = "real" if eod else "placeholder"
     rows = [
-        BankingMatrixRow(feature="EOD Balance — 1st", values=list(blank), prov="placeholder"),
-        BankingMatrixRow(feature="EOD Balance — 5th", values=list(blank), prov="placeholder"),
-        BankingMatrixRow(feature="EOD Balance — 10th", values=list(blank), prov="placeholder"),
-        BankingMatrixRow(feature="EOD Balance — 20th", values=list(blank), prov="placeholder"),
-        BankingMatrixRow(feature="Monthly average balance", values=list(blank), prov="placeholder"),
+        BankingMatrixRow(feature="EOD Balance — 1st", values=_eod("1st"), prov=eod_prov),
+        BankingMatrixRow(feature="EOD Balance — 5th", values=_eod("5th"), prov=eod_prov),
+        BankingMatrixRow(feature="EOD Balance — 10th", values=_eod("10th"), prov=eod_prov),
+        BankingMatrixRow(feature="EOD Balance — 15th", values=_eod("15th"), prov=eod_prov),
+        BankingMatrixRow(feature="EOD Balance — 20th", values=_eod("20th"), prov=eod_prov),
+        BankingMatrixRow(feature="EOD Balance — 25th", values=_eod("25th"), prov=eod_prov),
+        BankingMatrixRow(feature="Monthly average balance", values=_eod("avg"), prov=eod_prov),
         BankingMatrixRow(feature="Credit amount", values=[c.get("inflow") for c in cashflow], prov="real"),
         BankingMatrixRow(feature="Debit amount", values=[c.get("outflow") for c in cashflow], prov="real"),
         BankingMatrixRow(feature="Credit count", values=list(blank), prov="placeholder"),
         BankingMatrixRow(feature="Debit count", values=list(blank), prov="placeholder"),
-        BankingMatrixRow(feature="Transaction start date", values=list(blank), prov="placeholder"),
-        BankingMatrixRow(feature="Transaction end date", values=list(blank), prov="placeholder"),
         BankingMatrixRow(feature="AQB / EMI ratio", values=list(blank), prov="placeholder"),
     ]
     return BankingMatrix(months=months, rows=rows)

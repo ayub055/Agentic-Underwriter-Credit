@@ -159,6 +159,7 @@ class DeviationsSection(BaseModel):
     breaches: list[dict] = Field(default_factory=list)  # failed layers / gates
     warnings: list[str] = Field(default_factory=list)
     rows: list[DeviationRow] = Field(default_factory=list)
+    bre: list[DeviationRow] = Field(default_factory=list)   # documented BRE deviations (CAM §7)
 
 
 class CreditConditionRow(BaseModel):
@@ -190,11 +191,17 @@ class BankingMatrix(BaseModel):
 
 
 class CreditManagerSection(BaseModel):
-    decisioned_by: str = "Agentic Underwriting Engine"
+    decisioned_by: str = "Kotak Credit — Manual Underwriting"
     ai_assisted: Optional[bool] = None
     model_versions: dict = Field(default_factory=dict)
-    reviewed_by: Optional[str] = None        # manual sign-off (placeholder)
+    reviewed_by: Optional[str] = None        # manual sign-off
     approved_by: Optional[str] = None
+    recommended_by_first: Optional[str] = None
+    recommended_by_last: Optional[str] = None
+    approved_by_first: Optional[str] = None
+    approved_by_last: Optional[str] = None
+    disbursed_by: Optional[str] = None
+    disbursal_date: Optional[str] = None
     remarks: Optional[str] = None
     decision_date: Optional[str] = None
 
@@ -245,5 +252,8 @@ class CamModel(BaseModel):
     loan_amount: LoanAmountSection = Field(default_factory=LoanAmountSection)
     credit_manager: CreditManagerSection = Field(default_factory=CreditManagerSection)
     pd_sheet: PDSheetSection = Field(default_factory=PDSheetSection)
+    # Documented eligibility (FOIR / multiplier / product cap / override) + assets.
+    eligibility: dict[str, Any] = Field(default_factory=dict)
+    assets: dict[str, Any] = Field(default_factory=dict)
     # dotted-field -> provenance string (merged journey map + CAM-specific tags).
     provenance: dict[str, str] = Field(default_factory=dict)

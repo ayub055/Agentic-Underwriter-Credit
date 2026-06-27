@@ -31,7 +31,7 @@ export default function TopBar({
 
   return (
     <header className="z-30 flex flex-wrap items-center gap-x-4 gap-y-2 border-b border-slate-200 bg-surface/95 px-4 py-2.5 backdrop-blur">
-      <BrandMark size="sm" subtitle="Agentic Underwriting" />
+      <BrandMark size="sm" subtitle="Credit Underwriting" />
 
       <div className="hidden items-center gap-2 md:flex">
         <span className="relative flex h-2.5 w-2.5">
