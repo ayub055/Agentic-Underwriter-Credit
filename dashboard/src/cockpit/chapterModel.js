@@ -90,12 +90,22 @@ export const PIPELINE_COUNT = PHASES.length;
 const FINALE_BEATS = 5;
 
 export function buildJourneyTimeline() {
-  const steps = buildTimeline(PHASES).map((s) => ({ ...s, chapterIndex: s.phaseIndex }));
+  // Pipeline chapters run over the AGENT stream only — one tick = one logged agent
+  // line — so the rail highlight, the stage panel and the agent log advance in
+  // lockstep (no empty start/done marker ticks to drift on). Finale chapters carry
+  // no agents, so they dwell on a few agent-less "beat" steps instead.
+  const steps = buildTimeline(PHASES)
+    .filter((s) => s.kind === "agent")
+    .map((s) => ({ ...s, chapterIndex: s.phaseIndex }));
   FINALE.forEach((_, i) => {
     const ci = PHASES.length + i;
-    steps.push({ kind: "start", chapterIndex: ci });
-    for (let k = 0; k < FINALE_BEATS; k++) steps.push({ kind: "beat", chapterIndex: ci });
-    steps.push({ kind: "done", chapterIndex: ci });
+    for (let k = 0; k < FINALE_BEATS; k++)
+      steps.push({
+        kind: "beat",
+        chapterIndex: ci,
+        firstOfPhase: k === 0,
+        lastOfPhase: k === FINALE_BEATS - 1,
+      });
   });
   return steps;
 }

@@ -1,7 +1,7 @@
 // Build the credit-underwriting journey phases from the curated CaseState + trace.
 // Values mirror the real documented case (CAM, eligibility sheet, field history);
-// the decision is human credit underwriting with a documented management override,
-// rendered over the pipeline's stage scaffolding.
+// the decision is taken by the Kotak Agentic Underwriter, with the cap override
+// escalated to a Human Reference, rendered over the pipeline's stage scaffolding.
 
 import { formatINR, formatEMI, formatPct, emDash } from "../lib/format.js";
 import caseState from "../data/realRun/caseState.json";
@@ -38,6 +38,12 @@ const elig = cs.eligibility ?? {};
 const cm = cs.credit_manager ?? {};
 const bre = cs.deviations_bre ?? [];
 const FOIR_CAP = elig.foir_cap ?? 0.6;
+// Recommend chain collapses to a single actor (the Kotak Agentic Underwriter);
+// only render "a → b" when the two ends actually differ.
+const recoChain =
+  cm.recommended_by_last && cm.recommended_by_last !== cm.recommended_by_first
+    ? `${cm.recommended_by_first} → ${cm.recommended_by_last}`
+    : (cm.recommended_by_first ?? emDash);
 
 function line(key, value, tone, provKey) {
   return { key, value, tone, prov: provKey ? prov[provKey] : undefined };
@@ -45,6 +51,69 @@ function line(key, value, tone, provKey) {
 // Voice PD facts have no pipeline provenance — they're captured on the voice-agent
 // call, so they carry a placeholder pill explicitly.
 const pline = (key, value, tone) => ({ key, value, tone, prov: "placeholder" });
+
+// ── Voice PD → Decision: the causal chain ───────────────────────────────────
+// Each captured Voice-PD answer / policy deviation, wired to the decision element
+// it actually drove — so "folded into Decision" is shown, not merely asserted.
+// Values pull from the live caseState so they stay in lockstep with the run.
+const cibilScore = BUR.cibil ?? rs.cibil_score;
+const HDFC_BT_EMI = (elig.existing_emi_pre_bt ?? 0) - (elig.existing_emi_post_bt ?? 0);
+const l7Count = bre.filter((d) => d.level === "L7").length;
+const l3Count = bre.filter((d) => d.level === "L3").length;
+
+export const VOICE_PD_LINKS = [
+  {
+    token: "income",
+    evidence: `Net salary ${formatINR(ml.income_used)}/mo · Mgr, HCL (Cat AA) · CTC + payslip verified`,
+    decision: `income basis → FOIR / serviceability`,
+    deviation: { level: "L1", disposition: "cleared", note: "salary < ₹1.5L · allowed ≥ ₹50K" },
+    tone: "ok",
+  },
+  {
+    token: "BT",
+    evidence: `HDFC PL EMI ${formatINR(HDFC_BT_EMI)} closed via balance transfer`,
+    decision: `existing EMI ${formatINR(elig.existing_emi_pre_bt)} → ${formatINR(elig.existing_emi_post_bt)} · FOIR ${formatPct((dec.foir_proposed ?? 0) * 100)} < ${formatPct(FOIR_CAP * 100)} → serviceable`,
+    deviation: null,
+    tone: "ok",
+  },
+  {
+    token: "₹25L",
+    evidence: `Requested ₹15L → ₹35L → ${formatINR(elig.approved_amount)} (incl. HDFC BT)`,
+    decision: `sanctioned ${formatINR(elig.approved_amount)} · ${elig.approved_multiplier}x`,
+    deviation: {
+      level: "L7",
+      disposition: "overridden",
+      note: `${elig.approved_multiplier}x > ${elig.multiplier_normal}x · above eligible ${formatINR(elig.system_eligible_amount)}`,
+    },
+    tone: "caution",
+  },
+  {
+    token: "net-worth",
+    evidence: `Net worth ₹1.41 Cr (House ₹80L · Land ₹60L) · CIBIL ${num(cibilScore)}`,
+    decision: `cap override ${formatINR(elig.approved_amount)} vs ${formatINR(elig.product_cap)} (+${formatINR(elig.override_excess)}) → escalated to Human Reference`,
+    deviation: { level: "L7", disposition: "overridden", note: "product-cap breach" },
+    tone: "caution",
+  },
+  {
+    token: "L3",
+    evidence: `Residence Verification NEGATIVE · RCU Review`,
+    decision: `carried into decision · unresolved`,
+    deviation: { level: "L3", disposition: "carried", note: "residence negative" },
+    tone: "danger",
+  },
+];
+
+// Compact tokens that ride the Voice PD → Decision arc in the DAG.
+const VOICE_PD_TOKENS = ["income", "BT", `${l7Count}×L7`, `${l3Count}×L3`];
+
+// The underwriter consuming each Voice-PD fact before the numbers run — these
+// land in the Agent Call Log / Agent-calls tab / playback, in lockstep.
+const voicePdConsume = [
+  { actor: "agentic underwriter", action: "consume", detail: `voice_pd.income · ${formatINR(ml.income_used)}/mo · HCL Cat AA → income basis · clears L1`, tone: "info" },
+  { actor: "agentic underwriter", action: "consume", detail: `voice_pd.obligations_bt · HDFC BT closes ${formatINR(HDFC_BT_EMI)} EMI → post-BT FOIR`, tone: "info" },
+  { actor: "agentic underwriter", action: "consume", detail: `voice_pd.assets · net worth ₹1.41 Cr · CIBIL ${num(cibilScore)} → L7 cap-override basis`, tone: "caution" },
+  { actor: "agentic underwriter", action: "consume", detail: `voice_pd.residence_rcu · NEGATIVE / RCU Review → L3 carried (unresolved)`, tone: "danger" },
+];
 
 export const PHASES = [
   {
@@ -232,12 +301,12 @@ export const PHASES = [
 
   {
     id: "telePd",
-    phase: "Credit PD",
-    title: "Credit PD — Voice Verification",
-    subtitle: "Credit manager call · structured questions · field-history sourced",
+    phase: "Voice PD",
+    title: "Voice PD — Kotak AI Voice Agent",
+    subtitle: "Kotak AI voice agent · structured questions · field-history sourced",
     kind: "agent",
     floating: true,
-    modelTags: ["credit PD · voice call", "field-history sourced"],
+    modelTags: ["Kotak AI voice agent", "field-history sourced"],
     agents: [
       { actor: tp.officer ?? "credit_pd", action: "dial_customer", detail: `structured Credit PD on ${ik.address?.city ?? "applicant"} · pulls policy deviations`, tone: "info" },
       ...(tp.questions ?? []).map((q) => ({ actor: "credit_pd", action: "ask", detail: `${q.q} → ${q.answer}`, tone: q.tone ?? "info" })),
@@ -263,8 +332,10 @@ export const PHASES = [
     title: "Decision & Offer",
     subtitle: "Eligibility · Serviceability · Override · Sanction",
     kind: "native",
-    modelTags: ["FOIR / multiplier / product-cap", "manual override"],
+    modelTags: ["FOIR / multiplier / product-cap", "agentic underwriter decision"],
     agents: [
+      // Voice PD answers + deviations consumed before the numbers run.
+      ...voicePdConsume,
       { actor: "eligibility", action: "MIN", detail: `FOIR ${formatINR(elig.foir_loan_amount)} · 16x ${formatINR(elig.multiplier_amount)} · cap ${formatINR(elig.product_cap)} → system-eligible ${formatINR(elig.system_eligible_amount)}`, tone: "info" },
       {
         actor: "serviceability",
@@ -272,9 +343,12 @@ export const PHASES = [
         detail: `foir_proposed ${formatPct((dec.foir_proposed ?? 0) * 100)} vs cap ${formatPct(FOIR_CAP * 100)} (post-BT)`,
         tone: dec.serviceable ? "ok" : "danger",
       },
-      { actor: "override", action: "L7", detail: `sanctioned ${formatINR(elig.approved_amount)} vs eligible ${formatINR(elig.system_eligible_amount)} (+${formatINR(elig.override_excess)}) · ${elig.approved_multiplier}x · ${cm.approved_by ?? "credit head"}`, tone: "caution" },
+      { actor: "agentic underwriter", action: "L7", detail: `sanctioned ${formatINR(elig.approved_amount)} vs eligible ${formatINR(elig.system_eligible_amount)} (+${formatINR(elig.override_excess)}) · ${elig.approved_multiplier}x · cap override escalated to Human Reference`, tone: "caution" },
+      { actor: "agentic underwriter", action: "deviations", detail: `${l7Count}×L7 overridden → escalated to Human Reference · ${l3Count}×L3 residence carried unresolved · L1 profile cleared`, tone: "caution" },
       { actor: "sanction", action: "offer", detail: `${formatINR(dec.offer_amount)} · ${formatPct((dec.offer_irr ?? 0) * 100)} · ${formatEMI(dec.offer_emi)}`, tone: "info" },
     ],
+    voicePdLinks: VOICE_PD_LINKS,
+    voicePdTokens: VOICE_PD_TOKENS,
     data: [
       line("system_eligible", formatINR(elig.system_eligible_amount), "ok"),
       line("multiplier", `16x policy · ${num(elig.approved_multiplier)}x approved`, "danger"),
@@ -298,14 +372,14 @@ export const PHASES = [
     kind: "native",
     modelTags: ["credit sign-off", "audit pack"],
     agents: [
-      { actor: "Recommended by", action: "reco", detail: `${cm.recommended_by_first ?? emDash} → ${cm.recommended_by_last ?? emDash} · ₹25L/60m with HDFC PL BT · FOIR 52% · 19x`, tone: "info" },
-      { actor: "Approved by", action: cs.outcome, detail: `${cm.approved_by ?? emDash} · management override on ₹20L cap`, tone: cs.outcome === "APPROVED" ? "ok" : "caution" },
+      { actor: "Recommended by", action: "reco", detail: `${recoChain} · ₹25L/60m with HDFC PL BT · FOIR 52% · 19x`, tone: "info" },
+      { actor: "Approved by", action: cs.outcome, detail: `${cm.approved_by ?? emDash} · agentic underwriter decision · cap override escalated to Human Reference`, tone: cs.outcome === "APPROVED" ? "ok" : "caution" },
       { actor: "tool:write_audit_pack", action: "assemble", detail: "artifacts + provenance map + CaseState snapshot", tone: "info" },
       { actor: "Disbursed by", action: "disbursal", detail: `${cm.disbursed_by ?? emDash} · ${cm.disbursal_date ?? emDash} · net ${formatINR(dec.net_disbursal)} (paperless)`, tone: "info" },
     ],
     data: [
       line("DECISION", `${cs.outcome} ${formatINR(dec.offer_amount)}`, cs.outcome === "APPROVED" ? "ok" : "danger"),
-      line("recommended_by", `${cm.recommended_by_first ?? emDash} · ${cm.recommended_by_last ?? emDash}`, "info"),
+      line("recommended_by", recoChain, "info"),
       line("approved_by", cm.approved_by ?? emDash, "ok"),
       line("decision_date", cm.decision_date ?? emDash, "info"),
       line("audit_pack", "output/" + cs.case_id, "ok"),
@@ -343,8 +417,8 @@ const PRESENTER_NOTES = {
   layer2: `The bureau and banking analysers run in parallel — ${Math.round(((cs.branches?.bureau?.elapsed_s ?? 0) + (cs.branches?.banking?.elapsed_s ?? 0)) * 10) / 10}s of analysis in ${layer2Elapsed ?? "—"}s wall-clock.`,
   ml: "The scorecard returns PD, affluence and existing FOIR — reproducible and fully auditable.",
   policy: `The credit policy waterfall and BRE flag ${bre.length} deviations — including the ₹20L product-cap breach, the 19x multiplier and the negative residence verification — all referred to credit.`,
-  telePd: "A credit-PD voice call (sourced from the field history) validates income, family, assets and residence, and captures the reasons behind every deviation before the decision is taken.",
-  decision: `Eligibility binds at the ₹20L product cap; FOIR 52% sits within the 60% cap once the HDFC balance transfer nets out — and a management override sanctions the full ₹25L.`,
+  telePd: "Kotak's AI voice agent (sourced from the field history) validates income, family, assets and residence, and captures the reasons behind every deviation before the decision is taken.",
+  decision: `Eligibility binds at the ₹20L product cap; FOIR 52% sits within the 60% cap once the HDFC balance transfer nets out — and the Kotak Agentic Underwriter sanctions the full ₹25L, escalating the cap override to a Human Reference.`,
   finalize: "Decision stamped with an audit pack, a field-by-field provenance map and pinned model versions.",
   notify: "Customer notified instantly — switch to the customer view to see exactly what they experienced.",
 };
@@ -441,7 +515,19 @@ export function buildTimeline(phases) {
     const branchAgents = (p.branches ?? []).flatMap((br) =>
       br.agents.map((a) => ({ ...a, branchId: br.id }))
     );
-    [...branchAgents, ...p.agents].forEach((a) => steps.push({ kind: "agent", phaseIndex: pi, agent: a }));
+    const all = [...branchAgents, ...p.agents];
+    // Tag the first/last agent of each phase so a consumer driving playback off
+    // the agent stream alone (no marker ticks) can light/extinguish the stage in
+    // lockstep with the log — see BackendJourney.
+    all.forEach((a, ai) =>
+      steps.push({
+        kind: "agent",
+        phaseIndex: pi,
+        agent: a,
+        firstOfPhase: ai === 0,
+        lastOfPhase: ai === all.length - 1,
+      })
+    );
     steps.push({ kind: "done", phaseIndex: pi });
   });
   return steps;

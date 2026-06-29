@@ -505,7 +505,7 @@ export default function CamReport({ onClose, inline = false }) {
                   : undefined
               } model={m}>
                 <Row label="Decisioned By" value={m.credit_manager?.decisioned_by ?? emDash} model={m} />
-                <Row label="Recommended By (1st → last)" value={`${m.credit_manager?.recommended_by_first ?? emDash} → ${m.credit_manager?.recommended_by_last ?? emDash}`} model={m} />
+                <Row label="Recommended By" value={m.credit_manager?.recommended_by_last && m.credit_manager.recommended_by_last !== m.credit_manager.recommended_by_first ? `${m.credit_manager.recommended_by_first} → ${m.credit_manager.recommended_by_last}` : (m.credit_manager?.recommended_by_first ?? emDash)} model={m} />
                 <Row label="Decision Date" value={m.credit_manager?.decision_date ?? emDash} k="credit_manager.decision_date" model={m} />
                 <Row label="Reviewed By" value={m.credit_manager?.reviewed_by ?? emDash} k="credit_manager.reviewed_by" model={m} />
                 <Row label="Approved By" value={m.credit_manager?.approved_by ?? emDash} k="credit_manager.approved_by" model={m} />

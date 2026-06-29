@@ -191,7 +191,7 @@ class BankingMatrix(BaseModel):
 
 
 class CreditManagerSection(BaseModel):
-    decisioned_by: str = "Kotak Credit — Manual Underwriting"
+    decisioned_by: str = "Kotak Agentic Underwriter"
     ai_assisted: Optional[bool] = None
     model_versions: dict = Field(default_factory=dict)
     reviewed_by: Optional[str] = None        # manual sign-off

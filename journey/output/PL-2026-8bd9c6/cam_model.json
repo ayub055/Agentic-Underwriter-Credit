@@ -4,7 +4,7 @@
     "run_id": "483b354f000f4dd5afddbda8bd205bec",
     "customer_id": 698167220,
     "outcome": "APPROVED",
-    "generated_at": "2026-06-27T10:33:42",
+    "generated_at": "2026-06-28T21:54:26",
     "channel": "Digital · self-serve"
   },
   "application": {
@@ -692,9 +692,9 @@
     "warnings": [
       "decision: BT nets out ₹48,214 HDFC PL EMI (obligation 59,976 -> 11,762 post-BT)",
       "policy: L0_ADDRESS residence verification NEGATIVE (RCU: Review) -> L3 deviation, unresolved",
-      "deviation: ₹25,00,000 > ₹20,00,000 product cap (+25%) and 19x > 16x multiplier -> L7, management override",
+      "deviation: ₹25,00,000 > ₹20,00,000 product cap (+25%) and 19x > 16x multiplier -> L7, cap override escalated to Human Reference",
       "deviation: salary ₹1,29,876 below ₹1.5L target threshold -> L1",
-      "finalize: case PL-2026-8bd9c6 -> APPROVED ₹25,00,000 (override, Shishir Pandit)"
+      "finalize: case PL-2026-8bd9c6 -> APPROVED ₹25,00,000 (agentic underwriter decision, escalated to Human Reference)"
     ],
     "rows": [
       {
@@ -786,8 +786,8 @@
     "reject_datetime": null
   },
   "credit_manager": {
-    "decisioned_by": "Kotak Credit — Manual Underwriting",
-    "ai_assisted": false,
+    "decisioned_by": "Kotak Agentic Underwriter",
+    "ai_assisted": true,
     "model_versions": {
       "banking_narrative": "ollama-local",
       "bureau_narrative": "ollama-local",
@@ -795,15 +795,15 @@
       "pricing": "placeholder",
       "address_model": "address-quality-v1.2.0"
     },
-    "reviewed_by": "Prashanth Anand",
-    "approved_by": "Shishir Pandit",
-    "recommended_by_first": "JAY HANCHATE",
-    "recommended_by_last": "Prashanth Anand",
-    "approved_by_first": "Shishir Pandit",
-    "approved_by_last": "Shishir Pandit",
-    "disbursed_by": "Prakash R",
+    "reviewed_by": "Kotak Agentic Underwriter",
+    "approved_by": "Kotak Agentic Underwriter",
+    "recommended_by_first": "Kotak Agentic Underwriter",
+    "recommended_by_last": "Kotak Agentic Underwriter",
+    "approved_by_first": "Kotak Agentic Underwriter",
+    "approved_by_last": "Kotak Agentic Underwriter",
+    "disbursed_by": "Kotak Agentic Underwriter",
     "disbursal_date": "2025-06-17",
-    "remarks": "Reco PL exposure ₹25L / 60m with HDFC PL BT · FOIR 52% · 19x multiplier · escalated to Shishir Pandit · APPROVED as management override on the ₹20L product cap.",
+    "remarks": "Reco PL exposure ₹25L / 60m with HDFC PL BT · FOIR 52% · 19x multiplier · 10 BRE deviations credit-referred and evaluated · cap override escalated to Human Reference · APPROVED as agentic underwriter decision on the ₹20L product cap.",
     "decision_date": "2025-06-03"
   },
   "pd_sheet": {
@@ -819,7 +819,7 @@
     "remarks": "PD 7.28% · risk band 2/5 · affluent",
     "tele_pd": {
       "status": "completed",
-      "officer": "Credit PD — Voice Verification (J. Hanchate / K. N. Rao)",
+      "officer": "Kotak AI Voice Agent · Credit PD",
       "conducted_at": "2025-05-31",
       "ctc_document": "offered",
       "questions": [
@@ -884,7 +884,7 @@
         "Multiplier 19x exceeds policy 16x for Normal Journey (+18.75%) — L7",
         "Proposed loan above system-eligible ₹20,00,000 — L7",
         "Residence Verification NEGATIVE / RCU Review — L3 (unresolved)",
-        "Approved at FOIR 52% (cap 60%) after HDFC PL BT nets out ₹48,214 EMI · final approval Shishir Pandit (management override)"
+        "Approved at FOIR 52% (cap 60%) after HDFC PL BT nets out ₹48,214 EMI · agentic underwriter decision, cap override escalated to Human Reference"
       ]
     }
   },
@@ -906,7 +906,7 @@
     "approved_multiplier": 19.25,
     "override": true,
     "override_excess": 500000.0,
-    "override_reason": "Management override (Shishir Pandit): ₹25,00,000 sanctioned vs system-eligible ₹20,00,000 — justified by real-estate net worth ₹1.41 Cr, premium employer (HCL Technologies, Cat AA) and CIBIL 739.",
+    "override_reason": "Agentic underwriter decision (post credit-refer): ₹25,00,000 sanctioned vs system-eligible ₹20,00,000 — cap override escalated to Human Reference; justified by real-estate net worth ₹1.41 Cr, premium employer (HCL Technologies, Cat AA) and CIBIL 739.",
     "columns": {
       "applied": {
         "amount": 2500000.0,

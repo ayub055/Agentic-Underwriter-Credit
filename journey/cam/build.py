@@ -391,7 +391,7 @@ def build_cam_model(
     # engine attribution with a generated decision date.
     cm = cs.get("credit_manager") or {}
     credit_manager = CreditManagerSection(
-        decisioned_by=cm.get("decisioned_by") or "Kotak Credit — Manual Underwriting",
+        decisioned_by=cm.get("decisioned_by") or "Kotak Agentic Underwriter",
         ai_assisted=cm.get("ai_assisted") if cm else policy.get("ai_assisted_flag"),
         model_versions=fin.get("model_versions") or {},
         reviewed_by=cm.get("reviewed_by"),

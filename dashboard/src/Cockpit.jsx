@@ -24,21 +24,27 @@ const INDICES = { verdict: PIPELINE_COUNT, customer: PIPELINE_COUNT + 1, cam: PI
 export default function Cockpit({ onExit }) {
   const timeline = useMemo(() => buildJourneyTimeline(), []);
 
-  // chapterIndex -> { start, done } cursor positions.
+  // chapterIndex -> { start, last } cursor positions (one step per agent / beat).
   const bounds = useMemo(() => {
     const map = {};
     timeline.forEach((s, idx) => {
-      if (s.kind === "start") map[s.chapterIndex] = { start: idx, done: idx };
-      if (s.kind === "done") map[s.chapterIndex].done = idx;
+      if (!(s.chapterIndex in map)) map[s.chapterIndex] = { start: idx, last: idx };
+      map[s.chapterIndex].last = idx;
     });
     return map;
   }, [timeline]);
 
-  // Slow the human-paced stages (~2×) so each intake check / Voice-PD question
-  // is readable: intake = chapter 1, Voice PD = chapter 5.
-  const slowBounds = [bounds[1], bounds[5]].filter(Boolean);
-  const stepDelay = (c) =>
-    slowBounds.some((b) => c >= b.start && c < b.done) ? 1700 : 850;
+  // Slow the human-paced stages (~2×) so each intake check / Voice-PD question is
+  // readable (intake = chapter 1, Voice PD = chapter 5), and hold a just-finished
+  // chapter on "running" for a brief beat before the next lights up.
+  const SLOW_CHAPTERS = new Set([1, 5]);
+  const stepDelay = (c) => {
+    const next = timeline[c];
+    const shown = timeline[c - 1];
+    let d = next && SLOW_CHAPTERS.has(next.chapterIndex) ? 1700 : 850;
+    if (shown?.lastOfPhase) d += 600;
+    return d;
+  };
 
   const { cursor, playing, speed, setSpeed, play, pause, reset, skipEnd, seek } = usePlayback(
     timeline.length,
@@ -55,30 +61,32 @@ export default function Cockpit({ onExit }) {
   const containerRef = useRef(null);
   const loopRef = useRef(null);
 
+  // `latest` = index of the step just revealed; the chapter it belongs to is the
+  // one "running" (and, for pipeline chapters, the one whose newest agent line is
+  // showing) — rail, panel and log stay in lockstep.
+  const latest = cursor - 1;
   const statuses = CHAPTERS.map((_, i) => {
     const b = bounds[i];
     if (!b) return "waiting";
-    return cursor > b.done ? "done" : cursor > b.start ? "running" : "waiting";
+    if (cursor >= timeline.length) return "done";
+    if (latest > b.last) return "done";
+    if (latest >= b.start) return "running";
+    return "waiting";
   });
 
-  let activeChapter = 0;
-  for (let i = 0; i < CHAPTERS.length; i++) {
-    if (bounds[i] && cursor > bounds[i].start) activeChapter = i;
-  }
+  const activeChapter = cursor > 0 ? timeline[Math.min(cursor, timeline.length) - 1].chapterIndex : 0;
 
   useEffect(() => {
     if (playing) setSelected(activeChapter);
   }, [activeChapter, playing]);
 
-  // Cumulative agent-call log + live case dict, revealed up to the cursor.
-  const entries = [];
-  timeline.slice(0, cursor).forEach((s, idx) => {
-    if (s.kind === "agent") {
-      entries.push({ agent: s.agent, phase: PHASES[s.phaseIndex].phase, time: clock(idx) });
-    }
-  });
+  // Cumulative agent-call log (only pipeline agent steps emit lines) + live dict.
+  const entries = timeline
+    .slice(0, cursor)
+    .filter((s) => s.kind === "agent")
+    .map((s, idx) => ({ agent: s.agent, phase: PHASES[s.phaseIndex].phase, time: clock(idx) }));
   const dict = CHAPTERS.reduce(
-    (acc, c, i) => (c.patch && bounds[i] && cursor > bounds[i].done ? { ...acc, ...c.patch } : acc),
+    (acc, c, i) => (c.patch && bounds[i] && cursor > bounds[i].last ? { ...acc, ...c.patch } : acc),
     {}
   );
 
@@ -88,10 +96,9 @@ export default function Cockpit({ onExit }) {
   // stage's playback.
   const progressFor = (i) => {
     const b = bounds[i];
-    if (!b) return 0;
-    if (cursor <= b.start) return 0;
-    if (cursor >= b.done) return 1;
-    return (cursor - b.start) / Math.max(b.done - b.start, 1);
+    if (!b || cursor <= b.start) return 0;
+    if (cursor > b.last) return 1;
+    return (cursor - b.start) / Math.max(b.last - b.start + 1, 1);
   };
   const intakeOpen = statuses[1] === "running";
   const telePdOpen = statuses[5] === "running";
@@ -100,13 +107,13 @@ export default function Cockpit({ onExit }) {
   // chapter fully revealed, and view it.
   const goTo = (i) => {
     const b = bounds[i];
-    seek(b ? b.done : cursor);
+    seek(b ? b.last + 1 : cursor);
     setSelected(i);
   };
 
   // Honor a #ch= deep link on first load by revealing that chapter.
   useEffect(() => {
-    if (initialChapter > 0 && bounds[initialChapter]) seek(bounds[initialChapter].done);
+    if (initialChapter > 0 && bounds[initialChapter]) seek(bounds[initialChapter].last + 1);
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Keyboard: space play/pause, arrows scrub, R reset, S skip.

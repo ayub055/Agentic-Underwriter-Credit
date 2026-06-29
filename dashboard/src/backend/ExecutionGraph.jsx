@@ -15,6 +15,10 @@ import {
 import { VIZ, PHASES } from "./phaseModel.js";
 import IntakeChecksCallout from "./IntakeChecksCallout.jsx";
 import TelePdCallout from "./TelePdCallout.jsx";
+import DecisionLinkCallout from "./DecisionLinkCallout.jsx";
+
+// Compact tokens that ride the Voice PD → Decision arc (income · BT · L7 · L3).
+const VOICE_PD_TOKENS = PHASES.find((p) => p.id === "decision")?.voicePdTokens ?? [];
 
 // The execution DAG, drawn to scale with the real architecture: Intake (three
 // sub-steps — Karza API, KYC API, Address Agent) fans out into two isolated
@@ -90,6 +94,24 @@ function Packet({ pathId, begin }) {
   );
 }
 
+// Labelled data packet — a small pill carrying a token (income · BT · L7 · L3)
+// that rides the Voice PD → Decision arc, so the evidence is seen flowing into
+// the decision. Spread out over a long dur so the pills form a spaced train.
+function LabelledPacket({ pathId, label, begin, dur = "5s" }) {
+  const w = Math.max(16, label.length * 5.2 + 9);
+  return (
+    <g opacity="0.96">
+      <rect x={-w / 2} y="-7" width={w} height="14" rx="7" className="fill-progress-500" />
+      <text textAnchor="middle" y="2.7" className="fill-white" style={{ fontSize: "8px", fontWeight: 700 }}>
+        {label}
+      </text>
+      <animateMotion dur={dur} begin={begin} repeatCount="indefinite" rotate="0">
+        <mpath href={`#${pathId}`} />
+      </animateMotion>
+    </g>
+  );
+}
+
 function Node({ node, status, selected, onSelect }) {
   const Icon = node.icon;
   const done = status === "done";
@@ -153,7 +175,7 @@ function Node({ node, status, selected, onSelect }) {
         )}
         {node.voice && (
           <span className="absolute -bottom-1.5 -right-4 rounded border border-agent-200 bg-agent-50 px-1 text-[8px] font-bold tracking-wide text-agent-700">
-            CREDIT PD
+            VOICE AI
           </span>
         )}
       </span>
@@ -308,7 +330,7 @@ function StackedGraph({ statuses, selected, onSelect }) {
       {row("policy")}
       <li className="rounded-xl border border-agent-200/70 bg-agent-50/30 p-2">
         <div className="mb-1.5 px-1 text-micro font-bold uppercase tracking-widest text-agent-600">
-          ◷ Credit PD voice call · pulls policy deviations → feeds decision
+          ◷ Kotak AI voice agent · pulls policy deviations → feeds decision
         </div>
         {row("telePd")}
       </li>
@@ -332,11 +354,14 @@ export default function ExecutionGraph({
   intakeProgress,
   telePdOpen,
   telePdProgress,
+  decisionOpen,
+  decisionProgress,
   activePhase = null,
   activeCard = null,
 }) {
   const intakeNode = NODES.find((n) => n.id === "intake");
   const telePdNode = NODES.find((n) => n.id === "telePd");
+  const decisionNode = NODES.find((n) => n.id === "decision");
   const cardNode =
     activePhase != null && activeCard
       ? NODES.find((n) => n.id === CARD_ANCHOR[activePhase]) ||
@@ -376,7 +401,13 @@ export default function ExecutionGraph({
                   strokeLinecap="round"
                   className={`${live ? "stroke-progress-500" : st === "done" ? "stroke-progress-400" : "stroke-slate-300"} transition-all duration-500`}
                 />
-                {live && (
+                {/* Out arc (Tele PD → Decision) carries the labelled evidence
+                    tokens; the in arc keeps plain pulses. */}
+                {live && e.dir === "out" && VOICE_PD_TOKENS.length > 0 ? (
+                  VOICE_PD_TOKENS.map((t, i) => (
+                    <LabelledPacket key={t} pathId={e.id} label={t} begin={`${i * 1.25}s`} />
+                  ))
+                ) : live ? (
                   <>
                     <circle r="3.2" className="fill-progress-500" opacity="0.9">
                       <animateMotion dur="1.4s" begin="0s" repeatCount="indefinite">
@@ -389,7 +420,7 @@ export default function ExecutionGraph({
                       </animateMotion>
                     </circle>
                   </>
-                )}
+                ) : null}
               </g>
             );
           })}
@@ -450,6 +481,19 @@ export default function ExecutionGraph({
           >
             <div className="pointer-events-auto animate-fade-up">
               <TelePdCallout progress={telePdProgress} />
+            </div>
+            <span className="-mt-px h-3 w-3 rotate-45 border-b border-r border-slate-200 bg-surface" />
+          </div>
+        )}
+        {/* Voice PD → Decision fold ceremony floats ABOVE the Decision node, the
+            evidence landing in the decision in sync with its playback. */}
+        {decisionOpen && (
+          <div
+            className="pointer-events-none absolute z-30 flex -translate-x-1/2 -translate-y-full flex-col items-center"
+            style={{ left: `${(decisionNode.x / W) * 100}%`, top: `${((decisionNode.y - 30) / H) * 100}%` }}
+          >
+            <div className="pointer-events-auto animate-fade-up">
+              <DecisionLinkCallout progress={decisionProgress} />
             </div>
             <span className="-mt-px h-3 w-3 rotate-45 border-b border-r border-slate-200 bg-surface" />
           </div>

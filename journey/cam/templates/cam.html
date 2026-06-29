@@ -412,7 +412,7 @@ tfoot td{font-weight:800;border-top:2px solid var(--line)}
     <div class="s-head"><div class="s-num">11</div><div class="s-title">Credit Manager Details</div></div>
     <div class="kv">
       {{ kv('Decisioned by', m.credit_manager.decisioned_by) }}
-      {{ kv('Recommended by (1st → last)', (m.credit_manager.recommended_by_first or '—') ~ ' → ' ~ (m.credit_manager.recommended_by_last or '—')) }}
+      {{ kv('Recommended by', (m.credit_manager.recommended_by_first ~ ' → ' ~ m.credit_manager.recommended_by_last) if (m.credit_manager.recommended_by_last and m.credit_manager.recommended_by_last != m.credit_manager.recommended_by_first) else (m.credit_manager.recommended_by_first or '—')) }}
       {{ kv('Approved by', m.credit_manager.approved_by or '—', 'credit_manager.approved_by') }}
       {{ kv('Decision date', m.credit_manager.decision_date or '—', 'credit_manager.decision_date') }}
       {{ kv('Disbursed by', (m.credit_manager.disbursed_by or '—') ~ (' · ' ~ m.credit_manager.disbursal_date if m.credit_manager.disbursal_date else '')) }}

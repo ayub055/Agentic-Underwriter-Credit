@@ -4,12 +4,12 @@ This is a deterministic, auditable one-shot that loads the saved artifacts and
 overlays the *documented* reality of the case (consolidated_application.md,
 elidgibility_format_policy.md, whole_journey_field_history.md):
 
-  - APPROVED ₹25,00,000 via management override (system-eligible ₹20L)
+  - APPROVED ₹25,00,000 — Kotak Agentic Underwriter decision, cap override escalated to Human Reference (system-eligible ₹20L)
   - documented policy: FOIR cap 60%, multiplier 16x (approved 19x), product cap ₹20L
   - CIBIL 739, income ₹1,29,876, sanctioned IRR 12%
   - banking rebuilt from the CAM (HDFC salary a/c, Feb–May 2025, AQB ₹53,036, 0 bounces)
   - voice-PD conversation mirrored from the field history
-  - real credit managers + 10 BRE deviations + negative residence verification + assets
+  - Kotak Agentic Underwriter attribution + 10 BRE deviations + negative residence verification + assets
 
 It mutates the loaded JSON in place (preserving structure) and writes every
 target that holds a copy, so the duplicated banking/bureau slices stay in sync:
@@ -240,9 +240,9 @@ ELIGIBILITY = {
     "override": True,
     "override_excess": APPROVED - SYSTEM_ELIGIBLE,
     "override_reason": (
-        "Management override (Shishir Pandit): ₹25,00,000 sanctioned vs system-eligible "
-        "₹20,00,000 — justified by real-estate net worth ₹1.41 Cr, premium employer "
-        "(HCL Technologies, Cat AA) and CIBIL 739."
+        "Agentic underwriter decision (post credit-refer): ₹25,00,000 sanctioned vs "
+        "system-eligible ₹20,00,000 — cap override escalated to Human Reference; justified by "
+        "real-estate net worth ₹1.41 Cr, premium employer (HCL Technologies, Cat AA) and CIBIL 739."
     ),
     # Section 3 — three/four-column loan view (CAM §1: Applied | System Approval | Sanctioned).
     "columns": {
@@ -292,29 +292,33 @@ ASSETS = {
     "note": "Assets are illiquid (real-estate heavy); HDFC & Aditya Birla PLs used for plot purchase.",
 }
 
-# Real credit managers (CAM §9 / field history §8–10).
+# Credit decisioning attributed to the Kotak Agentic Underwriter (CAM §9). The
+# underwriter receives the credit-referred BRE deviations, evaluates/answers them,
+# escalates only the ₹20L cap override to a Human Reference, and takes the decision.
+AGENTIC_UW = "Kotak Agentic Underwriter"
 CREDIT_MANAGER = {
-    "decisioned_by": "Kotak Credit — Manual Underwriting",
-    "ai_assisted": False,
-    "recommended_by_first": "JAY HANCHATE",
-    "recommended_by_last": "Prashanth Anand",
-    "approved_by_first": "Shishir Pandit",
-    "approved_by_last": "Shishir Pandit",
-    "reviewed_by": "Prashanth Anand",
-    "approved_by": "Shishir Pandit",
-    "disbursed_by": "Prakash R",
+    "decisioned_by": AGENTIC_UW,
+    "ai_assisted": True,
+    "recommended_by_first": AGENTIC_UW,
+    "recommended_by_last": AGENTIC_UW,
+    "approved_by_first": AGENTIC_UW,
+    "approved_by_last": AGENTIC_UW,
+    "reviewed_by": AGENTIC_UW,
+    "approved_by": AGENTIC_UW,
+    "disbursed_by": AGENTIC_UW,
     "decision_date": "2025-06-03",
     "disbursal_date": "2025-06-17",
     "remarks": (
         "Reco PL exposure ₹25L / 60m with HDFC PL BT · FOIR 52% · 19x multiplier · "
-        "escalated to Shishir Pandit · APPROVED as management override on the ₹20L product cap."
+        "10 BRE deviations credit-referred and evaluated · cap override escalated to Human "
+        "Reference · APPROVED as agentic underwriter decision on the ₹20L product cap."
     ),
 }
 
 # Voice-PD conversation — mirrored from the field-history credit-manager dialogue.
 TELE_PD = {
     "status": "completed",
-    "officer": "Credit PD — Voice Verification (J. Hanchate / K. N. Rao)",
+    "officer": "Kotak AI Voice Agent · Credit PD",
     "conducted_at": "2025-05-31",
     "ctc_document": "offered",
     "questions": [
@@ -343,7 +347,7 @@ TELE_PD = {
         "Multiplier 19x exceeds policy 16x for Normal Journey (+18.75%) — L7",
         "Proposed loan above system-eligible ₹20,00,000 — L7",
         "Residence Verification NEGATIVE / RCU Review — L3 (unresolved)",
-        "Approved at FOIR 52% (cap 60%) after HDFC PL BT nets out ₹48,214 EMI · final approval Shishir Pandit (management override)",
+        "Approved at FOIR 52% (cap 60%) after HDFC PL BT nets out ₹48,214 EMI · agentic underwriter decision, cap override escalated to Human Reference",
     ],
 }
 
@@ -459,9 +463,9 @@ def main() -> int:
     cs["warnings"] = [
         "decision: BT nets out ₹48,214 HDFC PL EMI (obligation 59,976 -> 11,762 post-BT)",
         "policy: L0_ADDRESS residence verification NEGATIVE (RCU: Review) -> L3 deviation, unresolved",
-        "deviation: ₹25,00,000 > ₹20,00,000 product cap (+25%) and 19x > 16x multiplier -> L7, management override",
+        "deviation: ₹25,00,000 > ₹20,00,000 product cap (+25%) and 19x > 16x multiplier -> L7, cap override escalated to Human Reference",
         "deviation: salary ₹1,29,876 below ₹1.5L target threshold -> L1",
-        "finalize: case PL-2026-8bd9c6 -> APPROVED ₹25,00,000 (override, Shishir Pandit)",
+        "finalize: case PL-2026-8bd9c6 -> APPROVED ₹25,00,000 (agentic underwriter decision, escalated to Human Reference)",
     ]
 
     # ---- write journey/output spine (no tele_pd) ----

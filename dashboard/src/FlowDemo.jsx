@@ -4,6 +4,7 @@ import { usePlayback } from "./backend/usePlayback.js";
 import ExecutionGraph from "./backend/ExecutionGraph.jsx";
 import IntakeChecksCallout from "./backend/IntakeChecksCallout.jsx";
 import TelePdCallout from "./backend/TelePdCallout.jsx";
+import DecisionLinkCallout from "./backend/DecisionLinkCallout.jsx";
 import TopBar from "./cockpit/TopBar.jsx";
 import NodeLiveCard from "./flow/NodeLiveCard.jsx";
 
@@ -11,20 +12,30 @@ import NodeLiveCard from "./flow/NodeLiveCard.jsx";
 // walks node to node; the active node lights up and pops a live "happening now"
 // card. Startup-launch feel: everything on one screen, smooth transitions.
 export default function FlowDemo({ onExit }) {
-  const timeline = useMemo(() => buildTimeline(PHASES), []);
+  // Playback runs over the AGENT stream only (one tick = one logged agent line),
+  // so the lit node, its live card and the agent reveal stay in lockstep — a node
+  // never lights up on an empty marker tick before its first line exists.
+  const timeline = useMemo(() => buildTimeline(PHASES).filter((s) => s.kind === "agent"), []);
 
   const bounds = useMemo(() => {
     const map = {};
     timeline.forEach((s, idx) => {
-      if (s.kind === "start") map[s.phaseIndex] = { start: idx, done: idx };
-      if (s.kind === "done") map[s.phaseIndex].done = idx;
+      if (!(s.phaseIndex in map)) map[s.phaseIndex] = { start: idx, last: idx };
+      map[s.phaseIndex].last = idx;
     });
     return map;
   }, [timeline]);
 
-  // Slow the human-paced stages so each intake check / Voice-PD question reads.
-  const slowBounds = [bounds[1], bounds[5]].filter(Boolean);
-  const stepDelay = (c) => (slowBounds.some((b) => c >= b.start && c < b.done) ? 1700 : 850);
+  // Slow the human-paced stages so each intake check / Voice-PD question reads,
+  // and hold a just-finished node on "running" for a brief beat before the next.
+  const SLOW_PHASES = new Set([1, 5]);
+  const stepDelay = (c) => {
+    const next = timeline[c];
+    const shown = timeline[c - 1];
+    let d = next && SLOW_PHASES.has(next.phaseIndex) ? 1700 : 850;
+    if (shown?.lastOfPhase) d += 600;
+    return d;
+  };
 
   const { cursor, playing, speed, setSpeed, play, pause, reset, skipEnd, seek } = usePlayback(
     timeline.length,
@@ -34,27 +45,31 @@ export default function FlowDemo({ onExit }) {
   const containerRef = useRef(null);
   const loopRef = useRef(null);
 
+  // `latest` = index of the agent line just revealed (drives node + card in sync).
+  const latest = cursor - 1;
   const statuses = PHASES.map((_, i) => {
     const b = bounds[i];
     if (!b) return "waiting";
-    return cursor > b.done ? "done" : cursor > b.start ? "running" : "waiting";
+    if (cursor >= timeline.length) return "done";
+    if (latest > b.last) return "done";
+    if (latest >= b.start) return "running";
+    return "waiting";
   });
 
-  let activePhase = 0;
-  for (let i = 0; i < PHASES.length; i++) if (bounds[i] && cursor > bounds[i].start) activePhase = i;
+  const activePhase = cursor > 0 ? timeline[Math.min(cursor, timeline.length) - 1].phaseIndex : 0;
 
   const progressFor = (i) => {
     const b = bounds[i];
     if (!b || cursor <= b.start) return 0;
-    if (cursor >= b.done) return 1;
-    return (cursor - b.start) / Math.max(b.done - b.start, 1);
+    if (cursor > b.last) return 1;
+    return (cursor - b.start) / Math.max(b.last - b.start + 1, 1);
   };
 
   // Agent calls of the active node, revealed up to the cursor (drives the card).
-  const activeAgents = [];
-  timeline.slice(0, cursor).forEach((s) => {
-    if (s.kind === "agent" && s.phaseIndex === activePhase) activeAgents.push(s.agent);
-  });
+  const activeAgents = timeline
+    .slice(0, cursor)
+    .filter((s) => s.phaseIndex === activePhase)
+    .map((s) => s.agent);
 
   const complete = cursor >= timeline.length;
 
@@ -63,13 +78,15 @@ export default function FlowDemo({ onExit }) {
       <IntakeChecksCallout progress={progressFor(1)} frost />
     ) : activePhase === 5 ? (
       <TelePdCallout progress={progressFor(5)} frost />
+    ) : activePhase === 6 ? (
+      <DecisionLinkCallout progress={progressFor(6)} frost />
     ) : (
       <NodeLiveCard phase={PHASES[activePhase]} status={statuses[activePhase]} agents={activeAgents} />
     );
 
   const goTo = (i) => {
     const b = bounds[i];
-    seek(b ? b.done : cursor);
+    seek(b ? b.last + 1 : cursor);
   };
 
   // Optional deep link: #at=<phase> opens mid-way through that node (its card
@@ -79,7 +96,7 @@ export default function FlowDemo({ onExit }) {
     if (!m) return;
     const i = Math.min(Number(m[1]), PHASES.length - 1);
     const b = bounds[i];
-    if (b) seek(Math.floor((b.start + b.done) / 2));
+    if (b) seek(Math.floor((b.start + b.last) / 2) + 1);
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Keyboard: space play/pause, arrows scrub, R reset, S skip.

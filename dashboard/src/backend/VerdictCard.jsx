@@ -68,8 +68,9 @@ function VerdictScale({ creditPass, affordPass }) {
 }
 
 // The run's verdict, split into its two truths: credit quality vs affordability.
-// This case clears both — ₹25L approved at FOIR 52% (post-BT) under a documented
-// management override — with the negative residence verification flagged as a deviation.
+// This case clears both — ₹25L approved at FOIR 52% (post-BT) as a Kotak Agentic
+// Underwriter decision (cap override escalated to a Human Reference) — with the
+// negative residence verification flagged as a deviation.
 export default function VerdictCard({ onSeeCustomer, onOpenCam }) {
   const v = VIZ.verdict;
   const creditPass = v.policyResult === "APPROVED";

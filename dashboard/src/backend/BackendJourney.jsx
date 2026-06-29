@@ -27,21 +27,32 @@ function clock(i) {
 }
 
 export default function BackendJourney({ onSeeCustomer }) {
-  const timeline = useMemo(() => buildTimeline(PHASES), []);
+  // Playback runs over the AGENT stream only (the shared buildTimeline keeps its
+  // start/done markers for the Flow/Cockpit views, but those empty marker ticks
+  // are what made the DAG/detail drift ±1 step from the log). Here, one tick =
+  // one logged agent line, so the DAG stage, the detail panel and the Agent Call
+  // Log all advance in lockstep — nothing lights up before its line is logged.
+  const timeline = useMemo(() => buildTimeline(PHASES).filter((s) => s.kind === "agent"), []);
   const bounds = useMemo(() => {
     const map = {};
     timeline.forEach((s, idx) => {
-      if (s.kind === "start") map[s.phaseIndex] = { start: idx, done: idx };
-      if (s.kind === "done") map[s.phaseIndex].done = idx;
+      if (!(s.phaseIndex in map)) map[s.phaseIndex] = { start: idx, last: idx };
+      map[s.phaseIndex].last = idx;
     });
     return map;
   }, [timeline]);
 
   // Slow the human-paced stages (~2×) so viewers can read each intake check and
-  // each Tele PD question: intake = phase 1, Tele PD = phase 5.
-  const slowBounds = [bounds[1], bounds[5]].filter(Boolean);
-  const stepDelay = (c) =>
-    slowBounds.some((b) => c >= b.start && c < b.done) ? 1700 : 850;
+  // each Tele PD question (intake = phase 1, Voice PD = phase 5), and hold a
+  // just-finished stage on "running" for a brief beat before the next lights up.
+  const SLOW_PHASES = new Set([1, 5]);
+  const stepDelay = (c) => {
+    const next = timeline[c]; // the agent about to be revealed at cursor c+1
+    const shown = timeline[c - 1]; // the agent currently newest in the log
+    let d = next && SLOW_PHASES.has(next.phaseIndex) ? 1700 : 850;
+    if (shown?.lastOfPhase) d += 600; // brief beat: let the completed stage settle
+    return d;
+  };
   const { cursor, playing, speed, setSpeed, play, pause, reset, skipEnd, seek } = usePlayback(
     timeline.length,
     stepDelay
@@ -67,38 +78,55 @@ export default function BackendJourney({ onSeeCustomer }) {
   const containerRef = useRef(null);
   const loopRef = useRef(null);
 
-  const statuses = PHASES.map((_, i) =>
-    cursor > bounds[i].done ? "done" : cursor > bounds[i].start ? "running" : "waiting"
-  );
+  // `latest` = index of the agent line just revealed (the newest log line). A
+  // stage is "running" while that newest line belongs to it, flips to "done" only
+  // once the next stage's first line is logged (and everything is "done" at the end).
+  const latest = cursor - 1;
+  const statuses = PHASES.map((_, i) => {
+    const b = bounds[i];
+    if (!b) return "waiting";
+    if (cursor >= timeline.length) return "done";
+    if (latest > b.last) return "done";
+    if (latest >= b.start) return "running";
+    return "waiting";
+  });
 
-  let activePhase = 0;
-  for (let i = 0; i < PHASES.length; i++) if (cursor > bounds[i].start) activePhase = i;
+  const activePhase = cursor > 0 ? timeline[Math.min(cursor, timeline.length) - 1].phaseIndex : 0;
 
   useEffect(() => {
     if (playing) setSelected(activePhase);
   }, [activePhase, playing]);
 
-  const entries = [];
-  timeline.slice(0, cursor).forEach((s, idx) => {
-    if (s.kind === "agent") entries.push({ agent: s.agent, phase: PHASES[s.phaseIndex].phase, time: clock(idx) });
-  });
+  const entries = timeline.slice(0, cursor).map((s, idx) => ({
+    agent: s.agent,
+    phase: PHASES[s.phaseIndex].phase,
+    time: clock(idx),
+  }));
 
-  const dict = PHASES.reduce((acc, p, i) => (cursor > bounds[i].done ? { ...acc, ...p.patch } : acc), {});
+  // A phase's patch lands in the Live Case Dict the moment its last line is logged.
+  const dict = PHASES.reduce((acc, p, i) => (bounds[i] && cursor > bounds[i].last ? { ...acc, ...p.patch } : acc), {});
 
   const complete = cursor >= timeline.length;
 
   // Intake (phase 1) verification ceremony: a modal pops up only while intake is
   // running, ticking through checks in sync with the intake stage's playback.
-  const ib = bounds[1] ?? { start: 0, done: 0 };
+  const ib = bounds[1] ?? { start: 0, last: 0 };
   const intakeOpen = statuses[1] === "running";
   const intakeProgress =
-    cursor <= ib.start ? 0 : cursor >= ib.done ? 1 : (cursor - ib.start) / Math.max(ib.done - ib.start, 1);
+    cursor <= ib.start ? 0 : cursor > ib.last ? 1 : (cursor - ib.start) / Math.max(ib.last - ib.start + 1, 1);
 
-  // Tele PD (phase 5) call ceremony: the question callout ticks through in sync.
-  const pb = bounds[5] ?? { start: 0, done: 0 };
+  // Voice PD (phase 5) call ceremony: the question callout ticks through in sync.
+  const pb = bounds[5] ?? { start: 0, last: 0 };
   const telePdOpen = statuses[5] === "running";
   const telePdProgress =
-    cursor <= pb.start ? 0 : cursor >= pb.done ? 1 : (cursor - pb.start) / Math.max(pb.done - pb.start, 1);
+    cursor <= pb.start ? 0 : cursor > pb.last ? 1 : (cursor - pb.start) / Math.max(pb.last - pb.start + 1, 1);
+
+  // Decision (phase 6) fold ceremony: the Voice PD → Decision callout reveals each
+  // evidence→decision link in sync with the decision stage's playback.
+  const db = bounds[6] ?? { start: 0, last: 0 };
+  const decisionOpen = statuses[6] === "running";
+  const decisionProgress =
+    cursor <= db.start ? 0 : cursor > db.last ? 1 : (cursor - db.start) / Math.max(db.last - db.start + 1, 1);
 
   // Keyboard: space play/pause, arrows scrub, R reset, S skip to end.
   useEffect(() => {
@@ -210,6 +238,8 @@ export default function BackendJourney({ onSeeCustomer }) {
             intakeProgress={intakeProgress}
             telePdOpen={telePdOpen}
             telePdProgress={telePdProgress}
+            decisionOpen={decisionOpen}
+            decisionProgress={decisionProgress}
             onSelect={(i) => {
               pause();
               setSelected(i);

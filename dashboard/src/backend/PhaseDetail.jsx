@@ -1,8 +1,69 @@
 import { useEffect, useState } from "react";
-import { AlertTriangle, Boxes, Cpu, FileText, Phone } from "lucide-react";
+import { AlertTriangle, ArrowRight, Boxes, Cpu, FileText, Phone } from "lucide-react";
 import { StatusPill, ModelTags, DataLine, BranchCard } from "./parts.jsx";
 import { agentTone } from "../lib/tones.js";
 import PhaseViz from "./PhaseViz.jsx";
+
+// Decision phase: the Voice PD answers + policy deviations, wired to the decision
+// element each one drove (income → FOIR, BT → serviceability, net-worth → cap
+// override, residence → L3 carried). Makes "folded into Decision" causal, not
+// asserted; the deviation badge shows how each was taken (cleared / overridden /
+// carried).
+const DEV_TONE = {
+  cleared: "border-success-200 bg-success-50 text-success-700",
+  overridden: "border-caution-200 bg-caution-50 text-caution-700",
+  carried: "border-danger-200 bg-danger-50 text-danger-600",
+};
+
+function VoicePdToDecision({ phase }) {
+  const links = phase.voicePdLinks ?? [];
+  return (
+    <div className="space-y-3">
+      <div className="overflow-hidden rounded-xl border border-slate-200">
+        <table className="w-full text-[12.5px]">
+          <thead>
+            <tr className="bg-slate-50 text-[11px] uppercase tracking-wide text-slate-400">
+              <th className="px-3 py-2 text-left font-semibold">Voice PD evidence</th>
+              <th className="px-3 py-2 text-left font-semibold">→ Decision</th>
+              <th className="px-3 py-2 text-left font-semibold">Deviation</th>
+            </tr>
+          </thead>
+          <tbody>
+            {links.map((l) => (
+              <tr key={l.token} className="border-t border-slate-100 align-top">
+                <td className="px-3 py-2 text-slate-500">
+                  <span className="mr-1.5 inline-block rounded bg-night px-1.5 py-px align-middle text-[9px] font-bold text-white">
+                    {l.token}
+                  </span>
+                  {l.evidence}
+                </td>
+                <td className={`px-3 py-2 font-medium ${l.tone === "danger" ? "text-danger-600" : l.tone === "caution" ? "text-caution-700" : "text-ink"}`}>
+                  {l.decision}
+                </td>
+                <td className="px-3 py-2">
+                  {l.deviation ? (
+                    <span className={`inline-flex items-center gap-1 whitespace-nowrap rounded border px-1.5 py-px text-[10px] font-semibold uppercase ${DEV_TONE[l.deviation.disposition]}`}>
+                      {l.deviation.level} · {l.deviation.disposition}
+                    </span>
+                  ) : (
+                    <span className="text-[11px] text-slate-400">—</span>
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <div className="flex flex-wrap items-center gap-1.5 text-[11px] text-slate-500">
+        <Phone className="h-3 w-3 text-agent-600" />
+        Voice PD answers + policy deviations
+        <ArrowRight className="h-3 w-3 text-slate-400" />
+        folded into the Decision (FOIR · serviceability · cap override)
+      </div>
+    </div>
+  );
+}
 
 // Tele PD: the fixed questions asked on the officer call, shown as a Q → A
 // table, with the captured deviation reasons called out separately (they feed
@@ -86,15 +147,18 @@ export default function PhaseDetail({ phase, status }) {
   const hasData = phase.parallel || phase.data.length > 0;
   const warnings = phase.warnings ?? [];
 
-  // Tele PD leads with its Q&A table; the parallel phase's BranchCards carry the
+  // Tele PD leads with its Q&A table; Decision leads with the Voice PD → Decision
+  // mapping (the causal payoff); the parallel phase's BranchCards carry the
   // streaming agent narratives — the demo's proof moment — so "Analysers" leads
   // there too.
   const isTelePd = phase.questions?.length > 0;
-  const defaultTab = isTelePd ? "qa" : hasData ? "data" : "agents";
+  const isDecision = phase.voicePdLinks?.length > 0;
+  const defaultTab = isDecision ? "links" : isTelePd ? "qa" : hasData ? "data" : "agents";
   const [tab, setTab] = useState(defaultTab);
   useEffect(() => setTab(defaultTab), [phase.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const tabs = [
+    isDecision && { id: "links", label: "Voice PD → Decision" },
     isTelePd && { id: "qa", label: `Q&A (${phase.questions.length})` },
     hasData && { id: "data", label: phase.parallel ? "Analysers" : "Data" },
     { id: "agents", label: `Agent calls (${agents.length})` },
@@ -174,6 +238,8 @@ export default function PhaseDetail({ phase, status }) {
           </div>
 
           <div className="mt-3">
+            {activeTab === "links" && isDecision && <VoicePdToDecision phase={phase} />}
+
             {activeTab === "qa" && isTelePd && <TelePdQA phase={phase} />}
 
             {activeTab === "data" &&
